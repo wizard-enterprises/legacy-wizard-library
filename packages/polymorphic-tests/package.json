@@ -1,0 +1,15 @@
+{
+  "name": "polymorphic-tests",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "private": true,
+  "scripts": {
+    "test": "tsc && node test_method.spec.js && rm test_method.spec.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@wizard.tower:/repos/polymorphic-tests"
+  },
+  "author": "homunculus@wizard.enterprises"
+}

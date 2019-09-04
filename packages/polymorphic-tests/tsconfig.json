@@ -1,0 +1,15 @@
+{
+  "files": [
+    "test_method.spec.ts"
+  ],
+  "compilerOptions": {
+    "target": "ES6",
+    "lib": [
+      "es2015"
+    ],
+    "module": "system",
+    "removeComments": true,
+    "preserveConstEnums": true,
+    "sourceMap": true
+  }
+}
