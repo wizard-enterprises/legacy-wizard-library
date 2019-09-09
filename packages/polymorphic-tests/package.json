@@ -5,11 +5,15 @@
   "main": "index.js",
   "private": true,
   "scripts": {
-    "test": "tsc && node test_method.spec.js && rm test_method.spec.js"
+    "test": "tsc && node test_method.spec.js && rm *.js"
   },
   "repository": {
     "type": "git",
     "url": "git@wizard.tower:/repos/polymorphic-tests"
   },
-  "author": "homunculus@wizard.enterprises"
+  "author": "homunculus@wizard.enterprises",
+  "devDependencies": {
+    "@types/node": "^12.7.4",
+    "typescript": "^3.6.2"
+  }
 }
