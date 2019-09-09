@@ -260,51 +260,53 @@ class SimpleTestReporter extends TestReporter {
   }
 }
 
+async function getConsoleCallsFromRunningSuite(rootSuite: TestSuite) {
+  let consoleSpy = new ConsoleSpy,
+    reporter = new SimpleTestReporter(rootSuite, consoleSpy)
+  await new TestRunner(rootSuite, reporter).run()
+  return consoleSpy.calls
+}
+
 let suite = new TestSuite('simple reporter').addSubTestEntities(
   new TestMethod('report no tests', async () => {
-    let rootSuite = new TestSuite('test'),
-      consoleSpy = new ConsoleSpy,
-      reporter = new SimpleTestReporter(rootSuite, consoleSpy)
-    await new TestRunner(rootSuite, reporter).run()
     assertPrimitiveEqual(
-      consoleSpy.calls.args().map(args => args[0]),
+      (await getConsoleCallsFromRunningSuite(
+        new TestSuite('test'),
+      )).args().map(args => args[0]),
       ['Running tests...\n', 'Run successful, 0/0 passed.'],
     )
   }),
   
   new TestMethod('report one skipped test', async () => {
-    let skipTest = new TestMethod('skip', () => {throw new Error('should have been skipped')}, {skip: true}),
-      rootSuite = new TestSuite('test').addSubTestEntities(skipTest),
-      consoleSpy = new ConsoleSpy,
-      reporter = new SimpleTestReporter(rootSuite, consoleSpy)
-    await new TestRunner(rootSuite, reporter).run()
     assertPrimitiveEqual(
-      consoleSpy.calls.args().map(args => args[0]),
+      (await getConsoleCallsFromRunningSuite(
+        new TestSuite('test').addSubTestEntities(
+          new TestMethod('skip', () => assert(false), {skip: true}),
+        ),
+      )).args().map(args => args[0]),
       ['Running tests...\n', 'Run successful, 0/1 passed.'],
     )
   }),
   
   new TestMethod('report one passing test', async () => {
-    let passingTest = new TestMethod('pass', () => assert(true)),
-      rootSuite = new TestSuite('test').addSubTestEntities(passingTest),
-      consoleSpy = new ConsoleSpy,
-      reporter = new SimpleTestReporter(rootSuite, consoleSpy)
-    await new TestRunner(rootSuite, reporter).run()
     assertPrimitiveEqual(
-      consoleSpy.calls.args().map(args => args[0]),
+      (await getConsoleCallsFromRunningSuite(
+        new TestSuite('test').addSubTestEntities(
+          new TestMethod('pass', () => assert(true)),
+        ),
+      )).args().map(args => args[0]),
       ['Running tests...\n', 'Run successful, 1/1 passed.'],
     )
   }),
 
   new TestMethod('report failing suite', async () => {
-    let rootSuite = new TestSuite('test').addSubTestEntities(
-      new TestMethod('pass', () => assert(true)),
-      new TestMethod('skip', () => assert(false), {skip: true}),
-      new TestMethod('failing', () => assert(false)),
-    ), consoleSpy = new ConsoleSpy,
-      reporter = new SimpleTestReporter(rootSuite, consoleSpy)
-    await new TestRunner(rootSuite, reporter).run()
-    let callArgs = consoleSpy.calls.args()
+    let callArgs = (await getConsoleCallsFromRunningSuite(
+      new TestSuite('test').addSubTestEntities(
+        new TestMethod('pass', () => assert(true)),
+        new TestMethod('skip', () => assert(false), {skip: true}),
+        new TestMethod('failing', () => assert(false)),
+      ),
+    )).args()
     assertIdentical(callArgs[0][0], 'Running tests...\n')
     assertIncludes(callArgs[1].join('\n'), 'Test "failing" failed:')
     assertIncludes(callArgs[1].join('\n'), 'Expected "false" to be truthy')
