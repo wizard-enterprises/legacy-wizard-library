@@ -5,7 +5,7 @@
   "compilerOptions": {
     "target": "ES6",
     "lib": [
-      "es2015",
+      "es7",
     ],
     "types": [
       "node"
