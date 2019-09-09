@@ -5,7 +5,7 @@
   "main": "index.js",
   "private": true,
   "scripts": {
-    "test": "tsc && node test_method.spec.js && rm *.js"
+    "test": "ts-node test_method.spec.ts"
   },
   "repository": {
     "type": "git",
@@ -14,6 +14,8 @@
   "author": "homunculus@wizard.enterprises",
   "devDependencies": {
     "@types/node": "^12.7.4",
+    "ts-node": "^8.3.0",
     "typescript": "^3.6.2"
-  }
+  },
+  "dependencies": {}
 }
