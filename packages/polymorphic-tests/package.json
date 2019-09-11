@@ -1,11 +1,17 @@
 {
   "name": "polymorphic-tests",
   "version": "0.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Description",
+  "main": "./lib/cli.js",
+  "bin": {
+    "polytest": "./lib/cli.js"
+  },
   "private": true,
   "scripts": {
-    "test": "ts-node test/simple-flows.spec.ts"
+    "start": "ts-node src/cli.ts",
+    "test": "ts-node test/simple-flows.spec.ts",
+    "build": "tsc -p .",
+    "refresh": "rm -rf ./node_modules ./package-lock.json && npm install"
   },
   "repository": {
     "type": "git",
@@ -13,9 +19,16 @@
   },
   "author": "homunculus@wizard.enterprises",
   "devDependencies": {
+    "@types/figlet": "^1.2.0",
     "@types/node": "^12.7.4",
     "ts-node": "^8.3.0",
     "typescript": "^3.6.2"
   },
-  "dependencies": {}
+  "dependencies": {
+    "chalk": "^2.4.2",
+    "clear": "^0.1.0",
+    "commander": "^3.0.1",
+    "figlet": "^1.2.4",
+    "path": "^0.12.7"
+  }
 }
