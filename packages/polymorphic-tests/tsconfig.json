@@ -1,19 +1,25 @@
 {
-  "files": [
-    "test_method.spec.ts"
+  "include": [
+    "src/*.ts"
   ],
   "compilerOptions": {
-    "target": "ES6",
-    "lib": [
-      "es7",
-    ],
-    "types": [
-      "node"
-    ],
+    "target": "es5",
     "module": "commonjs",
-    "removeComments": true,
-    "inlineSourceMap": true,
-    "inlineSources": true,
-    "preserveConstEnums": true
+    "lib": [
+      "es2017", "es6", "es2015", "dom"
+    ],
+    "typeRoots": [
+      "types"
+    ],
+    "declaration": true,
+    "outDir": "lib",
+    "rootDir": "src",
+    "strict": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "noImplicitAny": false,
+    "strictNullChecks": false,
+    "downlevelIteration": true,
+    "experimentalDecorators": true
   }
 }

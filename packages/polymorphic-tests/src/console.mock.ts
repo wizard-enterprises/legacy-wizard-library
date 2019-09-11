@@ -57,12 +57,3 @@ export class ConsoleSpy implements Console {
     this.privateCalls.registerCall(args, {type})
   }
 }
-
-export function getEnvironmentalConsole() {
-  if (this.window) return this.window.console 
-  //@ts-ignore
-  if (this.global) return this.global.console
-  if (this.console) return this.console
-  //@ts-ignore
-  if (console) return console
-}
