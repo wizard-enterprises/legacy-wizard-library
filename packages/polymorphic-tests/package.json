@@ -5,7 +5,7 @@
   "main": "index.js",
   "private": true,
   "scripts": {
-    "test": "ts-node test_method.spec.ts"
+    "test": "ts-node test/simple-flows.spec.ts"
   },
   "repository": {
     "type": "git",
