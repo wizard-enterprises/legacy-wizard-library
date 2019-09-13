@@ -98,7 +98,7 @@ abstract class TestEntity {
 }
 
 interface TestEntityOpts {
-  skip?: boolean,
+  skip?: true,
   skipBecauseOfOnly?: boolean,
   only?: true,
 }
@@ -329,10 +329,12 @@ class TestReporterEntityCache {
 }
 
 type ExternalTestEntity = (new () => TestSuite)|Function
-type TestEntityRegisteryEntry<I = TestEntity, E = ExternalTestEntity> = {internal: I, userFacing: E} 
 class TestEntityRegistery {
-  private suiteRegistery: TestEntityRegisteryEntry<PolymorphicSuite, TestSuite>[] = []
-  private testRegistery: TestEntityRegisteryEntry<TestMethod, Function>[] = []
+  private suites: TestSuite[] = []
+  private suiteRegistery: WeakMap<
+    TestSuite,
+    PolymorphicSuite
+  > = new WeakMap
   private temporarySuitelessTests: WeakMap<
     new () => TestSuite,
     {opts: TestDecoratorOpts, externalTest: Function}[]
@@ -340,31 +342,26 @@ class TestEntityRegistery {
 
   constructor(public rootSuite: GlobalSuite) {}
 
-  private isExternalEntitySuite(externalEntity: ExternalTestEntity) {
-    return externalEntity.prototype instanceof TestSuite
-  }
-  
   public registerSuite(externalSuite: new () => TestSuite, opts: SuiteDecoratorOpts | SubSuiteDecoratorOpts = {}): PolymorphicSuite {
     let name = opts.name || externalSuite.name,
       externalSuiteInstance = new externalSuite,
       internal = new PolymorphicSuite(name, {skip: opts.skip, only: opts.only}, externalSuiteInstance),
       parentSuite = opts['parentSuite'] ? this.getRegisteredSuite(opts['parentSuite']) as Suite : this.rootSuite
-      if (!parentSuite) throw new Error('Sub suite registered before its parent')
-      assertIdentical(parentSuite, this.rootSuite)
+    if (!parentSuite) throw new Error('Sub suite registered before its parent')
     parentSuite.addSubTestEntities(internal)
     let tests = (this.temporarySuitelessTests.get(externalSuite) || [])
       .map(({externalTest, opts}) => new PolymorphicTestMethod(opts.name, externalTest, opts, externalSuiteInstance))
-      internal.addSubTestEntities(...tests)
-      this.temporarySuitelessTests.delete(externalSuite)
-      this.suiteRegistery.push({internal, userFacing: externalSuiteInstance})
-      return internal
-    }
+    internal.addSubTestEntities(...tests)
+    this.temporarySuitelessTests.delete(externalSuite)
+    this.suites.push(externalSuiteInstance)
+    this.suiteRegistery.set(externalSuiteInstance, internal)
+    return internal
+  }
 
-    private getRegisteredSuite(externalEntity: new () => TestSuite): PolymorphicSuite {
-      let registery = this.isExternalEntitySuite(externalEntity) ? this.suiteRegistery : this.testRegistery
-      return [...registery.values()].find(regEntry =>
-        regEntry.userFacing === externalEntity).internal as PolymorphicSuite
-    }
+  private getRegisteredSuite(externalEntity: new () => TestSuite): PolymorphicSuite {
+    let instance = this.suites.find(suite => suite.constructor === externalEntity)
+    return this.suiteRegistery.get(instance)
+  }
 
   public registerTest(externalSuite: TestSuite, externalTest: Function, externalTestName: string, opts: TestDecoratorOpts) {
     opts.name = opts.name || externalTestName
@@ -380,15 +377,11 @@ interface TestSuiteRunnerDelegate {
   runTestPolymorphically(testName: string): Promise<void>,
 }
 
-class TestSuite {
+class TestSuite implements TestSuiteRunnerDelegate {
   setup(): any|Promise<any> {}
   teardown(): any|Promise<any> {}
   before(): any|Promise<any> {}
   after(): any|Promise<any> {}
-
-  public runnerDelegate: TestSuiteRunnerDelegate = {
-    runTestPolymorphically: this.runTestPolymorphically
-  }
 
   public async runTestPolymorphically(testName: string) {
     let clone = this.cloneSelf()
@@ -421,6 +414,12 @@ class DecoratorConfig {
   protected constructor() {}
 }
 
+class DecoratorConfigForTests extends DecoratorConfig {
+  static getNewInstance() {
+    return new DecoratorConfig
+  }
+}
+
 interface DecoratorOpts {
   name?: string,
   only?: true,
@@ -432,31 +431,31 @@ interface SubSuiteDecoratorOpts extends SuiteDecoratorOpts {
 }
 interface TestDecoratorOpts extends DecoratorOpts {}
 
-function SuiteDecorator(opts: SuiteDecoratorOpts) {
+function SuiteDecorator(opts: SuiteDecoratorOpts = {}) {
   return decorateSuite(opts)
 }
 
 function decorateSuite(opts: SuiteDecoratorOpts, config = DecoratorConfig.getInstance()) {
-  return decorateSubSuite(opts as SubSuiteDecoratorOpts, config)
+  return decorateSubSuite(null, opts as SuiteDecoratorOpts, config)
 }
 
-function SubSuite(opts: SubSuiteDecoratorOpts) {
-  return decorateSubSuite(opts)
+function SubSuite(parentSuite: new () => TestSuite, opts: SuiteDecoratorOpts) {
+  return decorateSubSuite(parentSuite, opts)
 }
 
-function decorateSubSuite(opts: SubSuiteDecoratorOpts, config = DecoratorConfig.getInstance()) {
+function decorateSubSuite(parentSuite: new () => TestSuite, opts: SuiteDecoratorOpts, config = DecoratorConfig.getInstance()) {
   return function (target: new () => TestSuite) {
-    config.registery.registerSuite(target, opts)
+    config.registery.registerSuite(target, {...opts, parentSuite})
   }
 }
 
-function Test(opts: TestDecoratorOpts) {
+function Test(opts: TestDecoratorOpts = {}) {
   return decorateTest(opts)
 }
 
 function decorateTest(opts: TestDecoratorOpts, config = DecoratorConfig.getInstance()) {
   return function (suite: TestSuite, testName: string) {
-    config.registery.registerTest(suite, suite[testName], testName, opts)
+    config.registery.registerTest(suite, suite[testName], testName, {...opts, name: opts.name || testName})
   }
 }
 
@@ -497,114 +496,114 @@ class SimpleTestReporter extends TestReporter {
   }
 }
 
-async function getConsoleCallsFromRunningSuite(rootSuite: Suite) {
-  let consoleSpy = new ConsoleSpy,
-    reporter = new SimpleTestReporter(rootSuite, consoleSpy)
-  await new TestRunner(rootSuite, reporter).run()
-  return consoleSpy.calls
-}
+@SuiteDecorator()
+class SimpleFlows extends TestSuite {
+  private globalSuite: GlobalSuite
+  private decoratorConfig: DecoratorConfig
+  private registery: TestEntityRegistery
+  before() {
+    this.globalSuite = GlobalSuiteForTests.getNewInstance()
+    this.decoratorConfig = DecoratorConfigForTests.getNewInstance()
+    this.registery = new TestEntityRegistery(this.globalSuite)
+    this.decoratorConfig.registery = this.registery
+  }
 
-GlobalSuite.getInstance().addSubTestEntities(
-  new Suite('simple flows').addSubTestEntities(
-    new TestMethod('report no tests', async () => {
-      assertPrimitiveEqual(
-        (await getConsoleCallsFromRunningSuite(
-          GlobalSuiteForTests.getNewInstance(),
-        )).args().map(args => args[0]),
-        ['Running tests...', 'Run successful, 0/0 passed.'],
-      )
-    }),
+  @Test() async 'report no tests'() {
+    let config = this.decoratorConfig
+    @decorateSuite({}, config) class ExampleSuite extends TestSuite {}
+    assertPrimitiveEqual(
+      (await this.getConsoleCallsFromRunningSuite())
+        .args().map(args => args[0]),
+      ['Running tests...', 'Run successful, 0/0 passed.'],
+    )
+  }
+  
+  @Test() async 'report one skipped test'() {
+    let config = this.decoratorConfig
+    @decorateSuite({}, config) class ExampleSuite extends TestSuite {
+      @decorateTest({skip: true}, config) skip() { assert(false) }
+    }
+    assertPrimitiveEqual(
+      (await this.getConsoleCallsFromRunningSuite())
+        .args().map(args => args[0]),
+      ['Running tests...', 'Run successful, 0/1 passed.'],
+    )
+  }
+
+  @Test() async 'report one passing test'() {
+    let config = this.decoratorConfig
+    @decorateSuite({}, config) class ExampleSuite extends TestSuite {
+      @decorateTest({}, config) pass() { assert(true) }
+    }
+  }
+  
+  @Test() async 'report failing suite'() {
+    let config = this.decoratorConfig
+    @decorateSuite({}, config) class ExampleSuite extends TestSuite {
+      @decorateTest({}, config) pass() { assert(true) }
+      @decorateTest({skip: true}, config) skip() { assert(false) }
+      @decorateTest({}, config) fail() { assert(false) }
+    }
+    let callArgs = (await this.getConsoleCallsFromRunningSuite()).args()
+    assertIdentical(callArgs[0][0], 'Running tests...')
+    assertIncludes(callArgs[1].join('\n'), 'Test "fail" failed:')
+    assertIncludes(callArgs[1].join('\n'), 'Expected "false" to be truthy')
+    assertIdentical(callArgs[2][0], 'Run failed, 1 failed, 1/3 passed.')
+  }
+  
+  @Test() async 'report with only and skip'() {
+    let config = this.decoratorConfig,
+      runCount = 0,
+      passingTest = () => runCount++,
+      skipOpts: TestEntityOpts = {skip: true},
+      onlyOpts: TestEntityOpts = {only: true},
+      skipAndOnlyOpts: TestEntityOpts = {only: true, skip: true}
     
-    new TestMethod('report one skipped test', async () => {
-      assertPrimitiveEqual(
-        (await getConsoleCallsFromRunningSuite(
-          GlobalSuiteForTests.getNewInstance().addSubTestEntities(
-            new TestMethod('skip', () => assert(false), {skip: true}),
-          ),
-        )).args().map(args => args[0]),
-        ['Running tests...', 'Run successful, 0/1 passed.'],
-      )
-    }),
-    
-    new TestMethod('report one passing test', async () => {
-      assertPrimitiveEqual(
-        (await getConsoleCallsFromRunningSuite(
-          GlobalSuiteForTests.getNewInstance().addSubTestEntities(
-            new TestMethod('pass', () => assert(true)),
-          ),
-        )).args().map(args => args[0]),
-        ['Running tests...', 'Run successful, 1/1 passed.'],
-      )
-    }),
+    @decorateSuite(skipAndOnlyOpts, config) class ShouldBeSkipped1 extends TestSuite {
+      @decorateTest({}, config) shouldSkip1() { assert(false) }
+      @decorateTest(onlyOpts, config) shouldSkip2() { assert(false) }
+    }
+    @decorateSuite(skipOpts, config) class ShouldBeSkipped2 extends TestSuite {
+      @decorateTest({}, config) shouldSkip3() { assert(false) }
+      @decorateTest(onlyOpts, config) shouldSkip4() { assert(false) }
+    }
+    @decorateSuite({}, config) class ShouldNotRun1 extends TestSuite {
+      @decorateTest({}, config) shouldNotRun() { assert(false) }
+      @decorateTest(onlyOpts, config) shouldRun() { passingTest() }
+    }
+    @decorateSuite(onlyOpts, config) class ShouldRun1 extends TestSuite {
+      @decorateTest(skipOpts, config) shouldBeSkipped() { assert(false) }
+      @decorateTest({}, config) shouldRun() { passingTest() }
+    }
+    @decorateSubSuite(ShouldRun1, {}, config) class ShouldRun2 extends TestSuite {
+      @decorateTest(skipOpts, config) shouldBeSkipped() { assert(false) }
+      @decorateTest({}, config) shouldRun() { passingTest() }
+    }
+    @decorateSuite(onlyOpts, config) class ShouldRun3 extends TestSuite {
+      @decorateTest(onlyOpts, config) shouldRun() { passingTest() }
+      @decorateTest({}, config) shouldNotRun() { assert(false) }
+    }
+    @decorateSubSuite(ShouldRun3, {}, config) class ShouldNotRun3 extends TestSuite {
+      @decorateTest({}, config) shouldNotRun() { assert(false) }
+    }
+    let calls = await this.getConsoleCallsFromRunningSuite()
+    assertIdentical(calls.args()[calls.args().length - 1][0], 'Run successful, 4/13 passed.', calls.args().join('\n'))
+    assertIdentical(runCount, 4)
+  }
 
-    new TestMethod('report failing suite', async () => {
-      let callArgs = (await getConsoleCallsFromRunningSuite(
-        GlobalSuiteForTests.getNewInstance().addSubTestEntities(
-          new TestMethod('pass', () => assert(true)),
-          new TestMethod('skip', () => assert(false), {skip: true}),
-          new TestMethod('failing', () => assert(false)),
-        ),
-      )).args()
-      assertIdentical(callArgs[0][0], 'Running tests...')
-      assertIncludes(callArgs[1].join('\n'), 'Test "failing" failed:')
-      assertIncludes(callArgs[1].join('\n'), 'Expected "false" to be truthy')
-      assertIdentical(callArgs[2][0], 'Run failed, 1 failed, 1/3 passed.')
-    }),
-
-    new TestMethod('report with only and skip', async () => {
-      let runCount = 0,
-        passingTest = () => runCount++,
-        skipOpts: TestEntityOpts = {skip: true},
-        onlyOpts: TestEntityOpts = {only: true, skip: false},
-        skipAndOnlyOpts: TestEntityOpts = {only: true, skip: true}
-      let calls = await getConsoleCallsFromRunningSuite(
-        GlobalSuiteForTests.getNewInstance().addSubTestEntities(
-          new Suite('should be skipped', skipAndOnlyOpts).addSubTestEntities(
-            new TestMethod('should be skipped', () => assert(false)),
-            new TestMethod('should be skipped', () => assert(false), onlyOpts),
-            ),
-          new Suite('should be skipped', skipOpts).addSubTestEntities(
-            new TestMethod('should be skipped', () => assert(false)),
-            new TestMethod('should be skipped', () => assert(false), onlyOpts),
-          ),
-          new Suite('should not run').addSubTestEntities(
-            new TestMethod('should not run', () => assert(false)),
-            new TestMethod('should run', passingTest, onlyOpts),
-          ),
-          new Suite('should run', onlyOpts).addSubTestEntities(
-            new TestMethod('should be skipped', () => assert(false), skipOpts),
-            new TestMethod('should run', passingTest),
-            new Suite('should not run').addSubTestEntities(
-              new TestMethod('should run', passingTest, onlyOpts),
-            ),
-          ),
-          new Suite('should run', onlyOpts).addSubTestEntities(
-            new TestMethod('should run', passingTest, onlyOpts),
-            new TestMethod('should not run', () => assert(false)),
-          ),
-        ),
-      )
-      assertIdentical(calls.args()[calls.args().length - 1][0], 'Run successful, 4/11 passed.')
-      assertIdentical(runCount, 4)
-    })
-  ),
-
-  new TestMethod('register test class to suites and tests', async () => {
+  @Test() async 'register test class with decorators'() {
     let constructorCalledTimes = 0,
       setupCalledTimes = 0,
       beforeCalledTimes = 0,
       afterCalledTimes = 0,
       teardownCalledTimes = 0,
       waitMs = () => new Promise(resolve => setTimeout(resolve, 1)),
-      suite = GlobalSuiteForTests.getNewInstance(),
-      config = DecoratorConfig.getInstance(),
-      registery = new TestEntityRegistery(suite)
-    config.registery = registery
-
+      config = this.decoratorConfig
+    
     @decorateSuite({}, config)
     class ExampleSuite extends TestSuite {
       private counter = null
-
+    
       constructor() {
         super()
         constructorCalledTimes++
@@ -646,21 +645,28 @@ GlobalSuite.getInstance().addSubTestEntities(
         this.counter *= 5
         assertIdentical(this.counter, 10)
       }
-
+    
       @decorateTest({}, config) 'third test'() {
         assertIdentical(this.counter, 2)
       }
     }
     
-    let calls = await getConsoleCallsFromRunningSuite(suite)
+    let calls = await this.getConsoleCallsFromRunningSuite()
     assertIdentical(calls.args()[calls().length - 1][0], 'Run successful, 3/3 passed.')
     assertIdentical(constructorCalledTimes, 1, 'Constructor should have been called once')
     assertIdentical(setupCalledTimes, 1, 'Setup should have been called once')
     assertIdentical(beforeCalledTimes, 3, 'Before should have been called thrice')
     assertIdentical(afterCalledTimes, 3, 'After should have been called thrice')
     assertIdentical(teardownCalledTimes, 1, 'Teardown should have been called once')
-  })
-)
+  }
 
+  private async getConsoleCallsFromRunningSuite(rootSuite: Suite = this.globalSuite) {
+    let consoleSpy = new ConsoleSpy,
+      reporter = new SimpleTestReporter(rootSuite, consoleSpy)
+    await new TestRunner(rootSuite, reporter).run()
+    return consoleSpy.calls
+  }
+}
+    
 let global = GlobalSuite.getInstance()
 new TestRunner(global, new SimpleTestReporter(global)).run()
