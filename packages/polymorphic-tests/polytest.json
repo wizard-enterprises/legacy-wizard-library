@@ -1,0 +1,4 @@
+{
+  "testFileGlobs": ["lib/test/**/*.spec.js"],
+  "sourceFileGlobs": ["lib/src/**/*.js"]
+}

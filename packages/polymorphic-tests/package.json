@@ -9,7 +9,8 @@
   "private": true,
   "scripts": {
     "start": "ts-node src/cli.ts",
-    "test": "npm run build:polytest && ./src/cli/internal-polytest run",
+    "pretest": "npm run build:polytest",
+    "test": "./src/cli/internal-polytest run",
     "build": "rm -rf lib && tsc -p ./tsconfig.json",
     "build:polytest": "rm -rf lib && tsc -p ./tsconfig.polytest.json",
     "refresh": "rm -rf ./node_modules ./package-lock.json && npm install"
