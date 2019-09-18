@@ -1,31 +1,32 @@
-class AssertionError extends Error {
-  constructor(...args) {
-    super(...args)
-    //@ts-ignore
-    if (Error.captureStackTrace) Error.captureStackTrace(this, AssertionError)
-  }
+export function assert(boolean, message?, _this: Function = assert) {
+  if (!boolean) throw new AssertionError(_this, message || `Expected "${boolean}" to be truthy`)
 }
 
-export function assertIncludes(a: string | Array<any>, b, message?) {
-  assert(a.includes(b), message || `Expected "${b}" to be included in "${a}"`)
+assert.includes = function assertIncludes(a: string | Array<any>, b, message?, _this: Function = assertIncludes) {
+  assert(a.includes(b), message || `Expected "${b}" to be included in "${a}"`, _this)
 }
 
-export function assertPrimitiveEqual(a, b, message?) {
+assert.identical = function assertIdentical(a, b, message?, _this: Function = assertIdentical) {
+  assert(a === b, message || `Expected "${a}" to be identical to "${b}"`, _this)
+}
+
+assert.primitiveEqual = function assertPrimitiveEqual(a, b, message?, _this: Function = assertPrimitiveEqual) {
   [a, b] = [a, b].map(x => JSON.stringify(x))
-  assertIdentical(
+  assert.identical(
     a, b,
-    message || `Expected: ${a}\n To primitively equal to ${b}`
+    message || `Expected: ${a}\n To primitively equal to ${b}`,
+    _this,
   )
 }
 
-export function assertIdentical(a, b, message?) {
-  assert(a === b, message || `Expected "${a}" to be identical to "${b}"`)
+assert.not = function assertNot(boolean, message?, _this: Function = assertNot) {
+  assert(!boolean, message || `Expected "${boolean}" to be falsey`, _this)
 }
 
-export function assertNot(boolean, message?) {
-  assert(!boolean, message || `Expected "${boolean}" to be falsey`)
-}
-
-export function assert(boolean, message?) {
-  if (!boolean) throw new AssertionError(message || `Expected "${boolean}" to be truthy`)
+class AssertionError extends Error {
+  constructor(_this, ...args) {
+    super(...args)
+    //@ts-ignore
+    if (Error.captureStackTrace) Error.captureStackTrace(this, _this)
+  }
 }

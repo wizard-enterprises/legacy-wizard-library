@@ -2,7 +2,6 @@ import { TestReporter } from "../test-reporter"
 import { Suite } from "../../suite"
 import { TestEntity, TestEntityType, TestEntityStatus } from "../abstract-test-entity"
 import { TestMethod } from "../../test-method"
-import { Console } from '../../../test/mocks/console.mock'
 
 export class SimpleTestReporter extends TestReporter {
   console

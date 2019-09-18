@@ -1,0 +1,16 @@
+{
+  "name": "polymorphic-tests-babel-example",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "test": "polytest run"
+  },
+  "author": "homunculus@wizard.enterprises",
+  "devDependencies": {
+    "@babel/core": "^7.6.0",
+    "@babel/plugin-proposal-decorators": "^7.6.0",
+    "@babel/register": "^7.6.0",
+    "polymorphic-tests": "file:../.."
+  }
+}

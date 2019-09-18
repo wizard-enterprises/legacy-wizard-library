@@ -2,7 +2,7 @@ import {ConsoleSpy} from './mocks/console.mock'
 import {Suite, Test, TestSuite} from '../src/public-api'
 import {decorateSuite, decorateSubSuite, decorateTest, DecoratorConfig} from '../src/public-api/decorators' 
 import {GlobalSuiteForTests, DecoratorConfigForTests} from './mocks'
-import {assert, assertIdentical, assertIncludes, assertPrimitiveEqual} from '../src/core/assert'
+import {assert} from '../src/core/assert'
 import {GlobalSuite} from '../src/suite/global'
 import {Suite as InternalSuite} from '../src/suite'
 import {TestEntityRegistery} from '../src/public-api/test-registery'
@@ -25,7 +25,7 @@ class SimpleFlows extends TestSuite {
   @Test() async 'report no tests'() {
     let config = this.decoratorConfig
     @decorateSuite({}, config) class ExampleSuite extends TestSuite {}
-    assertPrimitiveEqual(
+    assert.primitiveEqual(
       (await this.getConsoleCallsFromRunningSuite())
         .args().map(args => args[0]),
       ['Running tests...', 'Run successful, 0/0 passed.'],
@@ -37,7 +37,7 @@ class SimpleFlows extends TestSuite {
     @decorateSuite({}, config) class ExampleSuite extends TestSuite {
       @decorateTest({skip: true}, config) skip() { assert(false) }
     }
-    assertPrimitiveEqual(
+    assert.primitiveEqual(
       (await this.getConsoleCallsFromRunningSuite())
         .args().map(args => args[0]),
       ['Running tests...', 'Run successful, 0/1 passed.'],
@@ -49,6 +49,11 @@ class SimpleFlows extends TestSuite {
     @decorateSuite({}, config) class ExampleSuite extends TestSuite {
       @decorateTest({}, config) pass() { assert(true) }
     }
+    assert.primitiveEqual(
+      (await this.getConsoleCallsFromRunningSuite())
+        .args().map(args => args[0]),
+      ['Running tests...', 'Run successful, 1/1 passed.'],
+    )
   }
   
   @Test() async 'report failing suite'() {
@@ -59,10 +64,10 @@ class SimpleFlows extends TestSuite {
       @decorateTest({}, config) fail() { assert(false) }
     }
     let callArgs = (await this.getConsoleCallsFromRunningSuite()).args()
-    assertIdentical(callArgs[0][0], 'Running tests...')
-    assertIncludes(callArgs[1].join('\n'), 'Test "fail" failed:')
-    assertIncludes(callArgs[1].join('\n'), 'Expected "false" to be truthy')
-    assertIdentical(callArgs[2][0], 'Run failed, 1 failed, 1/3 passed.')
+    assert.identical(callArgs[0][0], 'Running tests...')
+    assert.includes(callArgs[1].join('\n'), 'Test "fail" failed:')
+    assert.includes(callArgs[1].join('\n'), 'Expected "false" to be truthy')
+    assert.identical(callArgs[2][0], 'Run failed, 1 failed, 1/3 passed.')
   }
   
   @Test() async 'report with only and skip'() {
@@ -101,11 +106,11 @@ class SimpleFlows extends TestSuite {
       @decorateTest({}, config) shouldNotRun() { assert(false) }
     }
     let calls = await this.getConsoleCallsFromRunningSuite()
-    assertIdentical(calls.args()[calls.args().length - 1][0], 'Run successful, 4/13 passed.', calls.args().join('\n'))
-    assertIdentical(runCount, 4)
+    assert.identical(calls.args()[calls.args().length - 1][0], 'Run successful, 4/13 passed.', calls.args().join('\n'))
+    assert.identical(runCount, 4)
   }
 
-  @Test() async 'register test class with decorators'() {
+  @Test() async 'run polymorphic suite'() {
     let constructorCalledTimes = 0,
       setupCalledTimes = 0,
       beforeCalledTimes = 0,
@@ -121,7 +126,7 @@ class SimpleFlows extends TestSuite {
       constructor() {
         super()
         constructorCalledTimes++
-        assertIdentical(this.counter, null)
+        assert.identical(this.counter, null)
         this.counter = -1
       }
       
@@ -130,14 +135,14 @@ class SimpleFlows extends TestSuite {
         await waitMs()
         if (setupCalledTimes > 1)
           throw new Error('setup should be called once, and whatever it does should be the starting point of before')
-        assertIdentical(this.counter, -1)
+        assert.identical(this.counter, -1)
         this.counter = 2  
       }
       
       async before() {
         await waitMs()
         beforeCalledTimes++
-        assertIdentical(this.counter, 2)
+        assert.identical(this.counter, 2)
       }
       
       async after() {
@@ -152,35 +157,32 @@ class SimpleFlows extends TestSuite {
       
       @decorateTest({}, config) 'first test'() {
         this.counter *= 2
-        assertIdentical(this.counter, 4)
+        assert.identical(this.counter, 4)
       }
       
       @decorateTest({}, config) 'second test'() {
         this.counter *= 5
-        assertIdentical(this.counter, 10)
+        assert.identical(this.counter, 10)
       }
     
       @decorateTest({}, config) 'third test'() {
-        assertIdentical(this.counter, 2)
+        assert.identical(this.counter, 2)
       }
     }
     
     let calls = await this.getConsoleCallsFromRunningSuite()
-    assertIdentical(calls.args()[calls().length - 1][0], 'Run successful, 3/3 passed.')
-    assertIdentical(constructorCalledTimes, 1, 'Constructor should have been called once')
-    assertIdentical(setupCalledTimes, 1, 'Setup should have been called once')
-    assertIdentical(beforeCalledTimes, 3, 'Before should have been called thrice')
-    assertIdentical(afterCalledTimes, 3, 'After should have been called thrice')
-    assertIdentical(teardownCalledTimes, 1, 'Teardown should have been called once')
+    assert.identical(calls.args()[calls().length - 1][0], 'Run successful, 3/3 passed.')
+    assert.identical(constructorCalledTimes, 1, 'Constructor should have been called once')
+    assert.identical(setupCalledTimes, 1, 'Setup should have been called once')
+    assert.identical(beforeCalledTimes, 3, 'Before should have been called thrice')
+    assert.identical(afterCalledTimes, 3, 'After should have been called thrice')
+    assert.identical(teardownCalledTimes, 1, 'Teardown should have been called once')
   }
 
   private async getConsoleCallsFromRunningSuite(rootSuite: InternalSuite = this.globalSuite) {
     let consoleSpy = new ConsoleSpy,
-      reporter = new SimpleTestReporter(rootSuite, consoleSpy)
+      reporter = new SimpleTestReporter(rootSuite, consoleSpy as unknown as Console)
     await new TestRunner(rootSuite, reporter).run()
     return consoleSpy.calls
   }
 }
-    
-let global = GlobalSuite.getInstance()
-new TestRunner(global, new SimpleTestReporter(global)).run()

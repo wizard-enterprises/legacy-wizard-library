@@ -2,15 +2,16 @@
   "name": "polymorphic-tests",
   "version": "0.0.0",
   "description": "Description",
-  "main": "./lib/cli.js",
+  "main": "./lib",
   "bin": {
-    "polytest": "./lib/cli.js"
+    "polytest": "./bin/polytest"
   },
   "private": true,
   "scripts": {
     "start": "ts-node src/cli.ts",
-    "test": "ts-node test/simple-flows.spec.ts",
-    "build": "tsc -p .",
+    "test": "npm run build:polytest && ./src/cli/internal-polytest run",
+    "build": "rm -rf lib && tsc -p ./tsconfig.json",
+    "build:polytest": "rm -rf lib && tsc -p ./tsconfig.polytest.json",
     "refresh": "rm -rf ./node_modules ./package-lock.json && npm install"
   },
   "repository": {
@@ -20,6 +21,7 @@
   "author": "homunculus@wizard.enterprises",
   "devDependencies": {
     "@types/figlet": "^1.2.0",
+    "@types/fs-extra": "^8.0.0",
     "@types/node": "^12.7.4",
     "ts-node": "^8.3.0",
     "typescript": "^3.6.2"
@@ -29,6 +31,10 @@
     "clear": "^0.1.0",
     "commander": "^3.0.1",
     "figlet": "^1.2.4",
-    "path": "^0.12.7"
+    "fs-extra": "^8.1.0",
+    "globby": "^10.0.1",
+    "path": "^0.12.7",
+    "pjson": "^1.0.9",
+    "source-map-support": "^0.5.13"
   }
 }
