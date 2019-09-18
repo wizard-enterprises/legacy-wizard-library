@@ -1,5 +1,5 @@
-const {TestSuite, Suite, Test, assert} = require('polymorphic-tests')
-const add = require('./example')
+import {TestSuite, Suite, Test, assert} from 'polymorphic-tests'
+import {add} from './example'
 
 @Suite()
 class ExampleSuite extends TestSuite {

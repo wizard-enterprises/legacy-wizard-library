@@ -136,7 +136,7 @@ async function composeConfig(options: CliOptionOverrides = {}) {
       defaultConfig,
       (await readConfigFromPackageJson()),
       (await readConfigFromConfigFile()),
-      parseCliOptionOverrides(options) as PolytestConfig,
+      options as PolytestConfig,
     )
   for (let key of Object.keys(defaultConfig))
     composed[key] = merged[key]
@@ -181,14 +181,6 @@ async function readJsonFileInCurrentWorkingDir(fileName: string) {
   } catch (e) {
     console.warn(`Failed to JSON.parse contents of ${filePath}, continuing with {}`)
     return {}
-  }
-}
-
-function parseCliOptionOverrides(options: CliOptionOverrides) {
-  return {
-    ...options,
-    testFileGlobs: options.testFileGlobs || [],
-    sourceFileGlobs: options.sourceFileGlobs || [],
   }
 }
 

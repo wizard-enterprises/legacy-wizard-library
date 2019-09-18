@@ -1,5 +1,4 @@
 import { PolymorphicSuite } from "../suite/polymorphic"
-import { Suite } from "../suite"
 import { PolymorphicTestMethod } from "../test-method/polymorphic"
 import { TestSuite } from "./base-test-class"
 import { TestDecoratorOpts, SuiteDecoratorOpts } from "./decorators"
