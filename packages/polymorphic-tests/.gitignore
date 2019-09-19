@@ -3,4 +3,5 @@ C*npm/
 *.js.map
 node_modules
 lib
-*.orig
+*.orig.history
+.history

@@ -5,7 +5,7 @@ import {GlobalSuiteForTests, DecoratorConfigForTests} from './mocks'
 import {assert} from '../src/core/assert'
 import {GlobalSuite} from '../src/suite/global'
 import {Suite as InternalSuite} from '../src/suite'
-import {TestEntityRegistery} from '../src/public-api/test-registery'
+import {TestEntityRegistery} from '../src/core/test-registery'
 import {TestEntityOpts} from '../src/core/abstract-test-entity'
 import {TestRunner} from '../src/core/test-runner'
 import {SimpleTestReporter} from '../src/core/reporters/simple'
@@ -177,6 +177,22 @@ class SimpleFlows extends TestSuite {
     assert.identical(beforeCalledTimes, 3, 'Before should have been called thrice')
     assert.identical(afterCalledTimes, 3, 'After should have been called thrice')
     assert.identical(teardownCalledTimes, 1, 'Teardown should have been called once')
+  }
+
+  @Test() async 'inherit test'() {
+    let config = this.decoratorConfig
+    class UnregisteredGrandParentSuite extends TestSuite {
+      @decorateTest({}, config) 'test in grandparent'() { assert(true) }
+    }
+    @decorateSuite({}, config) class ParentSuite extends UnregisteredGrandParentSuite {
+      @decorateTest({}, config) 'test in parent'() { assert(true) }
+    }
+    @decorateSuite({}, config) class ChildSuite extends ParentSuite {
+      @decorateTest({}, config) 'test in child'() { assert(true) }
+    }
+    let calls = await this.getConsoleCallsFromRunningSuite(),
+      lastCallArgs = calls.args()[calls().length - 1]
+    assert.primitiveEqual(lastCallArgs, ['Run successful, 5/5 passed.'])
   }
 
   private async getConsoleCallsFromRunningSuite(rootSuite: InternalSuite = this.globalSuite) {
