@@ -1,5 +1,6 @@
 import { TestEntity, TestEntityStatus, TestEntityType } from "./abstract-test-entity"
 import { Suite } from "../suite"
+import { TestMethod } from "../test-method"
 
 export type TestReporterDelegate = {
   testEntityIsExecuting(entity: TestEntity): void
@@ -12,8 +13,8 @@ export abstract class TestReporter {
   protected entityCache = new TestReporterEntityCache
 
   constructor(protected rootSuite: Suite) {}
-  abstract async start()
-  abstract async end()
+  public async start() {}
+  public async end() {}
 
   public getDelegate() { return this as unknown as TestReporterDelegate }
   
@@ -46,15 +47,15 @@ class TestReporterEntityCache {
   public failureReasons: Map<string, Error[]> = new Map
 
   public get methods() {
-    return this.getFilteredEntitiesByType(TestEntityType.test)
+    return this.getFilteredEntitiesByType<TestMethod>(TestEntityType.test)
   }
 
   public get suites() {
-    return this.getFilteredEntitiesByType(TestEntityType.suite)
+    return this.getFilteredEntitiesByType<Suite>(TestEntityType.suite)
   }
 
-  private getFilteredEntitiesByType(type: TestEntityType) {
-    return [...this.entities.values()].filter(entity => entity.type === type)
+  private getFilteredEntitiesByType<T extends TestEntity = TestEntity>(type: TestEntityType) {
+    return [...this.entities.values()].filter(entity => entity.type === type) as T[]
   }
   
   public syncTestEntityWithCache(entity: TestEntity) {

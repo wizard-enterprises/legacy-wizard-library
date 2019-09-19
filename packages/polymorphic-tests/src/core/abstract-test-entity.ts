@@ -21,19 +21,49 @@ export interface TestEntityOpts {
   only?: true,
 }
 
+export class TestEntityIdStore {
+  private static instance: TestEntityIdStore
+  public static getInstance() {
+    return this.instance || (this.instance = new this)
+  }
+
+  private constructor() {}
+
+  private ids: string[] = []
+  private entities: TestEntity[] = []
+  private idEntityMap: WeakMap<TestEntity, string> = new WeakMap
+
+  public getIdForEntity(entity: TestEntity) {
+    return this.idEntityMap.get(entity) || this.makeIdForEntity(entity)
+  }
+
+  private makeIdForEntity(entity: TestEntity) {
+    let parentNameChain = this.getEntityParentNameChain(entity),
+      baseId = `${entity.type}__${parentNameChain.join('_')}: ${entity.name}`,
+      id = baseId
+    for (let i = 0; this.ids.includes(id); i++)
+      id = [baseId, i].join('_')
+    this.ids.push(id)
+    this.entities.push(entity)
+    this.idEntityMap.set(entity, id)
+    return id
+  }
+
+  private getEntityParentNameChain(entity: TestEntity) {
+    let parents = [],
+      lastSuite = entity.parentSuite
+    while (lastSuite){// && !lastSuite.opts.rootSuite) {
+      parents.unshift(lastSuite.name)
+      lastSuite = lastSuite.parentSuite
+    }
+    return parents
+  }
+}
+
 export abstract class TestEntity {
   public abstract type: TestEntityType
   get id(): string {
-    return [
-      this.type,
-      ...(this.parentSuite
-        ? [
-          `_${this.parentSuite.id}_`,
-          this.parentSuite.subTestEntities.findIndex(sub => sub === this),
-        ]
-        : [null]),
-      this.name,
-      ].filter(Boolean).join('_') 
+    return TestEntityIdStore.getInstance().getIdForEntity(this)
   }
   public parentSuite: Suite = null
   private _status: TestEntityStatus = TestEntityStatus.pending
