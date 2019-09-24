@@ -1,6 +1,6 @@
 import { Suite, SuiteOpts } from "."
 import { TestSuite } from "../public-api/base-test-class"
-import { TestReporterDelegate } from "../core/test-reporter"
+import { TestReporterDelegate } from "../core/reporters/test-reporter"
 
 export class PolymorphicSuite extends Suite {
   constructor(name: string, opts: SuiteOpts, private externalSuite: TestSuite) {

@@ -1,5 +1,5 @@
 import { TestEntityOpts, TestEntity, TestEntityType } from "../core/abstract-test-entity"
-import { TestReporterDelegate } from "../core/test-reporter"
+import { TestReporterDelegate } from "../core/reporters/test-reporter"
 
 export interface TestMethodOpts extends TestEntityOpts {}
 

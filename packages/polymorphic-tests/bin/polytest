@@ -1,2 +1,2 @@
-#!/usr/bin/env node
-require('../lib/cli')
+#!/bin/sh 
+":" //# comment; exec /usr/bin/env node "$(pwd)/lib/cli" "$@"

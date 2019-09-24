@@ -1,6 +1,7 @@
-import { TestEntity, TestEntityStatus, TestEntityType } from "./abstract-test-entity"
-import { Suite } from "../suite"
-import { TestMethod } from "../test-method"
+import { TestEntity, TestEntityStatus, TestEntityType } from "../abstract-test-entity"
+import { Suite } from "../../suite"
+import { TestMethod } from "../../test-method"
+import { TestReporterType } from "."
 
 export type TestReporterDelegate = {
   testEntityIsExecuting(entity: TestEntity): void
@@ -11,10 +12,22 @@ export type TestReporterDelegate = {
 
 export abstract class TestReporter {
   protected entityCache = new TestReporterEntityCache
+  protected console = console
+  abstract type: TestReporterType
 
+  public testMethods: TestMethod[] = []
+  public get passingTests() { return this.getTestMethodsWithStatus(TestEntityStatus.passed) }
+  public get failingTests() { return this.getTestMethodsWithStatus(TestEntityStatus.failed) }
+  public get skippedTests() { return this.getTestMethodsWithStatus(TestEntityStatus.skipped) }
+  private getTestMethodsWithStatus(status: TestEntityStatus) {
+    return this.testMethods.filter(t => t.status === status)
+  }
+  
   constructor(protected rootSuite: Suite) {}
   public async start() {}
-  public async end() {}
+  public async end() {
+    this.testMethods = this.entityCache.methods
+  }
 
   public getDelegate() { return this as unknown as TestReporterDelegate }
   
@@ -38,8 +51,6 @@ export abstract class TestReporter {
   private updateTestEntityStatus(entity: TestEntity, status: TestEntityStatus) {
     this.entityCache.syncTestEntityWithCache(entity).setStatus(status)
   }
-  protected testEntityCache: Map<string, TestEntity> = new Map
-  protected testEntityFailureReasons: Map<string, Error[]> = new Map
 }
 
 class TestReporterEntityCache {

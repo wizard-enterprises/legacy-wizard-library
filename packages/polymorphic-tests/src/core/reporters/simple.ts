@@ -1,20 +1,17 @@
-import { TestReporter } from "../test-reporter"
-import { Suite } from "../../suite"
+import { TestReporter } from "./test-reporter"
 import { TestEntity, TestEntityType, TestEntityStatus } from "../abstract-test-entity"
 import { TestMethod } from "../../test-method"
+import { TestReporterType } from "."
 
 export class SimpleTestReporter extends TestReporter {
-  console
-  constructor(rootSuite: Suite, _console: Console = console) {
-    super(rootSuite)
-    this.console = _console
-  }
-
+  type = TestReporterType.simple
   async start() {
+    await super.start()
     this.console.log('Running tests...')
   }
   
   async end() {
+    await super.end()
     this.console.log(this.makeEndReport())
   }
 
@@ -29,13 +26,10 @@ export class SimpleTestReporter extends TestReporter {
   }
 
   makeEndReport() {
-    let methods = this.entityCache.methods,
-      passingMethods = methods.filter(test => test.status === TestEntityStatus.passed),
-      failingMethods = methods.filter(test => test.status === TestEntityStatus.failed),
-      passingTestsReport = `${passingMethods.length}/${methods.length} passed`
-
-    return failingMethods.length
-      ? `Run failed, ${failingMethods.length} failed, ${passingTestsReport}.`
-      : `Run successful, ${passingTestsReport}.`
+    let passingTestsReport = `${this.passingTests.length}/${this.testMethods.length} passed`,
+      runReport = this.failingTests.length
+        ? `Run failed, ${this.failingTests.length} failed`
+        : `Run successful`
+    return `${runReport}, ${passingTestsReport}.`
   }
 }

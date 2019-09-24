@@ -1,6 +1,6 @@
 import { Suite, SuiteOpts } from "../suite"
 import { TestMethodOpts } from "../test-method"
-import { TestReporterDelegate } from "./test-reporter"
+import { TestReporterDelegate } from "./reporters/test-reporter"
 
 export enum TestEntityStatus {
   pending,
