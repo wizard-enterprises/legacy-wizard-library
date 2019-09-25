@@ -5,7 +5,7 @@ Working list:
     all end reporters).
 
   ✔ Run empty suite @started(19-09-25 15:00) @done(19-09-25 16:54) @lasted(1h54m51s)
-  ☐ Run suite with subsuite with empty test
+  ✔ Run suite with subsuite with empty test @started(19-09-25 17:31) @done(19-09-25 18:04) @lasted(33m13s)
   ☐ Run suite with async test (duration)
   ☐ Timeout test based on config and test override
   ☐ Run test with passing assertions

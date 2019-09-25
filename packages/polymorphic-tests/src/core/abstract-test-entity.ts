@@ -38,13 +38,12 @@ export class TestEntityIdStore {
   }
 
   private makeIdForEntity(entity: TestEntity) {
-    let parentNameChain = this.getEntityParentNameChain(entity),
-      baseId = [...parentNameChain, entity.name].join('_')
-    if (entity.type === TestEntityType.test) baseId += `: ${entity.name}`
-    
-    let id = baseId
+    let parentNameChain = this.getEntityParentNameChain(entity)
+    let unnumberedId, id = unnumberedId = entity.type === TestEntityType.suite
+      ? [...parentNameChain, entity.name].join('_')
+      : `${parentNameChain.join('_')}: ${entity.name}`
     for (let i = 0; this.ids.includes(id); i++)
-      id = [baseId, i].join('_')
+      id = [unnumberedId, i].join('_')
     this.ids.push(id)
     this.entities.push(entity)
     this.idEntityMap.set(entity, id)
