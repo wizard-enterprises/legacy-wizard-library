@@ -1,4 +1,4 @@
-import { TestEntityOpts, TestEntity, TestEntityType } from "../core/abstract-test-entity"
+import { TestEntityOpts, TestEntity, TestEntityType, TestEntityIdStore } from "../core/abstract-test-entity"
 import { TestReporterDelegate } from "../core/reporters/test-reporter"
 
 export interface SuiteOpts extends TestEntityOpts {
@@ -18,8 +18,8 @@ export class Suite extends TestEntity {
   protected updateForSkipBecauseOfOnly() {
     this.applyOptsToSubEntities(this.subTestEntities)
   }
-  constructor(name, opts: SuiteOpts = {}) {
-    super(name, opts)
+  constructor(name, opts: SuiteOpts = {}, idStore = TestEntityIdStore.getInstance()) {
+    super(name, opts, idStore)
   }
 
   addSubTestEntities(...testEntities: TestEntity[]) {

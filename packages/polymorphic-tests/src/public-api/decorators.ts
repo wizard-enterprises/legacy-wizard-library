@@ -1,6 +1,7 @@
 import { TestSuite } from "./base-test-class"
 import { GlobalSuite } from "../suite/global"
 import { TestEntityRegistery } from "../core/test-registery"
+import { TestEntityIdStore } from "../core/abstract-test-entity"
 
 export class DecoratorConfig {
   private static instance: DecoratorConfig = null
@@ -9,9 +10,10 @@ export class DecoratorConfig {
   }
   
   public registery: TestEntityRegistery
+  public idStore: TestEntityIdStore
   
-  protected constructor(rootSuite = GlobalSuite.getInstance()) {
-    this.registery = new TestEntityRegistery(rootSuite)
+  protected constructor(rootSuite = GlobalSuite.getInstance(), idStore = TestEntityIdStore.getInstance()) {
+    this.registery = new TestEntityRegistery(rootSuite, idStore)
   }
 }
 

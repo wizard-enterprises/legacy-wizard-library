@@ -1,0 +1,44 @@
+Working list:
+  These should be tested against a raw end reporter that
+    takes the finished event stream and returns standard
+    report data structure (proprietary format, passed to
+    all end reporters).
+
+  ☐ Run empty suite
+  ☐ Run suite with subsuite with empty test
+  ☐ Run suite with async test (duration)
+  ☐ Timeout test based on config and test override
+  ☐ Run test with passing assertions
+  ☐ Run test with failing assertion
+  ☐ Fail parent suite when children fail
+
+  ☐ Skip suites and tests
+  ☐ Run only suites and tests marked with only in given suite
+  ☐ Override only with skip
+  
+  ☐ Run multiple failing suites and bail after first failure
+  ☐ Run multiple failing suites and stop suite after first contained failed test
+  ☐ Run multiple failing suites and run all tests regardless of failure
+
+  ☐ Add lifecycle hooks to suite
+  ☐ Plain JS example
+  
+  Polymorphic tests:
+    ☐ Run suite defined through decorator interface
+    ☐ Run polymorphic tests in separate polymorphic suite instances
+    ☐ Inherit tests and lifecycle hooks from abstract suite
+    ☐ Add decorators for only/skip (Possibly as @Test.only.skip())
+
+  Reporters:
+    Live:
+      Get access to raw event stream
+      TAP:
+        ☐ Live reporting to stdout
+        ☐ Accept TAP reporter and live report to it
+      Raw:
+        Parses finished event stream to standard report (JSON? YAML?)
+        The base end reporter class wraps this reporter
+        ☐ Parse event stream to standard report
+    End:
+      Simple:
+        ☐ Extend base end reporter class to report based on standard report

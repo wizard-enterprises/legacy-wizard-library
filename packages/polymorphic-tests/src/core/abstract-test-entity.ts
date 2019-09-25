@@ -27,7 +27,7 @@ export class TestEntityIdStore {
     return this.instance || (this.instance = new this)
   }
 
-  private constructor() {}
+  protected constructor() {}
 
   private ids: string[] = []
   private entities: TestEntity[] = []
@@ -39,8 +39,10 @@ export class TestEntityIdStore {
 
   private makeIdForEntity(entity: TestEntity) {
     let parentNameChain = this.getEntityParentNameChain(entity),
-      baseId = `${entity.type}__${parentNameChain.join('_')}: ${entity.name}`,
-      id = baseId
+      baseId = parentNameChain.join('_')
+    if (entity.type === TestEntityType.test) baseId += `: ${entity.name}`
+    
+    let id = baseId
     for (let i = 0; this.ids.includes(id); i++)
       id = [baseId, i].join('_')
     this.ids.push(id)
@@ -52,7 +54,7 @@ export class TestEntityIdStore {
   private getEntityParentNameChain(entity: TestEntity) {
     let parents = [],
       lastSuite = entity.parentSuite
-    while (lastSuite){// && !lastSuite.opts.rootSuite) {
+    while (lastSuite && !lastSuite.opts.rootSuite) {
       parents.unshift(lastSuite.name)
       lastSuite = lastSuite.parentSuite
     }
@@ -61,13 +63,13 @@ export class TestEntityIdStore {
 }
 
 export abstract class TestEntity {
+  public get id() { return this.idStore.getIdForEntity(this) }
   public abstract type: TestEntityType
-  get id(): string {
-    return TestEntityIdStore.getInstance().getIdForEntity(this)
-  }
   public parentSuite: Suite = null
   private _status: TestEntityStatus = TestEntityStatus.pending
   public get status() { return this._status}
+  public start: Date
+  public end: Date
 
   private _shouldSkipBecauseOfOnly = false
   protected get shouldSkipBecauseOfOnly() { return this._shouldSkipBecauseOfOnly }
@@ -78,10 +80,7 @@ export abstract class TestEntity {
 
   protected updateForSkipBecauseOfOnly() {}
 
-  constructor(public name: string, public opts: SuiteOpts | TestMethodOpts) {
-    this.name = name
-    this.opts = opts
-  }
+  constructor(public name: string, public opts: SuiteOpts | TestMethodOpts, protected idStore = TestEntityIdStore.getInstance()) {}
 
   public async run(reporter: TestReporterDelegate) {
     this.shouldSkipBecauseOfOnly = this.doesEntityHaveSubentitiesWithOnly(this) || !!this.opts.skipBecauseOfOnly
@@ -91,11 +90,14 @@ export abstract class TestEntity {
       return
     }
     reporter.testEntityIsExecuting(this)
+    this.start = new Date
     try {
       await this.runTestEntity(reporter)
+      this.end = new Date
       reporter.testEntityPassed(this)
     } catch (e) {
       let reasons = this.failureReasonsOverride.length ? this.failureReasonsOverride : [e]
+      this.end = new Date
       reporter.testEntityFailed(this, ...reasons)
     }
   }

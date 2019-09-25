@@ -188,7 +188,7 @@ async function runGlobalSuite(config: PolytestConfig) {
   await importAllTestFiles(config)
   let global = GlobalSuite.getInstance(),
   reporterCtor = getReporterOfType(config.reporter)
-  await new TestRunner(global, new reporterCtor(global)).run()
+  await new TestRunner(global, new reporterCtor).run()
 }
 
 async function importAllTestFiles(config: PolytestConfig) {

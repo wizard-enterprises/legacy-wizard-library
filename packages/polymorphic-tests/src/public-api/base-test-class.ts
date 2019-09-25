@@ -1,5 +1,7 @@
+import { TestArg } from "../test-method"
+
 export interface TestSuiteRunnerDelegate {
-  runTestPolymorphically(testName: string): Promise<void>,
+  runTestPolymorphically(testName: string, testArg: TestArg): Promise<void>,
 }
 
 export class TestSuite implements TestSuiteRunnerDelegate {
@@ -8,10 +10,10 @@ export class TestSuite implements TestSuiteRunnerDelegate {
   before(): any|Promise<any> {}
   after(): any|Promise<any> {}
 
-  public async runTestPolymorphically(testName: string) {
+  public async runTestPolymorphically(testName: string, testArg: TestArg) {
     let clone = this.cloneSelf()
     await clone.before()
-    await clone[testName]()
+    await clone[testName](testArg)
     await clone.after()
   }
 

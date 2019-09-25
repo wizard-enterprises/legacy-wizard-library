@@ -23,7 +23,6 @@ export abstract class TestReporter {
     return this.testMethods.filter(t => t.status === status)
   }
   
-  constructor(protected rootSuite: Suite) {}
   public async start() {}
   public async end() {
     this.testMethods = this.entityCache.methods

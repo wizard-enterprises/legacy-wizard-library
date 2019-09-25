@@ -3,6 +3,7 @@ import { PolymorphicTestMethod } from "../test-method/polymorphic"
 import { GlobalSuite } from "../suite/global"
 import { TestSuite } from ".."
 import { TestDecoratorOpts, SuiteDecoratorOpts } from "../public-api/decorators"
+import { TestEntityIdStore } from "./abstract-test-entity"
 
 export class TestEntityRegistery {
   private suites: TestSuite[] = []
@@ -15,7 +16,7 @@ export class TestEntityRegistery {
     {opts: TestDecoratorOpts, externalTest: Function}[]
   > = new WeakMap
 
-  constructor(public rootSuite: GlobalSuite) {}
+  constructor(public rootSuite: GlobalSuite, private idStore: TestEntityIdStore) {}
 
   public registerTest(externalSuite: TestSuite, externalTest: Function, externalTestName: string, opts: TestDecoratorOpts) {
     opts.name = opts.name || externalTestName
@@ -29,7 +30,7 @@ export class TestEntityRegistery {
   public registerSuite(externalSuite: new () => TestSuite, opts: SuiteDecoratorOpts = {}, externalParentSuite: new () => TestSuite): PolymorphicSuite {
     let name = opts.name || externalSuite.name,
       externalSuiteInstance = new externalSuite,
-      internal = new PolymorphicSuite(name, {skip: opts.skip, only: opts.only}, externalSuiteInstance)
+      internal = new PolymorphicSuite(name, {skip: opts.skip, only: opts.only}, externalSuiteInstance, this.idStore)
     this.registerSuiteInParent(internal, externalParentSuite)
     this.addPrototypicalTestsToSuite(internal, externalSuiteInstance)
     this.suites.push(externalSuiteInstance)
@@ -51,8 +52,9 @@ export class TestEntityRegistery {
     suite.addSubTestEntities(...this.getConstructorsFromBaseTestClassToSuite(externalSuite)
       .map(ctor => this.testsBySuiteCtor.get(ctor) || [])
       .reduce((acc, arr) => acc = [...acc, ...arr], [])
-      .map(({externalTest, opts}) =>
-        new PolymorphicTestMethod(opts.name, externalTest, opts, externalSuite)))
+      .map(({externalTest, opts}) => 
+        new PolymorphicTestMethod(opts.name, externalTest, opts, externalSuite, this.idStore)
+      ))
   }
 
   private getConstructorsFromBaseTestClassToSuite(suite: TestSuite) {

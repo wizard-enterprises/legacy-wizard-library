@@ -1,3 +1,5 @@
+import {isEqual} from 'lodash'
+
 export function assert(boolean, message?, _this: Function = assert) {
   if (!boolean) throw new AssertionError(_this, message || `Expected "${boolean}" to be truthy`)
 }
@@ -14,9 +16,13 @@ assert.primitiveEqual = function assertPrimitiveEqual(a, b, message?, _this: Fun
   [a, b] = [a, b].map(x => JSON.stringify(x))
   assert.identical(
     a, b,
-    message || `Expected: ${a}\n To primitively equal to ${b}`,
+    message || `Expected:\n${a}\n\nTo primitively equal:\n${b}`,
     _this,
   )
+}
+
+assert.deepEqual = function assertDeepEqual(a, b, message?, _this: Function = assertDeepEqual) {
+  assert(isEqual(a, b), `Expected:\n${a}\n\nTo deeply equal:\n${b}`)
 }
 
 assert.not = function assertNot(boolean, message?, _this: Function = assertNot) {

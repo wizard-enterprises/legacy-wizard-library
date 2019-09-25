@@ -22,7 +22,7 @@ export class SimpleTestReporter extends TestReporter {
   }
 
   private reportTestFailure(entity: TestMethod, ...reasons: Error[]) {
-    this.console.error(`Test "${entity.name}" failed:\n`, ...reasons)
+    this.console.error(`Test "${entity.name}" failed:`, ...reasons)
   }
 
   makeEndReport() {
