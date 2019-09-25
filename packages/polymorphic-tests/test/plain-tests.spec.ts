@@ -9,11 +9,7 @@ import { TestEntityType as Type, TestEntityStatus as Status } from "../src/core/
     @decorateSuite(config) class EmptySuite extends TestSuite {}
     await this.runSuite()
     let report = this.reporter['makeEndReport']()
-    t.assert.objectMatches(report, [{
-      id: 'EmptySuite',
-      type: Type.suite,
-      status: Status.passed,
-    }])
+    t.assert.objectMatches(report, [this.suiteReport('EmptySuite')])
     t.assert.identical(report.length, 1)
   }
 
@@ -27,27 +23,27 @@ import { TestEntityType as Type, TestEntityStatus as Status } from "../src/core/
     }
     await this.runSuite()
     let report = this.reporter['makeEndReport']()
-    t.assert.objectMatches(report, [{
-      id: 'ParentSuite',
+    t.assert.objectMatches(report, [
+      this.suiteReport('ParentSuite', { children: [
+        this.testReport('ParentSuite: test'),
+        this.suiteReport('ParentSuite_ChildSuite', { children: [
+          this.testReport('ParentSuite_ChildSuite: test')
+        ]}),
+      ]})
+    ])
+  }
+
+  private testReport(id: string, status = Status.passed) {
+    return {
+      id, status, type: Type.test
+    }
+  }
+  
+  private suiteReport(id: string, {status = Status.passed, children = []} = {}) {
+    return {
+      ...this.testReport(id, status),
       type: Type.suite,
-      status: Status.passed,
-      children: [
-        {
-          id: 'ParentSuite: test',
-          type: Type.test,
-          status: Status.passed,
-        },
-        {
-          id: 'ParentSuite_ChildSuite',
-          type: Type.suite,
-          status: Status.passed,
-          children: [{
-            id: 'ParentSuite_ChildSuite: test',
-            type: Type.test,
-            status: Status.passed,
-          }],
-        },
-      ],
-    }])
+      children,
+    }
   }
 }

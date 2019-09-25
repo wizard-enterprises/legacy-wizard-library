@@ -33,7 +33,7 @@ export class RawReporter extends TestReporter {
   }
 }
 
-interface TestEntityReport {
+export interface TestEntityReport {
   id: string
   type: TestEntityType
   status: TestEntityStatus
