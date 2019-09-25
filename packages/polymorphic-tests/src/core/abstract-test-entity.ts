@@ -3,16 +3,16 @@ import { TestMethodOpts } from "../test-method"
 import { TestReporterDelegate } from "./reporters/test-reporter"
 
 export enum TestEntityStatus {
-  pending,
-  executing,
-  passed,
-  failed,
-  skipped,
+  pending = 'p',
+  executing = 'e',
+  passed = 'P',
+  failed = 'F',
+  skipped = 'S',
 }
 
 export enum TestEntityType {
-  suite = 'suite',
-  test = 'test',
+  suite = 's',
+  test = 't',
 }
 
 export interface TestEntityOpts {
@@ -39,7 +39,7 @@ export class TestEntityIdStore {
 
   private makeIdForEntity(entity: TestEntity) {
     let parentNameChain = this.getEntityParentNameChain(entity),
-      baseId = parentNameChain.join('_')
+      baseId = [...parentNameChain, entity.name].join('_')
     if (entity.type === TestEntityType.test) baseId += `: ${entity.name}`
     
     let id = baseId

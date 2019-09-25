@@ -29,6 +29,14 @@ assert.not = function assertNot(boolean, message?, _this: Function = assertNot) 
   assert(!boolean, message || `Expected "${boolean}" to be falsey`, _this)
 }
 
+assert.jsonParsable = function assertJsonParsable(jsonString: string, message?, _this: Function = assertJsonParsable) {
+  try {
+    assert(JSON.parse(jsonString) instanceof Object, message || `Didn't get object from JSON.parse of string:\n${jsonString}`, _this)
+  } catch (e) {
+    throw new AssertionError(_this, message || `Expected string to be JSON-parsable:\n${jsonString}`)
+  }
+}
+
 class AssertionError extends Error {
   constructor(_this, ...args) {
     super(...args)

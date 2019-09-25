@@ -4,7 +4,7 @@ Working list:
     report data structure (proprietary format, passed to
     all end reporters).
 
-  ☐ Run empty suite
+  ✔ Run empty suite @started(19-09-25 15:00) @done(19-09-25 16:54) @lasted(1h54m51s)
   ☐ Run suite with subsuite with empty test
   ☐ Run suite with async test (duration)
   ☐ Timeout test based on config and test override
@@ -27,7 +27,7 @@ Working list:
     ☐ Run suite defined through decorator interface
     ☐ Run polymorphic tests in separate polymorphic suite instances
     ☐ Inherit tests and lifecycle hooks from abstract suite
-    ☐ Add decorators for only/skip (Possibly as @Test.only.skip())
+    ☐ Add decorators for only/skip (Possibly as TestDecorator.only.skip())
 
   Reporters:
     Live:

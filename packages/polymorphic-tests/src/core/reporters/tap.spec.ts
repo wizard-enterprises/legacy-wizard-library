@@ -1,7 +1,6 @@
 import { ReporterTestSuite } from "./reporter.spec";
 import { TestReporterType } from "."
 import { Suite, Test } from "../../public-api";
-import { TestReportForTests } from "../../../test/test-running-suite";
 import { TapReporter } from "./tap";
 
 // @Suite() class TapReporterSuite extends ReporterTestSuite {

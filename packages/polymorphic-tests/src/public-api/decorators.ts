@@ -25,29 +25,31 @@ export interface DecoratorOpts {
 export interface SuiteDecoratorOpts extends DecoratorOpts {}
 export interface TestDecoratorOpts extends DecoratorOpts {}
 
+let defaultConfig = DecoratorConfig.getInstance()
+
 export function Suite(opts: SuiteDecoratorOpts = {}) {
-  return decorateSuite(opts)
+  return decorateSuite(defaultConfig, opts)
 }
 
-export function decorateSuite(opts: SuiteDecoratorOpts, config = DecoratorConfig.getInstance()) {
-  return decorateSubSuite(null, opts as SuiteDecoratorOpts, config)
+export function decorateSuite(config, opts: SuiteDecoratorOpts = {}) {
+  return decorateSubSuite(config, null, opts)
 }
 
-export function SubSuite(parentSuite: new () => TestSuite, opts: SuiteDecoratorOpts) {
-  return decorateSubSuite(parentSuite, opts)
+export function SubSuite(parentSuite: new () => TestSuite, opts: SuiteDecoratorOpts = {}) {
+  return decorateSubSuite(defaultConfig, parentSuite, opts)
 }
 
-export function decorateSubSuite(parentSuite: new () => TestSuite, opts: SuiteDecoratorOpts, config = DecoratorConfig.getInstance()) {
+export function decorateSubSuite(config, parentSuite: new () => TestSuite, opts: SuiteDecoratorOpts = {}) {
   return function (target: new () => TestSuite) {
     config.registery.registerSuite(target, opts, parentSuite)
   }
 }
 
 export function Test(opts: TestDecoratorOpts = {}) {
-  return decorateTest(opts)
+  return decorateTest(defaultConfig, opts)
 }
 
-export function decorateTest(opts: TestDecoratorOpts, config = DecoratorConfig.getInstance()) {
+export function decorateTest(config, opts: TestDecoratorOpts = {}) {
   return function (suite: TestSuite, testName: string) {
     config.registery.registerTest(suite, suite[testName], testName, {...opts, name: opts.name || testName})
   }

@@ -3,13 +3,15 @@ import { DecoratorConfig } from "../src/public-api/decorators"
 import { TestEntityRegistery } from "../src/core/test-registery"
 import { GlobalSuiteForTests, DecoratorConfigForTests, ConsoleSpy, TestEntityIdStoreForTests } from "./mocks"
 import { TestReporter } from "../src/core/reporters/test-reporter"
-import { SimpleTestReporter } from "../src/core/reporters/simple"
 import { TestRunner } from "../src/core/test-runner"
 import { Suite as InternalSuite } from '../src/suite'
 import { TestSuite } from "../src/public-api"
 import { TestEntityIdStore } from "../src/core/abstract-test-entity"
+import { RawReporter } from "../src/core/reporters/raw"
+import { SimpleTestReporter } from "../src/core/reporters/simple"
+import { TestReporterType, getReporterOfType } from "../src/core/reporters"
 
-export class TestRunningSuite extends TestSuite {
+export abstract class TestRunningSuite extends TestSuite {
   protected globalSuite: GlobalSuite
   protected decoratorConfig: DecoratorConfig
   protected registery: TestEntityRegistery
@@ -26,24 +28,32 @@ export class TestRunningSuite extends TestSuite {
     this.consoleSpy = new ConsoleSpy
     this.reporter = null
   }
-  
-  protected async getReportByRunningSuite(
-    rootSuite: InternalSuite = this.globalSuite,
-    reporterCtor: typeof TestReporter = SimpleTestReporter
-  ) {
-    await this.runSuite(rootSuite, reporterCtor)
-    return new TestReportForTests(this.consoleSpy)
-  }
 
   protected async runSuite(
     rootSuite: InternalSuite = this.globalSuite,
-    reporterCtor: typeof TestReporter = SimpleTestReporter
+    reporterCtor: typeof TestReporter = RawReporter
   ) {
     if (!this.reporter)
       //@ts-ignore
       this.reporter = new reporterCtor(rootSuite)
     this.reporter['console'] = this.consoleSpy as unknown as Console
     await new TestRunner(rootSuite, this.reporter).run()
+  }
+
+  protected reporterType: TestReporterType = TestReporterType.raw
+  protected async getReportByRunningSuite(suite: InternalSuite = this.globalSuite) {
+    await this.runSuite(suite, getReporterOfType(this.reporterType))
+    return new (getReportForTestsByType(this.reporterType))(this.consoleSpy)
+  }
+}
+
+function getReportForTestsByType(type: TestReporterType) {
+  switch (type) {
+    case TestReporterType.raw:
+    case TestReporterType.tap:
+    case TestReporterType.simple:
+    default:
+      return TestReportForTests
   }
 }
 

@@ -1,25 +1,24 @@
-import { TestRunningSuite, TestReportForTests } from "../../../test/test-running-suite";
+import { TestReportForTests, TestRunningSuite } from "../../../test/test-running-suite";
 import { Test, TestSuite } from "../../public-api";
 import { decorateSuite, decorateTest } from "../../public-api/decorators";
 import { TestReporterType, getReporterOfType } from ".";
 
 export abstract class ReporterTestSuite extends TestRunningSuite {
-  protected abstract type: TestReporterType
   async before() {
     await super.before()
-    this.reporter = new (getReporterOfType(this.type))
+    this.reporter = new (getReporterOfType(this.reporterType))
   }
 
   @Test() async 'aggregates test results'(t) {
     let config = this.decoratorConfig
-    @decorateSuite({}, config) class ExampleSuite extends TestSuite {
-      @decorateTest({skip: true, only: true}, config) skip(t) { t.assert(false) }
-      @decorateTest({}, config) skipBecauseNotOnly(t) { t.assert(false) }
-      @decorateTest({only: true}, config) fail(t) { t.assert(false) }
-      @decorateTest({only: true}, config) pass(t) { t.assert(true) }
+    @decorateSuite(config) class ExampleSuite extends TestSuite {
+      @decorateTest(config, {skip: true, only: true}) skip(t) { t.assert(false) }
+      @decorateTest(config) skipBecauseNotOnly(t) { t.assert(false) }
+      @decorateTest(config, {only: true}) fail(t) { t.assert(false) }
+      @decorateTest(config, {only: true}) pass(t) { t.assert(true) }
     }
-    // @decorateSuite({skip: true}, config) class ExampleSkippedSuite extends ExampleSuite {
-    //   @decorateTest({}, config) skipInSuite() { assert(false) }
+    // @decorateSuite(config, {skip: true}) class ExampleSkippedSuite extends ExampleSuite {
+    //   @decorateTest(config) skipInSuite() { assert(false) }
     // }
     class ExampleSkippedSuite {skipInSuite() {}}
     let report = await this.getReportByRunningSuite()

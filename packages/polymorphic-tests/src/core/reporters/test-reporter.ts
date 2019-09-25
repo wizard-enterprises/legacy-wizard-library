@@ -2,6 +2,7 @@ import { TestEntity, TestEntityStatus, TestEntityType } from "../abstract-test-e
 import { Suite } from "../../suite"
 import { TestMethod } from "../../test-method"
 import { TestReporterType } from "."
+import { GlobalSuite } from "../../suite/global"
 
 export type TestReporterDelegate = {
   testEntityIsExecuting(entity: TestEntity): void
@@ -62,6 +63,10 @@ class TestReporterEntityCache {
 
   public get suites() {
     return this.getFilteredEntitiesByType<Suite>(TestEntityType.suite)
+  }
+
+  public get globalSuite() {
+    return this.suites.find(suite => suite instanceof GlobalSuite) as GlobalSuite
   }
 
   private getFilteredEntitiesByType<T extends TestEntity = TestEntity>(type: TestEntityType) {

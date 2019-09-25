@@ -7,14 +7,14 @@ export interface TestSuiteRunnerDelegate {
 export class TestSuite implements TestSuiteRunnerDelegate {
   setup(): any|Promise<any> {}
   teardown(): any|Promise<any> {}
-  before(): any|Promise<any> {}
-  after(): any|Promise<any> {}
+  before(t: TestArg): any|Promise<any> {}
+  after(t: TestArg): any|Promise<any> {}
 
   public async runTestPolymorphically(testName: string, testArg: TestArg) {
     let clone = this.cloneSelf()
-    await clone.before()
+    await clone.before(testArg)
     await clone[testName](testArg)
-    await clone.after()
+    await clone.after(testArg)
   }
 
   private cloneSelf(obj = this) {

@@ -4,6 +4,7 @@ import {TapReporter} from './tap'
 export enum TestReporterType {
   simple = 'simple',
   tap = 'tap',
+  raw = 'raw',
 }
 
 export function getReporterOfType(type: TestReporterType) {
