@@ -12,7 +12,7 @@ class SimpleFlows extends TestRunningSuite {
     let config = this.decoratorConfig
     @decorateSuite(config) class ExampleSuite extends TestSuite {}
     t.assert.primitiveEqual(
-      (await this.getReportByRunningSuite()).lines,
+      (await this.runSuiteAndGetReport()).lines,
       ['Running tests...', 'Run successful, 0/0 passed.'],
     )
   }
@@ -23,7 +23,7 @@ class SimpleFlows extends TestRunningSuite {
       @decorateTest(config, {skip: true}) skip(t) { t.assert(false) }
     }
     t.assert.primitiveEqual(
-      (await this.getReportByRunningSuite()).lines,
+      (await this.runSuiteAndGetReport()).lines,
       ['Running tests...', 'Run successful, 0/1 passed.'],
     )
   }
@@ -34,7 +34,7 @@ class SimpleFlows extends TestRunningSuite {
       @decorateTest(config) pass(t) { t.assert(true) }
     }
     t.assert.primitiveEqual(
-      (await this.getReportByRunningSuite()).lines,
+      (await this.runSuiteAndGetReport()).lines,
       ['Running tests...', 'Run successful, 1/1 passed.'],
     )
   }
@@ -46,7 +46,7 @@ class SimpleFlows extends TestRunningSuite {
       @decorateTest(config, {skip: true}) skip() { t.assert(false) }
       @decorateTest(config) fail() { t.assert(false) }
     }
-    let reportLines = (await this.getReportByRunningSuite()).lines
+    let reportLines = (await this.runSuiteAndGetReport()).lines
     t.assert.identical(reportLines[0], 'Running tests...')
     t.assert.includes(reportLines[1], 'Test "fail" failed:')
     t.assert.includes(reportLines[1], 'Expected "false" to be truthy')
@@ -88,7 +88,7 @@ class SimpleFlows extends TestRunningSuite {
     @decorateSubSuite(config, ShouldRun3) class ShouldNotRun3 extends TestSuite {
       @decorateTest(config) shouldNotRun(t) { t.assert(false) }
     }
-    let report = await this.getReportByRunningSuite()
+    let report = await this.runSuiteAndGetReport()
     t.assert.identical(report.lastLine, 'Run successful, 4/13 passed.', report.full)
     t.assert.identical(runCount, 4)
   }
@@ -153,7 +153,7 @@ class SimpleFlows extends TestRunningSuite {
       }
     }
     
-    let report = await this.getReportByRunningSuite()
+    let report = await this.runSuiteAndGetReport()
     t.assert.identical(report.lastLine, 'Run successful, 3/3 passed.')
     t.assert.identical(constructorCalledTimes, 1, 'Constructor should have been called once')
     t.assert.identical(setupCalledTimes, 1, 'Setup should have been called once')
@@ -173,7 +173,7 @@ class SimpleFlows extends TestRunningSuite {
     @decorateSuite(config) class ChildSuite extends ParentSuite {
       @decorateTest(config) 'test in child'(t) { t.assert(true) }
     }
-    let report = await this.getReportByRunningSuite()
+    let report = await this.runSuiteAndGetReport()
     t.assert.primitiveEqual(report.lastLine, 'Run successful, 5/5 passed.')
   }
 }

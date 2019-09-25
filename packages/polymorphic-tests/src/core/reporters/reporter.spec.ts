@@ -21,7 +21,7 @@ export abstract class ReporterTestSuite extends TestRunningSuite {
     //   @decorateTest(config) skipInSuite() { assert(false) }
     // }
     class ExampleSkippedSuite {skipInSuite() {}}
-    let report = await this.getReportByRunningSuite()
+    let report = await this.runSuiteAndGetReport()
     console.log('failingTests', this.reporter.failingTests.length, this.reporter.failingTests.map(f => f.name))
     console.log('skippedTests', this.reporter.skippedTests.length, this.reporter.skippedTests.map(f => f.name))
     console.log('passingTests', this.reporter.passingTests.length, this.reporter.passingTests.map(f => f.name))

@@ -7,7 +7,7 @@ Working list:
   ✔ Run empty suite @started(19-09-25 15:00) @done(19-09-25 16:54) @lasted(1h54m51s)
   ✔ Run suite with subsuite with empty test @started(19-09-25 17:31) @done(19-09-25 18:04) @lasted(33m13s)
     ✔ Refactor afterwards @started(19-09-25 17:25) @done(19-09-25 18:24) @lasted(59m32s)
-  ☐ Run suite with async test (duration)
+  ✔ Run suite with async test (duration) @started(19-09-25 18:46) @done(19-09-25 18:57) @lasted(11m55s)
   ☐ Timeout test based on config and test override
   ☐ Run test with passing assertions
   ☐ Run test with failing assertion

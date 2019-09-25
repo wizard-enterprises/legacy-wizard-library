@@ -7,8 +7,7 @@ import { TestEntityType as Type, TestEntityStatus as Status } from "../src/core/
   @Test() async 'run empty suite'(t) {
     let config = this.decoratorConfig
     @decorateSuite(config) class EmptySuite extends TestSuite {}
-    await this.runSuite()
-    let report = this.reporter['makeEndReport']()
+    let report = await this.runSuiteAndGetReport()
     t.assert.objectMatches(report, [this.suiteReport('EmptySuite')])
     t.assert.identical(report.length, 1)
   }
@@ -21,8 +20,7 @@ import { TestEntityType as Type, TestEntityStatus as Status } from "../src/core/
     @decorateSubSuite(config, ParentSuite) class ChildSuite extends TestSuite {
       @decorateTest(config) test() {}
     }
-    await this.runSuite()
-    let report = this.reporter['makeEndReport']()
+    let report = await this.runSuiteAndGetReport()
     t.assert.objectMatches(report, [
       this.suiteReport('ParentSuite', { children: [
         this.testReport('ParentSuite: test'),
@@ -31,6 +29,22 @@ import { TestEntityType as Type, TestEntityStatus as Status } from "../src/core/
         ]}),
       ]})
     ])
+  }
+
+  @Test() async 'run async test'(t) {
+    let testDuration = 10, 
+      config = this.decoratorConfig
+    @decorateSuite(config) class ExampleSuite extends TestSuite {
+      @decorateTest(config) 'async test'(t) {
+        return new Promise(resolve => setTimeout(resolve, testDuration))
+      }
+    }
+    let report = await this.runSuiteAndGetReport()
+    t.assert.objectMatches(report, [
+      this.suiteReport('ExampleSuite', {children: [this.testReport('ExampleSuite: async test')]})
+    ])
+    let testReport = report[0].children[0]
+    t.assert(testReport.end.getTime() > testReport.start.getTime() + testDuration)
   }
 
   private testReport(id: string, status = Status.passed) {
@@ -45,5 +59,13 @@ import { TestEntityType as Type, TestEntityStatus as Status } from "../src/core/
       type: Type.suite,
       children,
     }
+  }
+
+  protected runSuiteAndGetReport() {
+    return super.runSuiteAndGetReport() as Promise<any>
+  }
+
+  protected getReport() {
+    return this.reporter['makeEndReport']()
   }
 }

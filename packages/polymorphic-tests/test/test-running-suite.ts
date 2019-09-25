@@ -41,8 +41,12 @@ export abstract class TestRunningSuite extends TestSuite {
   }
 
   protected reporterType: TestReporterType = TestReporterType.raw
-  protected async getReportByRunningSuite(suite: InternalSuite = this.globalSuite) {
+  protected async runSuiteAndGetReport(suite: InternalSuite = this.globalSuite) {
     await this.runSuite(suite, getReporterOfType(this.reporterType))
+    return this.getReport()
+  }
+  
+  protected getReport() {
     return new (getReportForTestsByType(this.reporterType))(this.consoleSpy)
   }
 }
