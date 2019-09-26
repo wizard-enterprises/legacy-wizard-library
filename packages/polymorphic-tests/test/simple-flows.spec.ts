@@ -42,9 +42,9 @@ class SimpleFlows extends TestRunningSuite {
   @Test() async 'report failing suite'(t) {
     let config = this.decoratorConfig
     @decorateSuite(config) class ExampleSuite extends TestSuite {
+      @decorateTest(config) fail() { t.assert(false) }
       @decorateTest(config) pass() { t.assert(true) }
       @decorateTest(config, {skip: true}) skip() { t.assert(false) }
-      @decorateTest(config) fail() { t.assert(false) }
     }
     let reportLines = (await this.runSuiteAndGetReport()).lines
     t.assert.identical(reportLines[0], 'Running tests...')

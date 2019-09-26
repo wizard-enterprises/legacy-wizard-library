@@ -1,4 +1,4 @@
-import { ReporterTestSuite } from "./reporter.spec";
+import { SummaryReporterTestSuite } from "./reporter.spec";
 import { TestReporterType } from "."
 import { Suite, Test } from "../../public-api";
 import { TapReporter } from "./tap";

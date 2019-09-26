@@ -11,11 +11,23 @@ export type TestReporterDelegate = {
   testEntitySkipped(entity: TestEntity): void
 }
 
-export abstract class TestReporter {
-  protected entityCache = new TestReporterEntityCache
+export abstract class TestReporter implements TestReporterDelegate {
   protected console = console
   abstract type: TestReporterType
+  
+  public async start() {}
+  public async end() {}
 
+  abstract testEntityIsExecuting(entity: TestEntity): void
+  abstract testEntityPassed(entity: TestEntity): void
+  abstract testEntityFailed(entity: TestEntity, ...reasons: Error[]): void
+  abstract testEntitySkipped(entity: TestEntity): void
+  
+  public getDelegate(): TestReporterDelegate { return this }
+}
+
+export abstract class SummaryTestReporter extends TestReporter {
+  protected entityCache = new TestReporterEntityCache
   public testMethods: TestMethod[] = []
   public get passingTests() { return this.getTestMethodsWithStatus(TestEntityStatus.passed) }
   public get failingTests() { return this.getTestMethodsWithStatus(TestEntityStatus.failed) }
@@ -23,28 +35,26 @@ export abstract class TestReporter {
   private getTestMethodsWithStatus(status: TestEntityStatus) {
     return this.testMethods.filter(t => t.status === status)
   }
-  
-  public async start() {}
+
   public async end() {
+    await super.end()
     this.testMethods = this.entityCache.methods
   }
-
-  public getDelegate() { return this as unknown as TestReporterDelegate }
   
-  protected testEntityIsExecuting(entity: TestEntity) {
+  public testEntityIsExecuting(entity: TestEntity) {
     this.updateTestEntityStatus(entity, TestEntityStatus.executing)
   }
 
-  protected testEntityPassed(entity: TestEntity) {
+  public testEntityPassed(entity: TestEntity) {
     this.updateTestEntityStatus(entity, TestEntityStatus.passed)
   }
   
-  protected testEntityFailed(entity: TestEntity, ...reasons: Error[]) {
+  public testEntityFailed(entity: TestEntity, ...reasons: Error[]) {
     this.updateTestEntityStatus(entity, TestEntityStatus.failed)
     this.entityCache.addFailureReasons(entity, ...reasons)
   }
   
-  protected testEntitySkipped(entity: TestEntity) {
+  public testEntitySkipped(entity: TestEntity) {
     this.updateTestEntityStatus(entity, TestEntityStatus.skipped)
   }
   

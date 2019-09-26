@@ -1,9 +1,9 @@
 import { TestMethod } from "../../test-method"
 import { TestEntityStatus, TestEntity } from "../abstract-test-entity"
-import { TestReporter } from "./test-reporter"
+import { SummaryTestReporter } from "./test-reporter"
 import { TestReporterType } from "."
 
-export class TapReporter extends TestReporter {
+export class TapReporter extends SummaryTestReporter {
   type = TestReporterType.tap
   async end() {
     await super.end()

@@ -2,11 +2,13 @@ import { TestReportForTests, TestRunningSuite } from "../../../test/test-running
 import { Test, TestSuite } from "../../public-api";
 import { decorateSuite, decorateTest } from "../../public-api/decorators";
 import { TestReporterType, getReporterOfType } from ".";
+import { SummaryTestReporter } from "./test-reporter";
 
-export abstract class ReporterTestSuite extends TestRunningSuite {
+export abstract class SummaryReporterTestSuite extends TestRunningSuite {
+  reporter: SummaryTestReporter
   async before() {
     await super.before()
-    this.reporter = new (getReporterOfType(this.reporterType))
+    this.reporter = new (getReporterOfType(this.reporterType)) as SummaryTestReporter
   }
 
   @Test() async 'aggregates test results'(t) {

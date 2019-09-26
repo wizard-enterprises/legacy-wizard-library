@@ -1,16 +1,24 @@
 Working list:
-  These should be tested against a raw end reporter that
+  These should be tested against a summary reporter that
     takes the finished event stream and returns standard
     report data structure (proprietary format, passed to
-    all end reporters).
+    all summary reporters).
 
   ✔ Run empty suite @started(19-09-25 15:00) @done(19-09-25 16:54) @lasted(1h54m51s)
   ✔ Run suite with subsuite with empty test @started(19-09-25 17:31) @done(19-09-25 18:04) @lasted(33m13s)
     ✔ Refactor afterwards @started(19-09-25 17:25) @done(19-09-25 18:24) @lasted(59m32s)
   ✔ Run suite with async test (duration) @started(19-09-25 18:46) @done(19-09-25 18:57) @lasted(11m55s)
-  ☐ Timeout test based on config and test override
+  ☐ Timeout
+    ✔ Do planning @started(19-09-26 11:50) @done(19-09-26 12:38) @lasted(48m34s)
+      ✔ Write timeout test @started(19-09-26 13:24) @done(19-09-26 14:04) @lasted(40m55s)
+      ✔ Separate TestReporter to abstract with delegate stuff and abstract summary coupled to simple @started(19-09-26 14:06) @done(19-09-26 14:15) @lasted(9m20s)
+      ☐ Have running test entities return observables instead of promises, have abstract summary subscribe @started(19-09-26 14:15)
+      ☐ Propagate global config timeout to test entity run and support in run observable
+    ☐ By global config
+    ☐ By suite and test overrides
   ☐ Run test with passing assertions
   ☐ Run test with failing assertion
+  ☐ Add lifecycle hooks to suite
   ☐ Fail parent suite when children fail
 
   ☐ Skip suites and tests
@@ -21,7 +29,6 @@ Working list:
   ☐ Run multiple failing suites and stop suite after first contained failed test
   ☐ Run multiple failing suites and run all tests regardless of failure
 
-  ☐ Add lifecycle hooks to suite
   ☐ Plain JS example
   
   Polymorphic tests:
@@ -38,8 +45,8 @@ Working list:
         ☐ Accept TAP reporter and live report to it
       Raw:
         Parses finished event stream to standard report (JSON? YAML?)
-        The base end reporter class wraps this reporter
+        The base summary reporter class wraps this reporter
         ☐ Parse event stream to standard report
-    End:
+    Summary:
       Simple:
-        ☐ Extend base end reporter class to report based on standard report
+        ☐ Extend base summary reporter class to report based on standard summary

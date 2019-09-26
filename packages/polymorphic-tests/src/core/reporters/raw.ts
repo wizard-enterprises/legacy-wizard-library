@@ -1,9 +1,9 @@
 import { TestReporterType } from '.'
-import { TestReporter } from './test-reporter'
+import { SummaryTestReporter } from './test-reporter'
 import { Suite } from '../../suite'
 import { TestEntityType, TestEntityStatus, TestEntity } from '../abstract-test-entity'
 
-export class RawReporter extends TestReporter {
+export class RawReporter extends SummaryTestReporter {
   type = TestReporterType.raw
   async end() {
     await super.end()

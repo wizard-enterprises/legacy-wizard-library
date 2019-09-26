@@ -30,7 +30,7 @@ assert.objectMatches = function assertObjectMatches(a, b, message?, _this: Funct
 }
 
 function customizerForLodashMatchEqual(_this) {
-  return (a, b, _this) => {
+  return (a, b) => {
     if (isPlainObject(a) || Array.isArray(a)
       || isPlainObject(b) || Array.isArray(b))
       return undefined 

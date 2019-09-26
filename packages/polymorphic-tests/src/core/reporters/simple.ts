@@ -1,9 +1,9 @@
-import { TestReporter } from "./test-reporter"
+import { SummaryTestReporter } from "./test-reporter"
 import { TestEntity, TestEntityType, TestEntityStatus } from "../abstract-test-entity"
 import { TestMethod } from "../../test-method"
 import { TestReporterType } from "."
 
-export class SimpleTestReporter extends TestReporter {
+export class SimpleTestReporter extends SummaryTestReporter {
   type = TestReporterType.simple
   async start() {
     await super.start()
@@ -15,7 +15,7 @@ export class SimpleTestReporter extends TestReporter {
     this.console.log(this.makeEndReport())
   }
 
-  protected testEntityFailed(entity: TestEntity, ...reasons: Error[]) {
+  public testEntityFailed(entity: TestEntity, ...reasons: Error[]) {
     super.testEntityFailed(entity, ...reasons)
     if (entity.type === TestEntityType.test)
       this.reportTestFailure(entity as TestMethod, ...reasons)

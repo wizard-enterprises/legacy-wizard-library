@@ -1,61 +1,40 @@
 //watch: "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts"
-import 'source-map-support/register'
-import * as packageJson from 'pjson'
 import chalk from 'chalk'
 import clear from 'clear'
-import * as figlet from 'figlet'
 import program from 'commander'
+import * as figlet from 'figlet'
 import * as fs from 'fs-extra'
+import globby from 'globby'
 import * as path from 'path'
-import globby from 'globby' 
-import { GlobalSuite } from '../suite/global.js'
+import * as packageJson from 'pjson'
+import 'source-map-support/register'
+import { getReporterOfType, TestReporterType } from '../core/reporters/index.js'
 import { TestRunner } from '../core/test-runner.js'
-import { TestReporterType, getReporterOfType } from '../core/reporters/index.js'
-import { exec } from 'child_process'
+import { GlobalSuite } from '../suite/global.js'
 
 interface PolytestConfig {
   reporter: TestReporterType
+  timeout: number,
   testFileGlobs: string[]
   sourceFileGlobs: string[]
   setupFiles?: string[]
-  buildCommand?: string
 }
 
-class PolytestConfigClass {
-  constructor(
-    public reporter: TestReporterType = TestReporterType.simple,
-    public testFileGlobs: string[] = null,
-    public sourceFileGlobs: string[] = null,
-    public setupFiles: string[] = null,
-    public buildCommand: string = undefined,
-  ) {
-    this.testFileGlobs = testFileGlobs || [
-      `(src|app|lib|build|dist)/**/*.(spec|test).js`,
-      `(src|app|lib|build|dist)/**/__tests__/**/*.js`
-    ]
-    this.sourceFileGlobs = sourceFileGlobs || [
-      `(src|app|lib|build|dist)/**/*.js`,
-      `!(src|app|lib|build|dist)/**/*.(spec|test).js`,
-    ]
-    this.setupFiles = setupFiles || []
-  }
+const defaultConfig: PolytestConfig = {
+  reporter: TestReporterType.simple,
+  timeout: 2000,
+  testFileGlobs: [
+    `(src|app|lib|build|dist)/**/*.(spec|test).js`,
+    `(src|app|lib|build|dist)/**/__tests__/**/*.js`
+  ],
+  sourceFileGlobs: [
+    `(src|app|lib|build|dist)/**/*.js`,
+    `!(src|app|lib|build|dist)/**/*.(spec|test).js`,
+  ],
+  setupFiles: [],
 }
 
-interface CliOptionOverrides {
-  reporter?: TestReporterType,
-  testFileGlobs?: string[],
-  sourceFileGlobs?: string[],
-  setupFiles?: string[],
-  buildCommand?: string,
-}
-
-enum CliSubCommands {
-  help = 'help',
-  run = 'run',
-  init = 'init',
-}
-
-let defaultConfig = new PolytestConfigClass() as PolytestConfig
+type CliOptionOverrides = Partial<PolytestConfig>;
 
 program
   .name('polytest')
@@ -64,7 +43,7 @@ program
   .helpOption('-h, --help', 'Print usage information')
   
 program
-  .command(CliSubCommands.run)
+  .command('run')
   .description('Run tests')
   .option('-w, --watch', 'Start in watch mode')
   .option('-b, --build-command <buildCommand>', "Run tests after build command")
@@ -84,7 +63,7 @@ program
   .action(options => runTests(options))
   
 program
-  .command(CliSubCommands.init)
+  .command('init')
   .description('Setup PolyTest in project')
   .option('-y', 'Accept all default config values')
   .action(options => new Promise(resolve => setTimeout(() => resolve(console.log('in timeout')), 1)))
@@ -126,7 +105,6 @@ function printBanner() {
 
 async function runTests(options: CliOptionOverrides = {}) {
   let config = await composeConfig(options)
-  if (config.buildCommand) await exec(`npm run ${config.buildCommand}`)
   await runGlobalSuite(config)
 }
 
@@ -140,15 +118,7 @@ async function composeConfig(options: CliOptionOverrides = {}) {
     )
   for (let key of Object.keys(defaultConfig))
     composed[key] = merged[key]
-  
-  let c = composed
-  return new PolytestConfigClass(
-    c.reporter,
-    c.testFileGlobs,
-    c.sourceFileGlobs,
-    c.setupFiles,
-    c.buildCommand,
-  ) as PolytestConfig
+  return composed as PolytestConfig
 }
 
 function mergeConfigs(...configs: PolytestConfig[]) {
@@ -192,7 +162,7 @@ async function runGlobalSuite(config: PolytestConfig) {
 }
 
 async function importAllTestFiles(config: PolytestConfig) {
-  let testFiles = await globby([...config.setupFiles, ...config.testFileGlobs].map(glob =>
+  let testFiles = await globby([...(config.setupFiles || []), ...config.testFileGlobs].map(glob =>
     path.join(process.cwd(), glob)))
   await Promise.all(testFiles.map(file => import(file)))
 }
