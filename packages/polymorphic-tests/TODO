@@ -12,8 +12,10 @@ Working list:
     ✔ Do planning @started(19-09-26 11:50) @done(19-09-26 12:38) @lasted(48m34s)
       ✔ Write timeout test @started(19-09-26 13:24) @done(19-09-26 14:04) @lasted(40m55s)
       ✔ Separate TestReporter to abstract with delegate stuff and abstract summary coupled to simple @started(19-09-26 14:06) @done(19-09-26 14:15) @lasted(9m20s)
-      ☐ Have running test entities return observables instead of promises, have abstract summary subscribe @started(19-09-26 14:15)
+      ✔ Have running test entities return observables instead of promises, have abstract summary subscribe @started(19-09-26 14:15) @done(19-09-26 15:05) @lasted(50m17s)
       ☐ Propagate global config timeout to test entity run and support in run observable
+        ✔ First chunk @started(19-09-26 15:15) @done(19-09-26 18:30) @lasted(3h15m00s)
+        ✔ Basic nonconfigurable timeout @started(19-10-02 10:30) @done(19-10-02 11:30) @lasted(1h49s)
     ☐ By global config
     ☐ By suite and test overrides
   ☐ Run test with passing assertions

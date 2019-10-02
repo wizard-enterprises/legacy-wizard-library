@@ -50,23 +50,33 @@ import { TestEntityType as Type, TestEntityStatus as Status } from "../src/core/
   @Test() async 'timeout according to test configuration'(t) {
     let config = this.decoratorConfig
     @decorateSuite(config) class TimeoutSuite extends TestSuite {
-      testTimeout = 1
-      @decorateTest(config) 'should timeout'(t) {
-        return new Promise(resolve => setTimeout(resolve, 2))
+      timeout = 5
+      @decorateTest(config) async 'should timeout'(t) {
+        await new Promise(resolve => setTimeout(resolve, 6))
+        console.warn('after timeout')
       }
-      @decorateTest(config) 'should not timeout'(t) {
-        t.timeout = 3
-        return new Promise(resolve => setTimeout(resolve, 2))
-      }
+      // @decorateTest(config) 'should not timeout'(t) {
+      //   t.timeout = 20
+      //   return new Promise(resolve => setTimeout(resolve, 10))
+      // }
+      // @decorateTest(config) async 'should also timeout'(t) {
+      //   await new Promise(resolve => setTimeout(resolve, 5))
+      //   t.timeout = 1
+      // }
     }
     let report = await this.runSuiteAndGetReport()
     t.assert.objectMatches(report, [
       this.suiteReport('TimeoutSuite', {status: Status.failed, children: [
         this.testReport('TimeoutSuite: should timeout', Status.failed),
-        this.testReport('TimeoutSuite: should not timeout')
+        // this.testReport('TimeoutSuite: should not timeout'),
+        // this.testReport('TimeoutSuite: should also timeout', Status.failed)
       ]})
     ])
-    t.assert.includes(report[0][0].reason.message, '"should timeout" timed out at 1ms')
+    console.log()
+    console.log(JSON.stringify(report, null, 2))
+    console.log()
+    t.assert.includes(report[0].children[0].reason.message, '"should timeout" timed out at 5ms')
+    // t.assert.includes(report[0].children[2].reason.message, '"should also timeout" changed timeout to 1ms, but 2ms passed')
   }
 
   private testReport(id: string, status = Status.passed, reason?: string): TestReport {

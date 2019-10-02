@@ -1,20 +1,15 @@
-import { TestEntityOpts, TestEntity, TestEntityType, TestEntityIdStore } from "../core/abstract-test-entity"
+import { from } from "rxjs"
+import { TestEntity, TestEntityIdStore, TestEntityOpts, TestEntityType, TestEntityStatus } from "../core/abstract-test-entity"
 import { TestReporterDelegate } from "../core/reporters/test-reporter"
+import { tap } from "rxjs/operators"
 
 export interface SuiteOpts extends TestEntityOpts {
   rootSuite?: true
 }
 
-export class Suite extends TestEntity {
+export class Suite extends TestEntity<SuiteOpts> {
   public type = TestEntityType.suite
   public subTestEntities: TestEntity[] = []
-  private _opts: SuiteOpts
-  public get opts(): SuiteOpts { return this._opts }
-  public set opts(opts: SuiteOpts) {
-    this._opts = opts
-    if (this.subTestEntities)
-      this.applyOptsToSubEntities(this.subTestEntities)
-  }
   protected updateForSkipBecauseOfOnly() {
     this.applyOptsToSubEntities(this.subTestEntities)
   }
@@ -26,6 +21,12 @@ export class Suite extends TestEntity {
     this.subTestEntities = this.subTestEntities.concat(
       this.applyOptsToSubEntities(testEntities))
     return this
+  }
+  
+  protected gotNewOpts(opts: SuiteOpts) {
+    super.gotNewOpts(opts)
+    if (this.subTestEntities)
+      this.applyOptsToSubEntities(this.subTestEntities, opts)
   }
   
   private applyOptsToSubEntities(entities: TestEntity[], opts: SuiteOpts = this.opts) {
@@ -40,6 +41,8 @@ export class Suite extends TestEntity {
           entity, {...entity.opts, ...opts},
         ),
       }
+      if (!entityOpts.timeout)
+        entityOpts.timeout = this.testTimeout
       entity.opts = entityOpts
     }
     return entities
@@ -50,8 +53,19 @@ export class Suite extends TestEntity {
       this.shouldSkipBecauseOfOnly && (!entityOpts.only || entityOpts.skip)
   }
 
-  async runTestEntity(reporter: TestReporterDelegate) {
-    for (let testEntity of this.subTestEntities)
-      await testEntity.run(reporter)
+  run(reporter: TestReporterDelegate) {
+    return super.run(reporter).pipe(
+      tap(() => {
+        if (this.subTestEntities.find(e => e.status === TestEntityStatus.failed))
+          reporter.testEntityFailed(this)
+      })
+    )
+  }
+
+  runTestEntity(reporter: TestReporterDelegate) {
+    return (from((async () => {
+      for (let e of this.subTestEntities)
+        await e.run(reporter).toPromise()
+    })()))
   }
 }

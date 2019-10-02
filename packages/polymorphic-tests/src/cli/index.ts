@@ -157,7 +157,8 @@ async function readJsonFileInCurrentWorkingDir(fileName: string) {
 async function runGlobalSuite(config: PolytestConfig) {
   await importAllTestFiles(config)
   let global = GlobalSuite.getInstance(),
-  reporterCtor = getReporterOfType(config.reporter)
+    reporterCtor = getReporterOfType(config.reporter)
+  global.testTimeout = config.timeout
   await new TestRunner(global, new reporterCtor).run()
 }
 

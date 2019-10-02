@@ -6,7 +6,7 @@ export class TestRunner {
 
   async run() {
     await this.reporter.start()
-    await this.rootSuite.run(this.reporter.getDelegate())
+    await this.rootSuite.run(this.reporter.getDelegate()).toPromise()
     await this.reporter.end()
   }
 }

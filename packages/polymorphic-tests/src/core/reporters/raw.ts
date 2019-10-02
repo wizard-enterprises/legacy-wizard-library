@@ -26,6 +26,7 @@ export class RawReporter extends SummaryTestReporter {
       end: entity.end,
       status: entity.status,
       type: entity.type,
+      reason: entity.reason,
     } as any
     if (entity instanceof Suite)
       parsed.children = entity.subTestEntities.map(e => this.parseTestEntity(e))
@@ -39,5 +40,6 @@ export interface TestEntityReport {
   status: TestEntityStatus
   start: Date
   end: Date
+  reason?: Error
   children?: TestEntityReport[]
 }

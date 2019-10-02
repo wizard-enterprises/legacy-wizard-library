@@ -49,9 +49,9 @@ export abstract class SummaryTestReporter extends TestReporter {
     this.updateTestEntityStatus(entity, TestEntityStatus.passed)
   }
   
-  public testEntityFailed(entity: TestEntity, ...reasons: Error[]) {
+  public testEntityFailed(entity: TestEntity, reason: Error) {
     this.updateTestEntityStatus(entity, TestEntityStatus.failed)
-    this.entityCache.addFailureReasons(entity, ...reasons)
+    this.entityCache.addFailureReasons(entity, reason)
   }
   
   public testEntitySkipped(entity: TestEntity) {
@@ -96,10 +96,7 @@ class TestReporterEntityCache {
     )
   }
   
-  public addFailureReasons(entity: TestEntity, ...reasons: Error[]) {
-    if (!this.failureReasons.get(entity.id))
-      this.failureReasons.set(entity.id, reasons)
-    else
-      this.failureReasons.get(entity.id).concat(reasons)
+  public addFailureReasons(entity: TestEntity, reason: Error) {
+    entity.reason = reason
   }
 }

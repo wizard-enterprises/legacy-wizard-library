@@ -1,19 +1,23 @@
 import { TestArg } from "../test-method"
+import { PolymorphicTestMethod } from "../test-method/polymorphic"
+import { TestReporterDelegate } from "../core/reporters/test-reporter"
 
 export interface TestSuiteRunnerDelegate {
-  runTestPolymorphically(testName: string, testArg: TestArg): Promise<void>,
+  runTestPolymorphically(reporter: TestReporterDelegate, testMethod: PolymorphicTestMethod, testArg: TestArg): Promise<void>,
 }
 
 export class TestSuite implements TestSuiteRunnerDelegate {
+  timeout?: number
   setup(): any|Promise<any> {}
   teardown(): any|Promise<any> {}
   before(t: TestArg): any|Promise<any> {}
   after(t: TestArg): any|Promise<any> {}
 
-  public async runTestPolymorphically(testName: string, testArg: TestArg) {
+  public async runTestPolymorphically(reporter: TestReporterDelegate, testMethod: PolymorphicTestMethod, testArg: TestArg) {
     let clone = this.cloneSelf()
+    testMethod.methodBinding = clone
     await clone.before(testArg)
-    await clone[testName](testArg)
+    await testMethod.superRunTestEntity(reporter).toPromise()
     await clone.after(testArg)
   }
 

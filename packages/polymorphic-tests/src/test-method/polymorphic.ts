@@ -3,6 +3,7 @@ import { TestSuite } from "../public-api/base-test-class"
 import { TestReporterDelegate } from "../core/reporters/test-reporter"
 import { TestDecoratorOpts } from "../public-api/decorators"
 import { TestEntityIdStore } from "../core/abstract-test-entity"
+import { Observable, from } from "rxjs"
 
 export class PolymorphicTestMethod extends TestMethod {
   constructor(
@@ -15,11 +16,9 @@ export class PolymorphicTestMethod extends TestMethod {
     super(name, boundMethod, opts, idStore)
   }
 
-  async run(reporter) {
-    await super.run(reporter)
-  }
+  superRunTestEntity = super.runTestEntity
 
-  async runTestEntity(reporter: TestReporterDelegate) {
-    await this.testSuite.runTestPolymorphically(this.name, this.makeTestArg())
+  runTestEntity(reporter: TestReporterDelegate) {
+    return (from(this.testSuite.runTestPolymorphically(reporter, this, this.makeTestArg()))) as Observable<void>
   }
 }

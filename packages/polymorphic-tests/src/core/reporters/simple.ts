@@ -15,14 +15,14 @@ export class SimpleTestReporter extends SummaryTestReporter {
     this.console.log(this.makeEndReport())
   }
 
-  public testEntityFailed(entity: TestEntity, ...reasons: Error[]) {
-    super.testEntityFailed(entity, ...reasons)
+  public testEntityFailed(entity: TestEntity, reason: Error) {
+    super.testEntityFailed(entity, reason)
     if (entity.type === TestEntityType.test)
-      this.reportTestFailure(entity as TestMethod, ...reasons)
+      this.reportTestFailure(entity as TestMethod, reason)
   }
 
-  private reportTestFailure(entity: TestMethod, ...reasons: Error[]) {
-    this.console.error(`Test "${entity.name}" failed:`, ...reasons)
+  private reportTestFailure(entity: TestMethod, reason: Error) {
+    this.console.error(`Test "${entity.name}" failed:`, reason)
   }
 
   makeEndReport() {
