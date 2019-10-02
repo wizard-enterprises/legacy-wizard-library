@@ -13,15 +13,18 @@ Working list:
       ✔ Write timeout test @started(19-09-26 13:24) @done(19-09-26 14:04) @lasted(40m55s)
       ✔ Separate TestReporter to abstract with delegate stuff and abstract summary coupled to simple @started(19-09-26 14:06) @done(19-09-26 14:15) @lasted(9m20s)
       ✔ Have running test entities return observables instead of promises, have abstract summary subscribe @started(19-09-26 14:15) @done(19-09-26 15:05) @lasted(50m17s)
-      ☐ Propagate global config timeout to test entity run and support in run observable
-        ✔ First chunk @started(19-09-26 15:15) @done(19-09-26 18:30) @lasted(3h15m00s)
-        ✔ Basic nonconfigurable timeout @started(19-10-02 10:30) @done(19-10-02 11:30) @lasted(1h49s)
-    ☐ By global config
-    ☐ By suite and test overrides
+    ✔ Propagate global config timeout to test entity run and support in run observable @done(19-10-02 12:59)
+      ✔ First chunk @started(19-09-26 15:15) @done(19-09-26 18:30) @lasted(3h15m00s)
+      ✔ By global config @done(19-10-02 12:24)
+      ✔ By suite overrides @done(19-10-02 12:49)
+      ✔ Basic nonconfigurable timeout @started(19-10-02 10:30) @done(19-10-02 11:30) @lasted(1h49s)
+      ✔ By test override @started(19-10-02 12:50) @done(19-10-02 12:59) @lasted(9m23s)
+    ☐ Cancel tests on timeout
+    ☐ Refactor
   ☐ Run test with passing assertions
   ☐ Run test with failing assertion
   ☐ Add lifecycle hooks to suite
-  ☐ Fail parent suite when children fail
+  ✔ Fail parent suite when children fail @done(19-10-02 12:25)
 
   ☐ Skip suites and tests
   ☐ Run only suites and tests marked with only in given suite

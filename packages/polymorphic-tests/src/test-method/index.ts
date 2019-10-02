@@ -15,14 +15,14 @@ export class TestMethod extends TestEntity<TestMethodOpts> {
   }
 
   protected makeTestArg(): TestArg {
-    return {
-      assert,
-    }
+    return new TestArg(this)
   }
 
   public methodBinding?: Object
   public runTestEntity(reporter: TestReporterDelegate): Observable<void> {
     // let makeRunTest = () =>
+    this.start = new Date
+    this.testTimeout = this.testTimeout
     let boundMethod = this.methodBinding ? this.boundMethod.bind(this.methodBinding) : this.boundMethod
      return (from(Promise.resolve(boundMethod(this.makeTestArg())))) as Observable<void>
     // this.initializeTimeoutObservables()
@@ -57,6 +57,13 @@ export class TestMethod extends TestEntity<TestMethodOpts> {
   }
 }
 
-export interface TestArg {
-  assert: typeof assert,
+export class TestArg {
+  public assert = assert
+  constructor(private entity: TestEntity) {}
+  public set timeout(timeout: number) {
+    this.entity.testTimeout = timeout
+  }
+  public get timeout() {
+    return this.entity.testTimeout
+  }
 }

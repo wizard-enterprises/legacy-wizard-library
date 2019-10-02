@@ -20,8 +20,7 @@ import { TestEntityType as Type, TestEntityStatus as Status } from "../src/core/
     @decorateSubSuite(config, ParentSuite) class ChildSuite extends TestSuite {
       @decorateTest(config) test() {}
     }
-    let report = await this.runSuiteAndGetReport()
-    t.assert.objectMatches(report, [
+    t.assert.objectMatches(await this.runSuiteAndGetReport(), [
       this.suiteReport('ParentSuite', { children: [
         this.testReport('ParentSuite: test'),
         this.suiteReport('ParentSuite_ChildSuite', { children: [
@@ -48,35 +47,39 @@ import { TestEntityType as Type, TestEntityStatus as Status } from "../src/core/
   }
 
   @Test() async 'timeout according to test configuration'(t) {
-    let config = this.decoratorConfig
+    let config = this.decoratorConfig,
+    ranAfterTimeout = false
     @decorateSuite(config) class TimeoutSuite extends TestSuite {
       timeout = 5
       @decorateTest(config) async 'should timeout'(t) {
         await new Promise(resolve => setTimeout(resolve, 6))
-        console.warn('after timeout')
+        ranAfterTimeout = true
       }
-      // @decorateTest(config) 'should not timeout'(t) {
-      //   t.timeout = 20
-      //   return new Promise(resolve => setTimeout(resolve, 10))
-      // }
-      // @decorateTest(config) async 'should also timeout'(t) {
-      //   await new Promise(resolve => setTimeout(resolve, 5))
-      //   t.timeout = 1
-      // }
+      @decorateTest(config) 'should not timeout'(t) {
+        t.timeout = 10
+        return new Promise(resolve => setTimeout(resolve, 6))
+      }
+      @decorateTest(config) async 'should also timeout'(t) {
+        await new Promise(resolve => setTimeout(resolve, 2))
+        t.timeout = 1
+      }
     }
     let report = await this.runSuiteAndGetReport()
     t.assert.objectMatches(report, [
       this.suiteReport('TimeoutSuite', {status: Status.failed, children: [
         this.testReport('TimeoutSuite: should timeout', Status.failed),
-        // this.testReport('TimeoutSuite: should not timeout'),
-        // this.testReport('TimeoutSuite: should also timeout', Status.failed)
+        this.testReport('TimeoutSuite: should not timeout'),
+        this.testReport('TimeoutSuite: should also timeout', Status.failed)
       ]})
     ])
-    console.log()
-    console.log(JSON.stringify(report, null, 2))
-    console.log()
     t.assert.includes(report[0].children[0].reason.message, '"should timeout" timed out at 5ms')
-    // t.assert.includes(report[0].children[2].reason.message, '"should also timeout" changed timeout to 1ms, but 2ms passed')
+    let shouldAlsoTimeoutErrorMessage = report[0].children[2].reason.message
+    t.assert.includes(shouldAlsoTimeoutErrorMessage, '"should also timeout" changed timeout to 1ms,')
+    let passedTime = Number(/but (\d+)ms passed/.exec(shouldAlsoTimeoutErrorMessage)[1])
+    t.assert(
+      passedTime > 1 && passedTime < 6,
+      `Expected 2ms or 3ms to have passed in error message "${shouldAlsoTimeoutErrorMessage}"`)
+    t.assert.not(ranAfterTimeout, 'Test was not cancelled at timeout')
   }
 
   private testReport(id: string, status = Status.passed, reason?: string): TestReport {

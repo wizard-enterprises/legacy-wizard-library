@@ -79,7 +79,6 @@ export abstract class TestEntity<OptsType extends TestEntityOpts = TestEntityOpt
   public get testTimeout() { return this._testTimeout}
   public set testTimeout(testTimeout: number) {
     this._testTimeout = testTimeout
-    console.log('set timeout', this.name, testTimeout)
     if (this.testTimeoutSource) this.testTimeoutSource.next(testTimeout)
   }
   private _opts: OptsType
@@ -125,22 +124,19 @@ export abstract class TestEntity<OptsType extends TestEntityOpts = TestEntityOpt
         // this.testTimeoutTerminator.pipe(startWith(null)),
         this.type === TestEntityType.suite
           ? of(null)
-          : this.testTimeoutTerminator.pipe(tap(e => console.log('test terminator updated', this.name, e)), startWith(null)),
+          : this.testTimeoutTerminator.pipe(startWith(null)),
       ).pipe(
         switchMap(([e, terminator]) => {
-          console.log(this.name, 'run update', e, terminator)
           if (terminator)
             throw terminator
             // return throwError(terminator)
           if (e === -1) return of(null)
-          console.log('in end', _this.name, e)
           _this.end = new Date 
           reporter.testEntityPassed(_this)
           return of(null)
         }),
         take(2),
         catchError(e => {
-          console.log('caught error', _this.name, e)
           let reasons = _this.failureReasonsOverride.length ? _this.failureReasonsOverride : [e]
           _this.end = new Date
           reporter.testEntityFailed(_this, ...reasons)
@@ -163,19 +159,13 @@ export abstract class TestEntity<OptsType extends TestEntityOpts = TestEntityOpt
     this.testTimeoutTerminator = this.testTimeoutSource.pipe(
       delayWhen(() => this.runStarted),
       switchMapTo(this.testTimeoutSource),
-      tap(timeout => console.log(this.name, 'switch mapping to timeout after run started')),
       switchMap(timeout => {
-        console.log(this.name, 'got timeout', timeout)
         let timePassed = Date.now() - this.start.getTime(),
           remainingTime = timeout - timePassed
-        console.log(this.name, 'time passed and remaining', timePassed, remainingTime)
         if (remainingTime < 0) throw new TimeoutError(`Test "${this.name}" changed timeout to ${timeout}ms, but ${timePassed}ms passed.`)
         return of(new TimeoutError(`Test "${this.name}" timed out at ${this.testTimeout}ms.`)).pipe(
-          tap(() => console.log(this.name, 'delaying timeout trigger by', remainingTime)),
           delay(remainingTime),
-          tap(() => console.log(this.name, 'after timeout delay')),
           take(1),
-          tap(() => console.log(this.name, 'timed out!')),
           // tap(() => {throw new TimeoutError(`Test "${this.name}" timed out at ${this.testTimeout}ms.`)}),
           // mapTo('foo' as null)
           )
