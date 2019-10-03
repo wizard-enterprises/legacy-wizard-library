@@ -1,4 +1,4 @@
-import { BehaviorSubject, from, NEVER, Observable, of, Subject } from "rxjs"
+import { BehaviorSubject, from, NEVER, Observable, of, Subject, race } from "rxjs"
 import { delay, delayWhen, switchMap, switchMapTo, take } from 'rxjs/operators'
 import { Suite } from "../suite"
 import { TestReporterDelegate } from "./reporters/test-reporter"
@@ -119,7 +119,7 @@ export abstract class TestEntity<OptsType extends TestEntityOpts = TestEntityOpt
     this.start = new Date
     let p = (this.type === TestEntityType.suite
       ? this.runTestEntity(reporter)
-      : Promise.race([this.runTestEntity(reporter), this.testTimeoutTerminator.toPromise()])
+      : race(from(this.runTestEntity(reporter)), this.testTimeoutTerminator).toPromise()
     ).then(r => {
       if (r instanceof Error) throw r
       this.end = new Date 
@@ -129,7 +129,6 @@ export abstract class TestEntity<OptsType extends TestEntityOpts = TestEntityOpt
       reporter.testEntityFailed(this, e)
     })
     this.runStarted.next(null)
-    this.runStarted.complete()
     return from(p) as Observable<void>
   }
 

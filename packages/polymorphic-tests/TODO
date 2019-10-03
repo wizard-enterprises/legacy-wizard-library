@@ -8,7 +8,7 @@ Current release:
   ✔ Run suite with subsuite with empty test @started(19-09-25 17:31) @done(19-09-25 18:04) @lasted(33m13s)
     ✔ Refactor afterwards @started(19-09-25 17:25) @done(19-09-25 18:24) @lasted(59m32s)
   ✔ Run suite with async test (duration) @started(19-09-25 18:46) @done(19-09-25 18:57) @lasted(11m55s)
-  ☐ Timeout
+  ✔ Timeout @started(19-09-26 11:50) @done(19-10-03 14:35) @lasted(1w2h45m17s)
     ✔ Do planning @started(19-09-26 11:50) @done(19-09-26 12:38) @lasted(48m34s)
       ✔ Write timeout test @started(19-09-26 13:24) @done(19-09-26 14:04) @lasted(40m55s)
       ✔ Separate TestReporter to abstract with delegate stuff and abstract summary coupled to simple @started(19-09-26 14:06) @done(19-09-26 14:15) @lasted(9m20s)
@@ -29,7 +29,8 @@ Current release:
         ✘ Using importScripts to import the whole suite, and somehow run the test on the clone; @cancelled(19-10-03 11:04)
         ✘ Copying the clone over, and somehow also copying over its closure (e.g. imports in test suite file like a func under test); or, @cancelled(19-10-03 11:04)
         ✘ Using static analysis, importScripts all imports in test suite file, then copy clone over and run in correct context @cancelled(19-10-03 11:04)
-    ☐ Refactor
+    ✔ Refactor @done(19-10-03 14:35)
+      ✔ Fix process hanging after run ending @started(19-10-03 14:25) @done(19-10-03 14:34) @lasted(9m13s)
   ✔ Fail parent suite when children fail @done(19-10-02 12:25)
 
   ☐ Skip suites and tests
