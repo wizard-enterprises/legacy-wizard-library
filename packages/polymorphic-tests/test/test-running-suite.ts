@@ -1,15 +1,14 @@
-import { GlobalSuite } from "../src/suite/global"
-import { DecoratorConfig } from "../src/public-api/decorators"
-import { TestEntityRegistery } from "../src/core/test-registery"
-import { GlobalSuiteForTests, DecoratorConfigForTests, ConsoleSpy, TestEntityIdStoreForTests } from "./mocks"
-import { TestReporter } from "../src/core/reporters/test-reporter"
-import { TestRunner } from "../src/core/test-runner"
-import { Suite as InternalSuite } from '../src/suite'
-import { TestSuite } from "../src/public-api"
-import { TestEntityIdStore } from "../src/core/abstract-test-entity"
+import { TestEntityIdStore, TestEntityType as Type, TestEntityStatus as Status } from "../src/core/abstract-test-entity"
+import { getReporterOfType, TestReporterType } from "../src/core/reporters"
 import { RawReporter } from "../src/core/reporters/raw"
-import { SimpleTestReporter } from "../src/core/reporters/simple"
-import { TestReporterType, getReporterOfType } from "../src/core/reporters"
+import { TestReporter } from "../src/core/reporters/test-reporter"
+import { TestEntityRegistery } from "../src/core/test-registery"
+import { TestRunner } from "../src/core/test-runner"
+import { TestSuite } from "../src/public-api"
+import { DecoratorConfig } from "../src/public-api/decorators"
+import { Suite as InternalSuite } from '../src/suite'
+import { GlobalSuite } from "../src/suite/global"
+import { ConsoleSpy, DecoratorConfigForTests, GlobalSuiteForTests, TestEntityIdStoreForTests } from "./mocks"
 
 export abstract class TestRunningSuite extends TestSuite {
   protected globalSuite: GlobalSuite
@@ -72,3 +71,31 @@ export class TestReportForTests {
     return this.calls.args().reduce((acc, arr) => acc = [...acc, ...arr], []).join('\n')
   }
 }
+
+export abstract class RawTestRunningSuite extends TestRunningSuite {
+  protected testReport(id: string, status = Status.passed, reason?: string): TestReport {
+    let r: TestReport = {id, status, type: Type.test}
+    if (reason) r['reason'] = {message: reason}
+    return r
+  }
+  
+  protected suiteReport(id: string, {status = Status.passed, children = []} = {}): SuiteReport {
+    return {
+      ...this.testReport(id, status),
+      type: Type.suite,
+      children,
+    }
+  }
+
+  protected runSuiteAndGetReport() {
+    return super.runSuiteAndGetReport() as Promise<any>
+  }
+
+  protected getReport() {
+    return this.reporter['makeEndReport']()
+  }
+}
+
+interface TestEntityReport {id: string, status: Status, type: Type}
+interface TestReport extends TestEntityReport {type: Type.test, reason?: {message: string}}
+interface SuiteReport extends TestEntityReport {type: Type.suite, children: (TestReport|SuiteReport)[]}
