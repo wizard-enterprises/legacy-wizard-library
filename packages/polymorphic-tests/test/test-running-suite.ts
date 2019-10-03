@@ -73,9 +73,10 @@ export class TestReportForTests {
 }
 
 export abstract class RawTestRunningSuite extends TestRunningSuite {
-  protected testReport(id: string, status = Status.passed, reason?: string): TestReport {
+  protected testReport(id: string, status = Status.passed, {reason = '', assertions = []} = {}): TestReport {
     let r: TestReport = {id, status, type: Type.test}
     if (reason) r['reason'] = {message: reason}
+    if (assertions.length) r['assertions'] = assertions
     return r
   }
   

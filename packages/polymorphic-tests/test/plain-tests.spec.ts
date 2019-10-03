@@ -1,6 +1,7 @@
-import { Suite, Test, TestSuite } from "../src/public-api";
+import { Suite, SubSuite, Test, TestSuite } from "../src/public-api";
 import { decorateSubSuite, decorateSuite, decorateTest } from "../src/public-api/decorators";
 import { RawTestRunningSuite } from './test-running-suite';
+import { TestEntityStatus as Status } from "../src/core/abstract-test-entity"
 
 @Suite() export class PlainTests extends RawTestRunningSuite {
   @Test() async 'run empty suite'(t) {
@@ -43,5 +44,30 @@ import { RawTestRunningSuite } from './test-running-suite';
     ])
     let testReport = report[0].children[0]
     t.assert(testReport.end.getTime() > testReport.start.getTime() + testDuration)
+  }
+}
+
+@SubSuite(PlainTests) class AssertionReportingSuite extends RawTestRunningSuite {
+  @Test() async 'report passing assertion'(t) {
+    let config = this.decoratorConfig
+    @decorateSuite(config) class AssertionSuite extends TestSuite {
+      @decorateTest(config) 'passing test'(t) {
+        t.assert(true)
+      }
+    }
+    let report = await this.runSuiteAndGetReport()
+    t.assert.objectMatches(report, [
+      this.suiteReport('AssertionSuite', {children: [
+        this.testReport('AssertionSuite: passing test', Status.passed, {assertions: [
+          this.assertionReport(Status.passed, true, true),
+        ]})
+      ]})
+    ])
+  }
+
+  private assertionReport(status: Status.passed | Status.failed, expected, actual) {
+    return {
+      status, expected, actual,
+    }
   }
 }
