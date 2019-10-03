@@ -4,7 +4,7 @@ import { decorateSuite, decorateTest } from "../src/public-api/decorators"
 import { TestEntityStatus as Status } from "../src/core/abstract-test-entity"
 import { SubSuite, Test, TestSuite } from "../src/public-api"
 
-@SubSuite(PlainTests) class TestTimeoutSuite extends RawTestRunningSuite {
+@SubSuite(PlainTests, {skip: true}) class TestTimeoutSuite extends RawTestRunningSuite {
   @Test() async 'timeout from suite config'(t) {
     let config = this.decoratorConfig
     @decorateSuite(config) class TimeoutSuite extends TestSuite {
@@ -14,12 +14,12 @@ import { SubSuite, Test, TestSuite } from "../src/public-api"
       }
     }
     let report = await this.runSuiteAndGetReport()
-    t.assert.objectMatches(report, [
+    t.expect(report).to.containSubset([
       this.suiteReport('TimeoutSuite', {status: Status.failed, children: [
         this.testReport('TimeoutSuite: should timeout', Status.failed),
       ]})
     ])
-    t.assert.includes(report[0].children[0].reason.message, '"should timeout" timed out at 5ms')
+    t.expect(report[0].children[0].reason.message).to.include('"should timeout" timed out at 5ms')
   }
 
   @Test() async 'override timeout config in test'(t) {
@@ -32,7 +32,7 @@ import { SubSuite, Test, TestSuite } from "../src/public-api"
       }
     }
     let report = await this.runSuiteAndGetReport()
-    t.assert.objectMatches(report, [
+    t.expect(report).to.containSubset([
       this.suiteReport('TimeoutSuite', {children: [
         this.testReport('TimeoutSuite: should not timeout'),
       ]})
@@ -49,17 +49,15 @@ import { SubSuite, Test, TestSuite } from "../src/public-api"
       }
     }
     let report = await this.runSuiteAndGetReport()
-    t.assert.objectMatches(report, [
+    t.expect(report).to.containSubset([
       this.suiteReport('TimeoutSuite', {status: Status.failed, children: [
         this.testReport('TimeoutSuite: should timeout', Status.failed)
       ]})
-    ], report)
+    ])
     let errorMessage = report[0].children[0].reason.message
-    t.assert.includes(errorMessage, '"should timeout" changed timeout to 1ms,')
+    t.expect(errorMessage).to.include('"should timeout" changed timeout to 1ms,')
     let passedTime = Number(/but (\d+)ms passed/.exec(errorMessage)[1])
-    t.assert(
-      passedTime > 0 && passedTime <= 5,
-      `Expected 1-5ms to have passed in error message "${errorMessage}"`)
+    t.expect(passedTime).to.be.within(1, 5)
   }
 
   // Undesired but unavoidable.
@@ -74,6 +72,6 @@ import { SubSuite, Test, TestSuite } from "../src/public-api"
       }
     }
     await this.runSuiteAndGetReport().then(() => new Promise(res => setTimeout(res, 1)))
-    t.assert(continuedExecution)
+    t.expect(continuedExecution).to.equal(true)
   }
 }

@@ -41,11 +41,11 @@ export class TestEntityIdStore {
 
   private makeIdForEntity(entity: TestEntity) {
     let parentNameChain = this.getEntityParentNameChain(entity)
-    let unnumberedId, id = unnumberedId = entity.type === TestEntityType.suite
+    let idWithoutAddedIndex, id = idWithoutAddedIndex = entity.type === TestEntityType.suite
       ? [...parentNameChain, entity.name].join('_')
       : `${parentNameChain.join('_')}: ${entity.name}`
     for (let i = 0; this.ids.includes(id); i++)
-      id = [unnumberedId, i].join('_')
+      id = [idWithoutAddedIndex, i].join('_')
     this.ids.push(id)
     this.entities.push(entity)
     this.idEntityMap.set(entity, id)
@@ -88,7 +88,8 @@ export abstract class TestEntity<OptsType extends TestEntityOpts = TestEntityOpt
   }
   protected gotNewOpts(opts: OptsType) {
     if (opts.timeout)
-     this.testTimeout = opts.timeout
+      this.testTimeout = opts.timeout
+    this.start = new Date
   }
   private runStarted: Subject<void>
   private testTimeoutTerminator: Observable<TimeoutError>

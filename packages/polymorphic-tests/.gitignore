@@ -1,6 +1,7 @@
 C*npm/
 *.js
 *.js.map
+!test/setup.js
 node_modules
 lib
 *.orig.history

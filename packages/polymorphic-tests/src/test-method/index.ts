@@ -1,7 +1,7 @@
-import { from, Observable } from 'rxjs'
 import { TestEntity, TestEntityIdStore, TestEntityOpts, TestEntityType } from "../core/abstract-test-entity"
-import { assert } from "../core/assert"
 import { TestReporterDelegate } from "../core/reporters/test-reporter"
+import chai from 'chai'
+const chaiShould = chai.should()
 
 export interface TestMethodOpts extends TestEntityOpts {}
 
@@ -26,7 +26,9 @@ export class TestMethod extends TestEntity<TestMethodOpts> {
 }
 
 export class TestArg {
-  public assert = assert
+  public assert = chai.assert
+  public expect = chai.expect
+  public should = chaiShould
   constructor(private entity: TestEntity) {}
   public set timeout(timeout: number) {
     this.entity.testTimeout = timeout

@@ -1,15 +1,14 @@
-import { Suite, SubSuite, Test, TestSuite } from "../src/public-api";
+import { Suite, Test, TestSuite } from "../src/public-api";
 import { decorateSubSuite, decorateSuite, decorateTest } from "../src/public-api/decorators";
 import { RawTestRunningSuite } from './test-running-suite';
-import { TestEntityStatus as Status } from "../src/core/abstract-test-entity"
 
 @Suite() export class PlainTests extends RawTestRunningSuite {
   @Test() async 'run empty suite'(t) {
     let config = this.decoratorConfig
     @decorateSuite(config) class EmptySuite extends TestSuite {}
     let report = await this.runSuiteAndGetReport()
-    t.assert.objectMatches(report, [this.suiteReport('EmptySuite')])
-    t.assert.identical(report.length, 1)
+    t.expect(report).to.containSubset([this.suiteReport('EmptySuite')])
+    t.expect(report).to.have.lengthOf(1)
   }
 
   @Test() async 'run suite with subsuite with empty tests'(t) {
@@ -20,7 +19,7 @@ import { TestEntityStatus as Status } from "../src/core/abstract-test-entity"
     @decorateSubSuite(config, ParentSuite) class ChildSuite extends TestSuite {
       @decorateTest(config) test() {}
     }
-    t.assert.objectMatches(await this.runSuiteAndGetReport(), [
+    t.expect(this.runSuiteAndGetReport()).to.eventually.containSubset([
       this.suiteReport('ParentSuite', { children: [
         this.testReport('ParentSuite: test'),
         this.suiteReport('ParentSuite_ChildSuite', { children: [
@@ -39,35 +38,10 @@ import { TestEntityStatus as Status } from "../src/core/abstract-test-entity"
       }
     }
     let report = await this.runSuiteAndGetReport()
-    t.assert.objectMatches(report, [
+    t.expect(report).to.containSubset([
       this.suiteReport('ExampleSuite', {children: [this.testReport('ExampleSuite: async test')]})
     ])
     let testReport = report[0].children[0]
-    t.assert(testReport.end.getTime() > testReport.start.getTime() + testDuration)
-  }
-}
-
-@SubSuite(PlainTests) class AssertionReportingSuite extends RawTestRunningSuite {
-  @Test() async 'report passing assertion'(t) {
-    let config = this.decoratorConfig
-    @decorateSuite(config) class AssertionSuite extends TestSuite {
-      @decorateTest(config) 'passing test'(t) {
-        t.assert(true)
-      }
-    }
-    let report = await this.runSuiteAndGetReport()
-    t.assert.objectMatches(report, [
-      this.suiteReport('AssertionSuite', {children: [
-        this.testReport('AssertionSuite: passing test', Status.passed, {assertions: [
-          this.assertionReport(Status.passed, true, true),
-        ]})
-      ]})
-    ])
-  }
-
-  private assertionReport(status: Status.passed | Status.failed, expected, actual) {
-    return {
-      status, expected, actual,
-    }
+    t.expect(testReport.end.getTime()).to.be.above(testReport.start.getTime() + testDuration)
   }
 }

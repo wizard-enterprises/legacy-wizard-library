@@ -1,4 +1,4 @@
-Working list:
+Current release:
   These should be tested against a summary reporter that
     takes the finished event stream and returns standard
     report data structure (proprietary format, passed to
@@ -30,9 +30,6 @@ Working list:
         ✘ Copying the clone over, and somehow also copying over its closure (e.g. imports in test suite file like a func under test); or, @cancelled(19-10-03 11:04)
         ✘ Using static analysis, importScripts all imports in test suite file, then copy clone over and run in correct context @cancelled(19-10-03 11:04)
     ☐ Refactor
-  ☐ Run test with passing assertions
-  ☐ Run test with failing assertion
-  ☐ Add lifecycle hooks to suite
   ✔ Fail parent suite when children fail @done(19-10-02 12:25)
 
   ☐ Skip suites and tests
@@ -64,3 +61,9 @@ Working list:
     Summary:
       Simple:
         ☐ Extend base summary reporter class to report based on standard summary
+
+Next release:
+  ☐ Add assertion reporting
+    ☐ Run test with passing assertions
+    ☐ Run test with failing assertion
+    ☐ Add lifecycle hooks to suite  
