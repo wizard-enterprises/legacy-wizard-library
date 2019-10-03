@@ -18,11 +18,9 @@ export class PolymorphicSuite extends Suite {
     }
   }
 
-  runTestEntity(reporter: TestReporterDelegate) {
-    return (from((async () => {
-      await this.externalSuite.setup()
-      await super.runTestEntity(reporter).toPromise()
-      await this.externalSuite.teardown()
-    })()))
+  async runTestEntity(reporter: TestReporterDelegate) {
+    await this.externalSuite.setup()
+    await super.runTestEntity(reporter)
+    await this.externalSuite.teardown()
   }
 }

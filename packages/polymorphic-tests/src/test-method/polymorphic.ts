@@ -19,6 +19,6 @@ export class PolymorphicTestMethod extends TestMethod {
   superRunTestEntity = super.runTestEntity.bind(this)
 
   runTestEntity(reporter: TestReporterDelegate) {
-    return (from(this.testSuite.runTestPolymorphically(reporter, this, this.makeTestArg()))) as Observable<void>
+    return this.testSuite.runTestPolymorphically(reporter, this, this.makeTestArg())
   }
 }

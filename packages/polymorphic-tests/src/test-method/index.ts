@@ -7,8 +7,6 @@ export interface TestMethodOpts extends TestEntityOpts {}
 
 export class TestMethod extends TestEntity<TestMethodOpts> {
   public type = TestEntityType.test
-  // private runStarted: Subject<void>
-  // private testTimeoutTerminator: Observable<TimeoutError>
 
   constructor(name: string, public boundMethod: Function, opts: TestMethodOpts = {}, idStore?: TestEntityIdStore) {
     super(name, opts, idStore)
@@ -19,41 +17,11 @@ export class TestMethod extends TestEntity<TestMethodOpts> {
   }
 
   public methodBinding?: Object
-  public runTestEntity(reporter: TestReporterDelegate): Observable<void> {
-    // let makeRunTest = () =>
+  public runTestEntity(reporter: TestReporterDelegate) {
     this.start = new Date
     this.testTimeout = this.testTimeout
     let boundMethod = this.methodBinding ? this.boundMethod.bind(this.methodBinding) : this.boundMethod
-     return (from(Promise.resolve(boundMethod(this.makeTestArg())))) as Observable<void>
-    // this.initializeTimeoutObservables()
-    // let _this = this,
-    //   o = //race(
-    //     combineLatest(
-    //     this.runTestEntity(reporter).pipe(startWith(-1)),
-    //     // this.testTimeoutTerminator.pipe(startWith(null)),
-    //     this.testTimeoutTerminator.pipe(startWith(null))
-    //   ).pipe(
-    //     tap(([e, terminator]) => {
-    //       if (terminator)
-    //         throw terminator
-    //       if (e === -1) return
-    //       console.log('in end', _this.name, e)
-    //       _this.end = new Date 
-    //       reporter.testEntityPassed(_this)
-    //     }),
-    //     take(2),
-    //     catchError(e => {
-    //       console.log('caught error', _this.name, e)
-    //       let reasons = _this.failureReasonsOverride.length ? _this.failureReasonsOverride : [e]
-    //       _this.end = new Date
-    //       reporter.testEntityFailed(_this, ...reasons)
-    //       return of()
-    //     }),
-    //     last(),
-    //   )
-    // this.runStarted.next(null)
-    // this.runStarted.complete()
-    // return o as Observable<void>
+    return boundMethod(this.makeTestArg())
   }
 }
 

@@ -19,7 +19,16 @@ Working list:
       ✔ By suite overrides @done(19-10-02 12:49)
       ✔ Basic nonconfigurable timeout @started(19-10-02 10:30) @done(19-10-02 11:30) @lasted(1h49s)
       ✔ By test override @started(19-10-02 12:50) @done(19-10-02 12:59) @lasted(9m23s)
-    ☐ Cancel tests on timeout
+    ✘ Cancel tests on timeout @started(19-10-02 13:31) @cancelled(19-10-02 13:45) @wasted(14m2s)
+    ✘ Cancelability @cancelled(19-10-03 10:48)
+      ✔ First, see if other frameworks implement a better solution @done(19-10-03 10:47)
+        None of them solve this, it's impossible to externally stop a given running function's execution in JS
+      ✘ If not, look into static code analysis (specifically CyPress's) approach @cancelled(19-10-03 10:48)
+        Couldn't even get CyPress to run
+      ✘ If not, look into running test in worker, but this will have to be implemented by either @cancelled(19-10-03 11:04)
+        ✘ Using importScripts to import the whole suite, and somehow run the test on the clone; @cancelled(19-10-03 11:04)
+        ✘ Copying the clone over, and somehow also copying over its closure (e.g. imports in test suite file like a func under test); or, @cancelled(19-10-03 11:04)
+        ✘ Using static analysis, importScripts all imports in test suite file, then copy clone over and run in correct context @cancelled(19-10-03 11:04)
     ☐ Refactor
   ☐ Run test with passing assertions
   ☐ Run test with failing assertion

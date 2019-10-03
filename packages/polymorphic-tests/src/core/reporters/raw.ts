@@ -12,11 +12,6 @@ export class RawReporter extends SummaryTestReporter {
 
   makeEndReport() {
     return this.parseTestEntity(this.entityCache.globalSuite).children
-    // let passingTestsReport = `${this.passingTests.length}/${this.testMethods.length} passed`,
-    //   runReport = this.failingTests.length
-    //     ? `Run failed, ${this.failingTests.length} failed`
-    //     : `Run successful`
-    // return `${runReport}, ${passingTestsReport}.`
   }
 
   private parseTestEntity(entity: TestEntity) {

@@ -1,8 +1,7 @@
-import { Suite, SuiteOpts } from "../suite"
-import { TestMethodOpts } from "../test-method"
+import { BehaviorSubject, from, NEVER, Observable, of, Subject } from "rxjs"
+import { delay, delayWhen, switchMap, switchMapTo, take } from 'rxjs/operators'
+import { Suite } from "../suite"
 import { TestReporterDelegate } from "./reporters/test-reporter"
-import { Observable, of, BehaviorSubject, Subject, timer, race, never, combineLatest, throwError,  } from "rxjs"
-import { tap, catchError, skipUntil, switchMap, take, mapTo, delay, delayWhen, startWith, last, switchMapTo,  } from 'rxjs/operators'
 
 export enum TestEntityStatus {
   pending = 'p',
@@ -112,66 +111,43 @@ export abstract class TestEntity<OptsType extends TestEntityOpts = TestEntityOpt
     this.shouldSkipBecauseOfOnly = this.doesEntityHaveSubentitiesWithOnly(this) || !!this.opts.skipBecauseOfOnly
     if (this.shouldSkipEntity(this)) {
       reporter.testEntitySkipped(this)
-      return this.type === TestEntityType.suite ? this.runTestEntity(reporter) : of(null)
+      return this.type === TestEntityType.suite ? from(this.runTestEntity(reporter)) : of(null)
     }
     this.initializeTimeoutObservables()
     reporter.testEntityIsExecuting(this)
     this.start = new Date
-    let _this = this,
-      o = //race(
-        combineLatest(
-        this.runTestEntity(reporter).pipe(startWith(-1)),
-        // this.testTimeoutTerminator.pipe(startWith(null)),
-        this.type === TestEntityType.suite
-          ? of(null)
-          : this.testTimeoutTerminator.pipe(startWith(null)),
-      ).pipe(
-        switchMap(([e, terminator]) => {
-          if (terminator)
-            throw terminator
-            // return throwError(terminator)
-          if (e === -1) return of(null)
-          _this.end = new Date 
-          reporter.testEntityPassed(_this)
-          return of(null)
-        }),
-        take(2),
-        catchError(e => {
-          let reasons = _this.failureReasonsOverride.length ? _this.failureReasonsOverride : [e]
-          _this.end = new Date
-          reporter.testEntityFailed(_this, ...reasons)
-          return of(null)
-        }),
-        last(),
-      )
+    let p = (this.type === TestEntityType.suite
+      ? this.runTestEntity(reporter)
+      : Promise.race([this.runTestEntity(reporter), this.testTimeoutTerminator.toPromise()])
+    ).then(r => {
+      if (r instanceof Error) throw r
+      this.end = new Date 
+      reporter.testEntityPassed(this)
+    }).catch(e => {
+      this.end = new Date
+      reporter.testEntityFailed(this, e)
+    })
     this.runStarted.next(null)
     this.runStarted.complete()
-    return o as Observable<void>
+    return from(p) as Observable<void>
   }
 
   protected initializeTimeoutObservables() {
-    // if (this.testTimeoutSource) this.testTimeoutSource.complete()
-    // if (this.runStarted) this.runStarted.complete()
     this.testTimeoutSource = new BehaviorSubject(this.testTimeout)
     this.runStarted = new Subject
-    // this.testTimeoutTerminator = this.runStarted.pipe(
-    //   take(1),
     this.testTimeoutTerminator = this.testTimeoutSource.pipe(
       delayWhen(() => this.runStarted),
       switchMapTo(this.testTimeoutSource),
       switchMap(timeout => {
+        if (!timeout) return NEVER
         let timePassed = Date.now() - this.start.getTime(),
           remainingTime = timeout - timePassed
         if (remainingTime < 0) throw new TimeoutError(`Test "${this.name}" changed timeout to ${timeout}ms, but ${timePassed}ms passed.`)
-        return of(new TimeoutError(`Test "${this.name}" timed out at ${this.testTimeout}ms.`)).pipe(
-          delay(remainingTime),
-          take(1),
-          // tap(() => {throw new TimeoutError(`Test "${this.name}" timed out at ${this.testTimeout}ms.`)}),
-          // mapTo('foo' as null)
-          )
-        }),
+        let timeoutErr = new TimeoutError(`Test "${this.name}" timed out at ${this.testTimeout}ms.`)
+        return of(timeoutErr).pipe(delay(remainingTime))
+      }),
+      take(1),
     )
-    // ))
   }
 
   private doesEntityHaveSubentitiesWithOnly(entity: TestEntity) {
@@ -186,7 +162,7 @@ export abstract class TestEntity<OptsType extends TestEntityOpts = TestEntityOpt
 
   protected failureReasonsOverride: Error[] = []
 
-  protected abstract runTestEntity(reporter: TestReporterDelegate): Observable<void>
+  protected abstract runTestEntity(reporter: TestReporterDelegate): Promise<void>
 
   public setStatus(status: TestEntityStatus) {
     this._status = status

@@ -62,10 +62,8 @@ export class Suite extends TestEntity<SuiteOpts> {
     )
   }
 
-  runTestEntity(reporter: TestReporterDelegate) {
-    return (from((async () => {
-      for (let e of this.subTestEntities)
-        await e.run(reporter).toPromise()
-    })()))
+  async runTestEntity(reporter: TestReporterDelegate) {
+    for (let e of this.subTestEntities)
+      await e.run(reporter).toPromise()
   }
 }
