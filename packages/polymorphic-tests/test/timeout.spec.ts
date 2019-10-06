@@ -4,7 +4,23 @@ import { decorateSuite, decorateTest } from "../src/public-api/decorators"
 import { TestEntityStatus as Status } from "../src/core/abstract-test-entity"
 import { SubSuite, Test, TestSuite } from "../src/public-api"
 
-@SubSuite(PlainTests, {skip: true}) class TestTimeoutSuite extends RawTestRunningSuite {
+@SubSuite(PlainTests) class TestTimeoutSuite extends RawTestRunningSuite {
+  @Test() async 'run async test'(t) {
+    let testDuration = 10, 
+      config = this.decoratorConfig
+    @decorateSuite(config) class ExampleSuite extends TestSuite {
+      @decorateTest(config) 'async test'(t) {
+        return new Promise(resolve => setTimeout(resolve, testDuration))
+      }
+    }
+    let report = await this.runSuiteAndGetReport()
+    t.expect(report).to.shallowDeepEqual([
+      this.suiteReport('ExampleSuite', {children: [this.testReport('ExampleSuite: async test')]})
+    ])
+    let testReport = report[0].children[0]
+    t.expect(testReport.end.getTime()).to.be.at.least(testReport.start.getTime() + testDuration)
+  }
+
   @Test() async 'timeout from suite config'(t) {
     let config = this.decoratorConfig
     @decorateSuite(config) class TimeoutSuite extends TestSuite {
@@ -14,7 +30,7 @@ import { SubSuite, Test, TestSuite } from "../src/public-api"
       }
     }
     let report = await this.runSuiteAndGetReport()
-    t.expect(report).to.containSubset([
+    t.expect(report).to.shallowDeepEqual([
       this.suiteReport('TimeoutSuite', {status: Status.failed, children: [
         this.testReport('TimeoutSuite: should timeout', Status.failed),
       ]})
@@ -25,14 +41,14 @@ import { SubSuite, Test, TestSuite } from "../src/public-api"
   @Test() async 'override timeout config in test'(t) {
     let config = this.decoratorConfig
     @decorateSuite(config) class TimeoutSuite extends TestSuite {
-      timeout = 5
+      timeout = 10
       @decorateTest(config) async 'should not timeout'(t) {
-        t.timeout = 20
-        await new Promise(resolve => setTimeout(resolve, 10))
+        t.timeout = 30
+        await new Promise(resolve => setTimeout(resolve, 20))
       }
     }
     let report = await this.runSuiteAndGetReport()
-    t.expect(report).to.containSubset([
+    t.expect(report).to.shallowDeepEqual([
       this.suiteReport('TimeoutSuite', {children: [
         this.testReport('TimeoutSuite: should not timeout'),
       ]})
@@ -42,14 +58,14 @@ import { SubSuite, Test, TestSuite } from "../src/public-api"
   @Test() async 'fail when overriding with shorter timeout than current duration'(t) {
     let config = this.decoratorConfig
     @decorateSuite(config) class TimeoutSuite extends TestSuite {
-      timeout = 5
+      timeout = 10
       @decorateTest(config) async 'should timeout'(t) {
         await new Promise(resolve => setTimeout(resolve, 2))
         t.timeout = 1
       }
     }
     let report = await this.runSuiteAndGetReport()
-    t.expect(report).to.containSubset([
+    t.expect(report).to.shallowDeepEqual([
       this.suiteReport('TimeoutSuite', {status: Status.failed, children: [
         this.testReport('TimeoutSuite: should timeout', Status.failed)
       ]})
@@ -67,11 +83,11 @@ import { SubSuite, Test, TestSuite } from "../src/public-api"
     @decorateSuite(config) class TimeoutSuite extends TestSuite {
       timeout = 1
       @decorateTest(config) async 'should timeout'(t) {
-        await new Promise(resolve => setTimeout(resolve, 1))
+        await new Promise(resolve => setTimeout(resolve, 2))
         continuedExecution = true
       }
     }
-    await this.runSuiteAndGetReport().then(() => new Promise(res => setTimeout(res, 1)))
+    await this.runSuiteAndGetReport().then(() => new Promise(res => setTimeout(res, 2)))
     t.expect(continuedExecution).to.equal(true)
   }
 }

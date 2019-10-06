@@ -8,9 +8,9 @@ import globby from 'globby'
 import * as path from 'path'
 import * as packageJson from 'pjson'
 import 'source-map-support/register'
-import { getReporterOfType, TestReporterType } from '../core/reporters/index.js'
-import { TestRunner } from '../core/test-runner.js'
-import { GlobalSuite } from '../suite/global.js'
+import { getReporterOfType, TestReporterType } from '../core/reporters'
+import { TestRunner } from '../core/test-runner'
+import { GlobalSuite } from '../suite/global'
 
 interface PolytestConfig {
   reporter: TestReporterType

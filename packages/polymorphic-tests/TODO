@@ -22,9 +22,9 @@ Current release:
     ✘ Cancel tests on timeout @started(19-10-02 13:31) @cancelled(19-10-02 13:45) @wasted(14m2s)
     ✘ Cancelability @cancelled(19-10-03 10:48)
       ✔ First, see if other frameworks implement a better solution @done(19-10-03 10:47)
-        None of them solve this, it's impossible to externally stop a given running function's execution in JS
+          None of them solve this, it's impossible to externally stop a given running function's execution in JS
       ✘ If not, look into static code analysis (specifically CyPress's) approach @cancelled(19-10-03 10:48)
-        Couldn't even get CyPress to run
+          Couldn't even get CyPress to run
       ✘ If not, look into running test in worker, but this will have to be implemented by either @cancelled(19-10-03 11:04)
         ✘ Using importScripts to import the whole suite, and somehow run the test on the clone; @cancelled(19-10-03 11:04)
         ✘ Copying the clone over, and somehow also copying over its closure (e.g. imports in test suite file like a func under test); or, @cancelled(19-10-03 11:04)
@@ -33,13 +33,11 @@ Current release:
       ✔ Fix process hanging after run ending @started(19-10-03 14:25) @done(19-10-03 14:34) @lasted(9m13s)
   ✔ Fail parent suite when children fail @done(19-10-02 12:25)
 
-  ☐ Skip suites and tests
-  ☐ Run only suites and tests marked with only in given suite
-  ☐ Override only with skip
-  
-  ☐ Run multiple failing suites and bail after first failure
-  ☐ Run multiple failing suites and stop suite after first contained failed test
-  ☐ Run multiple failing suites and run all tests regardless of failure
+  ✔ Skip suites and tests @done(19-10-06 16:40)
+  ✔ Run only suites and tests marked with only in given suite @done(19-10-06 16:40)
+  ✔ Override only with skip @done(19-10-06 16:54)
+
+  ☐ Throw error when suite class doesn't extends TestSuite
 
   ☐ Plain JS example
   
@@ -64,7 +62,13 @@ Current release:
         ☐ Extend base summary reporter class to report based on standard summary
 
 Next release:
+  ☐ Refactor library to JS with tests in TS
+  ☐ Run meta tests directly with stupid hack
   ☐ Add assertion reporting
     ☐ Run test with passing assertions
     ☐ Run test with failing assertion
-    ☐ Add lifecycle hooks to suite  
+    ☐ Add lifecycle hooks to suite
+  ☐ Add failure modes
+    ☐ Run multiple failing suites and bail after first failure
+    ☐ Run multiple failing suites and stop suite after first contained failed test
+    ☐ Run multiple failing suites and run all tests regardless of failure

@@ -111,8 +111,10 @@ export abstract class TestEntity<OptsType extends TestEntityOpts = TestEntityOpt
   public run(reporter: TestReporterDelegate): Observable<void> {
     this.shouldSkipBecauseOfOnly = this.doesEntityHaveSubentitiesWithOnly(this) || !!this.opts.skipBecauseOfOnly
     if (this.shouldSkipEntity(this)) {
+      if (this.type === TestEntityType.suite)
+        return from(this.runTestEntity(reporter).then(() => reporter.testEntityPassed(this)))
       reporter.testEntitySkipped(this)
-      return this.type === TestEntityType.suite ? from(this.runTestEntity(reporter)) : of(null)
+      return of(null)
     }
     this.initializeTimeoutObservables()
     reporter.testEntityIsExecuting(this)

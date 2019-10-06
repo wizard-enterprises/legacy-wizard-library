@@ -36,6 +36,7 @@ export class Suite extends TestEntity<SuiteOpts> {
       delete opts.rootSuite
       delete opts.only 
       let entityOpts = {
+        ...opts,
         ...entity.opts,
         skipBecauseOfOnly: this.shouldApplySkipBecauseOfOnlyToSubEntity(
           entity, {...entity.opts, ...opts},

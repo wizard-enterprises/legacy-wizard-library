@@ -24,7 +24,6 @@ export class SimpleTestReporter extends SummaryTestReporter {
   private reportTestFailure(entity: TestMethod, reason: Error) {
     this.console.error(`
 Test "${entity.name}" failed:
-  ${reason.message}
   ${reason.stack}`
   )
   }

@@ -1,5 +1,2 @@
-const chai = require('chai'),
-  chaiSubset = require('chai-subset'),
-  chaiAsPromised = require('chai-as-promised')
-chai.use(chaiSubset)
-chai.use(chaiAsPromised)
+const chai = require('chai')
+chai.use(require('chai-shallow-deep-equal'))

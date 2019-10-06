@@ -1,6 +1,6 @@
+import chai from 'chai'
 import { TestEntity, TestEntityIdStore, TestEntityOpts, TestEntityType } from "../core/abstract-test-entity"
 import { TestReporterDelegate } from "../core/reporters/test-reporter"
-import chai from 'chai'
 const chaiShould = chai.should()
 
 export interface TestMethodOpts extends TestEntityOpts {}

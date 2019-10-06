@@ -18,7 +18,8 @@ export abstract class TestRunningSuite extends TestSuite {
   protected idStore: TestEntityIdStore
   protected reporter?: TestReporter = null
 
-  before() {
+  async before(t) {
+    await super.before(t)
     this.globalSuite = GlobalSuiteForTests.getNewInstance()
     this.decoratorConfig = DecoratorConfigForTests.getNewInstance()
     this.idStore = TestEntityIdStoreForTests.getNewInstance()

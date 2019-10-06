@@ -7,7 +7,7 @@ import { RawTestRunningSuite } from './test-running-suite';
     let config = this.decoratorConfig
     @decorateSuite(config) class EmptySuite extends TestSuite {}
     let report = await this.runSuiteAndGetReport()
-    t.expect(report).to.containSubset([this.suiteReport('EmptySuite')])
+    t.expect(report).to.shallowDeepEqual([this.suiteReport('EmptySuite')])
     t.expect(report).to.have.lengthOf(1)
   }
 
@@ -19,7 +19,7 @@ import { RawTestRunningSuite } from './test-running-suite';
     @decorateSubSuite(config, ParentSuite) class ChildSuite extends TestSuite {
       @decorateTest(config) test() {}
     }
-    t.expect(this.runSuiteAndGetReport()).to.eventually.containSubset([
+    t.expect(await this.runSuiteAndGetReport()).to.shallowDeepEqual([
       this.suiteReport('ParentSuite', { children: [
         this.testReport('ParentSuite: test'),
         this.suiteReport('ParentSuite_ChildSuite', { children: [
@@ -27,21 +27,5 @@ import { RawTestRunningSuite } from './test-running-suite';
         ]}),
       ]})
     ])
-  }
-
-  @Test() async 'run async test'(t) {
-    let testDuration = 10, 
-      config = this.decoratorConfig
-    @decorateSuite(config) class ExampleSuite extends TestSuite {
-      @decorateTest(config) 'async test'(t) {
-        return new Promise(resolve => setTimeout(resolve, testDuration))
-      }
-    }
-    let report = await this.runSuiteAndGetReport()
-    t.expect(report).to.containSubset([
-      this.suiteReport('ExampleSuite', {children: [this.testReport('ExampleSuite: async test')]})
-    ])
-    let testReport = report[0].children[0]
-    t.expect(testReport.end.getTime()).to.be.above(testReport.start.getTime() + testDuration)
   }
 }
