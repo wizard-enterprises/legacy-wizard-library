@@ -37,10 +37,8 @@ Current release:
   ✔ Run only suites and tests marked with only in given suite @done(19-10-06 16:40)
   ✔ Override only with skip @done(19-10-06 16:54)
 
-  ☐ Throw error when suite class doesn't extends TestSuite
+  ✔ Throw error when suite class doesn't extends TestSuite @done(19-10-06 17:05)
 
-  ☐ Plain JS example
-  
   Polymorphic tests:
     ☐ Run suite defined through decorator interface
     ☐ Run polymorphic tests in separate polymorphic suite instances

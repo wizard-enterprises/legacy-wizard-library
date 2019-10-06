@@ -41,8 +41,14 @@ export function SubSuite(parentSuite: new () => TestSuite, opts: SuiteDecoratorO
 
 export function decorateSubSuite(config, parentSuite: new () => TestSuite, opts: SuiteDecoratorOpts = {}) {
   return function (target: new () => TestSuite) {
+    if (doesClassExtend(target, TestSuite) === false)
+      throw new Error(`Invalid class registered as suite. Class "${target.name}" must extend TestSuite.`)
     config.registery.registerSuite(target, opts, parentSuite)
   }
+}
+
+function doesClassExtend(ctor1, ctor2) {
+  return ctor1 === ctor2 || ctor1.prototype instanceof ctor2
 }
 
 export function Test(opts: TestDecoratorOpts = {}) {

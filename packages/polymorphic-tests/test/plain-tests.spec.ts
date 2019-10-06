@@ -3,6 +3,14 @@ import { decorateSubSuite, decorateSuite, decorateTest } from "../src/public-api
 import { RawTestRunningSuite } from './test-running-suite';
 
 @Suite() export class PlainTests extends RawTestRunningSuite {
+  @Test() async 'throw if suite doesn\'t extend TestSuite'(t) {
+    let config = this.decoratorConfig
+    t.expect(() => {
+      //@ts-ignore
+      @decorateSuite(config) class InvalidSuite {}
+    }).to.throw('Class "InvalidSuite" must extend TestSuite')
+  }
+
   @Test() async 'run empty suite'(t) {
     let config = this.decoratorConfig
     @decorateSuite(config) class EmptySuite extends TestSuite {}
