@@ -82,11 +82,13 @@ export abstract class RawTestRunningSuite extends TestRunningSuite {
   }
   
   protected suiteReport(id: string, {status = Status.passed, children = []} = {}): SuiteReport {
-    return {
+    let o = {
       ...this.testReport(id, status),
       type: Type.suite,
       children,
     }
+    delete o.status
+    return o as SuiteReport
   }
 
   protected runSuiteAndGetReport() {

@@ -38,12 +38,13 @@ Current release:
   ✔ Override only with skip @done(19-10-06 16:54)
 
   ✔ Throw error when suite class doesn't extends TestSuite @done(19-10-06 17:05)
-
+  
   Polymorphic tests:
-    ☐ Run suite defined through decorator interface
-    ☐ Run polymorphic tests in separate polymorphic suite instances
-    ☐ Inherit tests and lifecycle hooks from abstract suite
-    ☐ Add decorators for only/skip (Possibly as TestDecorator.only.skip())
+    ✔ Run suite defined through decorator interface @done(19-10-06 19:00)
+    ✔ Run polymorphic tests in separate polymorphic suite instances @done(19-10-06 19:00)
+    ✔ Inherit tests and lifecycle hooks from abstract suite @done(19-10-06 19:05)
+      ✔ Run inherited tests from abstract to specific @started(19-10-06 18:40) @done(19-10-06 18:59) @lasted(19m30s)
+      ✔ Don't run test without only in suite that inherits test with only @started(19-10-06 19:00) @done(19-10-06 19:05) @lasted(5m21s)
 
   Reporters:
     Live:
@@ -70,3 +71,4 @@ Next release:
     ☐ Run multiple failing suites and bail after first failure
     ☐ Run multiple failing suites and stop suite after first contained failed test
     ☐ Run multiple failing suites and run all tests regardless of failure
+  ☐ Add decorators for only/skip (Possibly as TestDecorator.only.skip())

@@ -51,7 +51,7 @@ export class TestEntityRegistery {
   private addPrototypicalTestsToSuite(suite: PolymorphicSuite, externalSuite: TestSuite) {
     suite.addSubTestEntities(...this.getConstructorsFromBaseTestClassToSuite(externalSuite)
       .map(ctor => this.testsBySuiteCtor.get(ctor) || [])
-      .reduce((acc, arr) => acc = [...acc, ...arr], [])
+      .reduce((acc, arr) => acc = [...arr, ...acc], [])
       .map(({externalTest, opts}) => 
         new PolymorphicTestMethod(opts.name, externalTest, opts, externalSuite, this.idStore)
       ))
