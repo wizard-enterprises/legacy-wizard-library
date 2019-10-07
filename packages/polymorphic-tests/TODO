@@ -62,7 +62,7 @@ Current release:
 
 Next release:
   ☐ Refactor library to JS with tests in TS
-  ☐ Run meta tests directly with stupid hack
+  ☐ Run meta tests directly without stupid hack
   ☐ Add assertion reporting
     ☐ Run test with passing assertions
     ☐ Run test with failing assertion
