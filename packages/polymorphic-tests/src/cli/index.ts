@@ -124,7 +124,9 @@ async function composeConfig(options: CliOptionOverrides = {}) {
 function mergeConfigs(...configs: PolytestConfig[]) {
   let omitIrrelevantValues = obj => {
     let o = {...obj}
-    Object.keys(o).filter(k => !Object.keys(defaultConfig).includes(k) || !o[k] || o[k].length === 0).forEach(k => delete o[k])
+    Object.keys(o)
+      .filter(k => !Object.keys(defaultConfig).includes(k) || !o[k] || o[k].length === 0)
+      .forEach(k => delete o[k])
     return o as Partial<PolytestConfig>
   }
   return Object.assign({}, ...configs.map(omitIrrelevantValues)) as PolytestConfig
