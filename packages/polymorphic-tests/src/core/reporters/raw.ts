@@ -3,20 +3,22 @@ import { SummaryTestReporter } from './test-reporter'
 import { Suite } from '../../suite'
 import { TestEntityType, TestEntityStatus, TestEntity } from '../abstract-test-entity'
 
-export class RawReporter extends SummaryTestReporter {
+export class RawReporter<ReportT = TestEntityReport[]> extends SummaryTestReporter {
   type = TestReporterType.raw
   async end() {
     await super.end()
-    this.console.log(JSON.stringify(this.makeEndReport()))
+    if (this.constructor === RawReporter)
+      this.console.log(JSON.stringify(this.makeEndReport()))
   }
 
   makeEndReport() {
-    return this.parseTestEntity(this.entityCache.globalSuite).children
+    return this.parseTestEntity(this.entityCache.globalSuite).children as unknown as ReportT
   }
 
   private parseTestEntity(entity: TestEntity) {
     let parsed = {
       id: entity.id,
+      name: entity.name,
       start: entity.start,
       end: entity.end,
       status: entity.status,
@@ -31,6 +33,7 @@ export class RawReporter extends SummaryTestReporter {
 
 export interface TestEntityReport {
   id: string
+  name: string
   type: TestEntityType
   status: TestEntityStatus
   start: Date

@@ -50,8 +50,11 @@ Current release:
     Live:
       Get access to raw event stream
       TAP:
-        ☐ Live reporting to stdout
-        ☐ Accept TAP reporter and live report to it
+        ✔ Report empty suite @done(19-10-10 13:55)
+        ✔ Report passing test @done(19-10-10 13:55)
+        ✔ Report skipped tests @done(19-10-10 13:55)
+        ✔ Report failing tests @done(19-10-10 13:55)
+          ✔ Add expected and actual to errors @done(19-10-10 16:51)
       Raw:
         Parses finished event stream to standard report (JSON? YAML?)
         The base summary reporter class wraps this reporter
@@ -72,3 +75,4 @@ Next release:
     ☐ Run multiple failing suites and stop suite after first contained failed test
     ☐ Run multiple failing suites and run all tests regardless of failure
   ☐ Add decorators for only/skip (Possibly as TestDecorator.only.skip())
+  ☐ Make fancy reporter
