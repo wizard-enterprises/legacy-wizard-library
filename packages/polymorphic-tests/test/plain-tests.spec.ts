@@ -1,8 +1,8 @@
 import { Suite, Test, TestSuite } from "../src/public-api";
 import { decorateSubSuite, decorateSuite, decorateTest } from "../src/public-api/decorators";
-import { RawTestRunningSuite } from './test-running-suite';
+import { RawTestRunnerSuite } from './test-runner-suite';
 
-@Suite() export class PlainTests extends RawTestRunningSuite {
+@Suite() export class PlainTests extends RawTestRunnerSuite {
   @Test() async 'throw if suite doesn\'t extend TestSuite'(t) {
     let config = this.decoratorConfig
     t.expect(() => {

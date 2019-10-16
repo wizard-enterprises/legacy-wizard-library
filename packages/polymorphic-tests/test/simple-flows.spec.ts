@@ -1,11 +1,11 @@
 import { TestEntityOpts } from '../src/core/abstract-test-entity'
 import { Suite, Test, TestSuite } from '../src/public-api'
 import { decorateSubSuite, decorateSuite, decorateTest } from '../src/public-api/decorators'
-import { TestRunningSuite } from './test-running-suite'
+import { TestRunnerSuite } from './test-runner-suite'
 import { TestReporterType } from '../src/core/reporters'
 
 @Suite()
-class SimpleFlows extends TestRunningSuite {
+class SimpleFlows extends TestRunnerSuite {
   protected reporterType = TestReporterType.simple
 
   @Test() async 'report no tests'(t) {

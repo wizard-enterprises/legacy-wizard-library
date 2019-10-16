@@ -1,9 +1,9 @@
 import { Suite, Test, TestSuite } from "../src/public-api";
 import { decorateSubSuite, decorateSuite, decorateTest } from "../src/public-api/decorators";
-import { RawTestRunningSuite } from './test-running-suite';
+import { RawTestRunnerSuite } from './test-runner-suite';
 import { TestEntityStatus } from "../src/core/abstract-test-entity";
 
-@Suite() class Polymorphism extends RawTestRunningSuite {
+@Suite() class Polymorphism extends RawTestRunnerSuite {
   @Test() async 'instance should be cloned after setup for every test'(t) {
     let config = this.decoratorConfig
     @decorateSuite(config) class CloneInstancePerTest extends TestSuite {

@@ -1,10 +1,10 @@
 import { PlainTests } from "./plain-tests.spec"
-import { RawTestRunningSuite } from "./test-running-suite"
+import { RawTestRunnerSuite } from "./test-runner-suite"
 import { decorateSuite, decorateTest } from "../src/public-api/decorators"
 import { TestEntityStatus as Status } from "../src/core/abstract-test-entity"
 import { SubSuite, Test, TestSuite } from "../src/public-api"
 
-@SubSuite(PlainTests) class TestTimeoutSuite extends RawTestRunningSuite {
+@SubSuite(PlainTests) class TestTimeoutSuite extends RawTestRunnerSuite {
   @Test() async 'run async test'(t) {
     let testDuration = 10, 
       config = this.decoratorConfig

@@ -70,16 +70,18 @@ export abstract class TestEntity<OptsType extends TestEntityOpts = TestEntityOpt
   public abstract type: TestEntityType
   public parentSuite: Suite = null
   private _status: TestEntityStatus = TestEntityStatus.pending
-  public get status() { return this._status}
+  public get status() { return this._status }
   public start: Date
   public end: Date
   public reason?: Error
+
   private _testTimeout: number = 0
   public get testTimeout() { return this._testTimeout}
   public set testTimeout(testTimeout: number) {
     this._testTimeout = testTimeout
     if (this.testTimeoutSource) this.testTimeoutSource.next(testTimeout)
   }
+
   private _opts: OptsType
   public get opts(): OptsType { return this._opts }
   public set opts(opts: OptsType) {
@@ -91,6 +93,7 @@ export abstract class TestEntity<OptsType extends TestEntityOpts = TestEntityOpt
       this.testTimeout = opts.timeout
     this.start = new Date
   }
+
   private runStarted: Subject<void>
   private testTimeoutTerminator: Observable<TimeoutError>
   private testTimeoutSource: BehaviorSubject<number> = new BehaviorSubject(this.testTimeout)
@@ -116,6 +119,7 @@ export abstract class TestEntity<OptsType extends TestEntityOpts = TestEntityOpt
       reporter.testEntitySkipped(this)
       return of(null)
     }
+
     this.initializeTimeoutObservables()
     reporter.testEntityIsExecuting(this)
     this.start = new Date
@@ -137,7 +141,8 @@ export abstract class TestEntity<OptsType extends TestEntityOpts = TestEntityOpt
   protected initializeTimeoutObservables() {
     this.testTimeoutSource = new BehaviorSubject(this.testTimeout)
     this.runStarted = new Subject
-    this.testTimeoutTerminator = this.testTimeoutSource.pipe(
+    this.testTimeoutTerminator = of(null).pipe(
+      take(1),
       delayWhen(() => this.runStarted),
       switchMapTo(this.testTimeoutSource),
       switchMap(timeout => {
@@ -154,7 +159,7 @@ export abstract class TestEntity<OptsType extends TestEntityOpts = TestEntityOpt
 
   private doesEntityHaveSubentitiesWithOnly(entity: TestEntity) {
     if (entity.type === TestEntityType.test) return false
-    let e: Suite = entity as unknown as Suite
+    let e: Suite = entity as unknown as Suite 
     return !!(e.subTestEntities.find(entity => entity.opts.only))
   }
 

@@ -1,10 +1,10 @@
 import { Suite, SubSuite, Test, TestSuite } from "../src/public-api"
-import { RawTestRunningSuite } from "./test-running-suite"
+import { RawTestRunnerSuite } from "./test-runner-suite"
 import { decorateSuite, decorateTest, decorateSubSuite } from "../src/public-api/decorators"
 import { TestEntityStatus as Status } from "../src/core/abstract-test-entity"
 
-@Suite() class TestSelection extends RawTestRunningSuite {}
-@SubSuite(TestSelection) class Skip extends RawTestRunningSuite {
+@Suite() class TestSelection extends RawTestRunnerSuite {}
+@SubSuite(TestSelection) class Skip extends RawTestRunnerSuite {
   @Test() async 'skip test'(t) {
     let config = this.decoratorConfig
     @decorateSuite(config) class SkipSuite extends TestSuite {
@@ -52,7 +52,7 @@ import { TestEntityStatus as Status } from "../src/core/abstract-test-entity"
   }
 }
 
-@SubSuite(TestSelection) class Only extends RawTestRunningSuite {
+@SubSuite(TestSelection) class Only extends RawTestRunnerSuite {
   @Test() async 'run only test'(t) {
     let config = this.decoratorConfig
     @decorateSuite(config) class PlainSuite extends TestSuite {
@@ -124,7 +124,7 @@ import { TestEntityStatus as Status } from "../src/core/abstract-test-entity"
   }
 }
 
-@SubSuite(TestSelection) class SkipAndOnly extends RawTestRunningSuite {
+@SubSuite(TestSelection) class SkipAndOnly extends RawTestRunnerSuite {
   @Test() async 'skip should take precedence over only on test'(t) {
     let config = this.decoratorConfig
     @decorateSuite(config) class SkipOverOnly extends TestSuite {

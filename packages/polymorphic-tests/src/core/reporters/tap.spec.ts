@@ -1,10 +1,10 @@
 import { Suite, Test, TestSuite } from "../../public-api";
 import { decorateSubSuite, decorateSuite, decorateTest } from "../../public-api/decorators";
-import { RawTestRunningSuite } from '../../../test/test-running-suite';
+import { RawTestRunnerSuite } from '../../../test/test-runner-suite';
 import { TestReporterType } from ".";
 import * as path from 'path'
 
-@Suite() export class RawReporterSuite extends RawTestRunningSuite {
+@Suite() export class RawReporterSuite extends RawTestRunnerSuite {
   reporterType = TestReporterType.tap
   @Test() async 'empty suite'(t) {
     let config = this.decoratorConfig

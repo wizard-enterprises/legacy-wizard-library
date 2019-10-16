@@ -10,7 +10,7 @@ import { Suite as InternalSuite } from '../src/suite'
 import { GlobalSuite } from "../src/suite/global"
 import { ConsoleSpy, DecoratorConfigForTests, GlobalSuiteForTests, TestEntityIdStoreForTests } from "./mocks"
 
-export abstract class TestRunningSuite extends TestSuite {
+export abstract class TestRunnerSuite extends TestSuite {
   protected globalSuite: GlobalSuite
   protected decoratorConfig: DecoratorConfig
   protected registery: TestEntityRegistery
@@ -73,7 +73,7 @@ export class TestReportForTests {
   }
 }
 
-export abstract class RawTestRunningSuite extends TestRunningSuite {
+export abstract class RawTestRunnerSuite extends TestRunnerSuite {
   protected testReport(id: string, status = Status.passed, {reason = '', assertions = []} = {}): TestReport {
     let r: TestReport = {id, status, type: Type.test}
     if (reason) r['reason'] = {message: reason}
