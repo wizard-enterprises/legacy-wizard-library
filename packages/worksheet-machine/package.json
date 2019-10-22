@@ -4,17 +4,27 @@
   "private": true,
   "main": "index.js",
   "scripts": {
-    "test": "polytest run | tap-mocha-reporter spec"
+    "test": "polytest run | tap-mocha-reporter spec",
+    "build": "webpack --mode=development",
+    "build:prod": "webpack --mode=production"
   },
   "author": "homunculus@wizard.enterprises",
   "devDependencies": {
+    "@babel/cli": "^7.6.4",
     "@babel/core": "^7.6.4",
     "@babel/plugin-proposal-class-properties": "^7.5.5",
     "@babel/plugin-proposal-decorators": "^7.6.0",
     "@babel/preset-env": "^7.6.3",
     "@babel/register": "^7.6.2",
+    "babel-loader": "^8.0.6",
+    "clean-webpack-plugin": "^3.0.0",
+    "copy-webpack-plugin": "^5.0.4",
+    "html-webpack-plugin": "^3.2.0",
     "polymorphic-tests": "^0.1.1",
-    "tap-mocha-reporter": "^5.0.0"
+    "tap-mocha-reporter": "^5.0.0",
+    "webpack": "^4.41.2",
+    "webpack-cli": "^3.3.9",
+    "webpack-merge": "^4.2.2"
   },
   "dependencies": {
     "lit-element": "^2.2.1"
