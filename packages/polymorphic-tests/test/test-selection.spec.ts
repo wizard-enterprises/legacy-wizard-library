@@ -21,6 +21,19 @@ import { TestEntityStatus as Status } from "../src/core/abstract-test-entity"
     ])
   }
 
+  @Test() async 'run global with all skipped'(t) {
+    let config = this.decoratorConfig
+    @decorateSuite(config, {skip: true}) class EmptySuite extends TestSuite {}
+    @decorateSuite(config) class ParentSuite extends TestSuite {}
+    @decorateSubSuite(config, ParentSuite, {skip: true}) class EmptyChildSuite extends TestSuite {}
+    t.expect(await this.runSuiteAndGetReport()).to.shallowDeepEqual([
+      this.suiteReport('EmptySuite'),
+      this.suiteReport('ParentSuite', {children: [
+        this.suiteReport('ParentSuite_EmptyChildSuite'),
+      ]}),
+    ])
+  }
+
   @Test() async 'skip suite'(t) {
     let config = this.decoratorConfig
     @decorateSuite(config) class ShouldRunSuite extends TestSuite {

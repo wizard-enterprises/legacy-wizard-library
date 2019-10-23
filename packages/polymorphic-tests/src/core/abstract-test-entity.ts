@@ -115,7 +115,7 @@ export abstract class TestEntity<OptsType extends TestEntityOpts = TestEntityOpt
     this.shouldSkipBecauseOfOnly = this.doesEntityHaveSubentitiesWithOnly(this) || !!this.opts.skipBecauseOfOnly
     if (this.shouldSkipEntity(this)) {
       if (this.type === TestEntityType.suite)
-        return from(this.runTestEntity(reporter).then(() => reporter.testEntityPassed(this)))
+        return from(this.runTestEntity(reporter))
       reporter.testEntitySkipped(this)
       return of(null)
     }
@@ -164,7 +164,7 @@ export abstract class TestEntity<OptsType extends TestEntityOpts = TestEntityOpt
   }
 
   private shouldSkipEntity(entity: TestEntity) {
-    return entity.opts.skip || entity.opts.skipBecauseOfOnly
+    return entity.type === TestEntityType.test && entity.opts.skip || entity.opts.skipBecauseOfOnly
   }
 
   protected failureReasonsOverride: Error[] = []

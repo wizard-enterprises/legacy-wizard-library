@@ -162,7 +162,7 @@ test: ${stackStartFunction.split('.')[1]}
 
   private parseErrorForYaml(entity) {
     let yamlStack = entity.reason.stack
-      .substr(entity.reason.stack.indexOf('\n'))
+      .substr(entity.reason.stack.indexOf(entity.name) + entity.name.length)
       .replace(/at /g, '')
       .replace(/\n\s+/g, '\n  ')
       .substr(1)
