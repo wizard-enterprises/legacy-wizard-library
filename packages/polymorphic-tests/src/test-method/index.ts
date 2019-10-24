@@ -13,27 +13,35 @@ export class TestMethod extends TestEntity<TestMethodOpts> {
   }
 
   protected makeTestArg(): TestArg {
-    return new TestArg(this)
+    return new TestArg({
+      getTestTimeout: () => this.testTimeout,
+      setTestTimeout: (testTimeout: number) => this.testTimeout = testTimeout
+    })
   }
 
   public methodBinding?: Object
-  public runTestEntity(reporter: TestReporterDelegate) {
+  public runTestEntity(reporter: TestReporterDelegate, testArg?: TestArg) {
     this.start = new Date
     this.testTimeout = this.testTimeout
     let boundMethod = this.methodBinding ? this.boundMethod.bind(this.methodBinding) : this.boundMethod
-    return boundMethod(this.makeTestArg())
+    return boundMethod(testArg || this.makeTestArg())
   }
+}
+
+export interface TestArgDelegate {
+  getTestTimeout(): number
+  setTestTimeout(testTimeout: number): void
 }
 
 export class TestArg {
   public assert = chai.assert
   public expect = chai.expect
   public should = chaiShould
-  constructor(private entity: TestEntity) {}
+  constructor(private delegate: TestArgDelegate) {}
   public set timeout(timeout: number) {
-    this.entity.testTimeout = timeout
+    this.delegate.setTestTimeout(timeout)
   }
   public get timeout() {
-    return this.entity.testTimeout
+    return this.delegate.getTestTimeout()
   }
 }

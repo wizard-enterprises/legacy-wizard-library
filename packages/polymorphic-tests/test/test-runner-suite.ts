@@ -17,6 +17,7 @@ export abstract class TestRunnerSuite extends TestSuite {
   protected consoleSpy: ConsoleSpy
   protected idStore: TestEntityIdStore
   protected reporter?: TestReporter = null
+  protected shouldMockConsole: boolean = true
 
   async before(t) {
     await super.before(t)
@@ -31,12 +32,13 @@ export abstract class TestRunnerSuite extends TestSuite {
 
   protected async runSuite(
     rootSuite: InternalSuite = this.globalSuite,
-    reporterCtor: typeof TestReporter = RawReporter
+    reporterCtor: typeof TestReporter = RawReporter,
   ) {
     if (!this.reporter)
       //@ts-ignore
       this.reporter = new reporterCtor(rootSuite)
-    this.reporter['console'] = this.consoleSpy as unknown as Console
+    if (this.shouldMockConsole)
+      this.reporter['console'] = this.consoleSpy as unknown as Console
     await new TestRunner(rootSuite, this.reporter).run()
   }
 

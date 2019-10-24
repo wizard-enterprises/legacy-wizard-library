@@ -1,9 +1,8 @@
-import { TestMethod } from "."
-import { TestSuite } from "../public-api/base-test-class"
-import { TestReporterDelegate } from "../core/reporters/test-reporter"
-import { TestDecoratorOpts } from "../public-api/decorators"
+import { TestArg, TestMethod } from "."
 import { TestEntityIdStore } from "../core/abstract-test-entity"
-import { Observable, from } from "rxjs"
+import { TestReporterDelegate } from "../core/reporters/test-reporter"
+import { TestSuite } from "../public-api/base-test-class"
+import { TestDecoratorOpts } from "../public-api/decorators"
 
 export class PolymorphicTestMethod extends TestMethod {
   constructor(
@@ -18,7 +17,7 @@ export class PolymorphicTestMethod extends TestMethod {
 
   superRunTestEntity = super.runTestEntity.bind(this)
 
-  runTestEntity(reporter: TestReporterDelegate) {
-    return this.testSuite.runTestPolymorphically(reporter, this, this.makeTestArg())
+  runTestEntity(reporter: TestReporterDelegate, testArg?: TestArg) {
+    return this.testSuite.runTestPolymorphically(reporter, this, testArg || this.makeTestArg())
   }
 }

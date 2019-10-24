@@ -17,7 +17,7 @@ export class TestSuite implements TestSuiteRunnerDelegate {
     let clone = this.cloneSelf()
     testMethod.methodBinding = clone
     await clone.before(testArg)
-    await testMethod.superRunTestEntity(reporter)
+    await testMethod.superRunTestEntity(reporter, testArg)
     await clone.after(testArg)
   }
 

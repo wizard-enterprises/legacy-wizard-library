@@ -28,4 +28,26 @@ import { RawTestRunnerSuite } from './test-runner-suite';
       'teardown',
     ])
   }
+
+  @Test() async 'allow before to modify test arg'(t) {
+    let config = this.decoratorConfig
+    @decorateSuite(config) class ModifyTestArg extends TestSuite {
+      wasSet = false
+      before(t) {
+        super.before(t)
+        t.doThing = () => this.wasSet = true
+      }
+      @decorateTest(config) 'should have modified test arg'(t) {
+        t.expect(this.wasSet).to.equal(false)
+        t.expect(t.doThing).to.be.a('function')
+        t.doThing()
+        t.expect(this.wasSet).to.equal(true)
+      }
+    }
+    t.expect(await this.runSuiteAndGetReport()).to.shallowDeepEqual([
+      this.suiteReport('ModifyTestArg', { children: [
+        this.testReport('ModifyTestArg: should have modified test arg'),
+      ]}),
+    ])
+  }
 }
