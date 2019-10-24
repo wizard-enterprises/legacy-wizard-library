@@ -13,7 +13,8 @@
     "test": "./src/cli/internal-polytest run -r tap | tap-mocha-reporter spec",
     "build": "rm -rf lib && tsc -p ./tsconfig.json",
     "build:polytest": "rm -rf lib && tsc -p ./tsconfig.polytest.json",
-    "refresh": "rm -rf ./node_modules ./package-lock.json && npm install"
+    "refresh": "rm -rf ./node_modules ./package-lock.json && npm install",
+    "publish": "npm run build && npm publish && git push && git push --tags"
   },
   "repository": {
     "type": "git",
