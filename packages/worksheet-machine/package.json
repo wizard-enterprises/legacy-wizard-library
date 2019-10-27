@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "polytest run | tap-mocha-reporter spec",
-    "build": "webpack --mode=development",
-    "build:prod": "webpack --mode=production"
+    "build": "mode=development webpack",
+    "build:prod": "mode=production webpack"
   },
   "author": "homunculus@wizard.enterprises",
   "devDependencies": {

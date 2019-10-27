@@ -1,2 +1,2 @@
-export * from './test'
-export * from './component/spa'
+export * from './abstract'
+export * from './component'

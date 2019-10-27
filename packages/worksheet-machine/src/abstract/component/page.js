@@ -9,3 +9,8 @@ export class WizardPage extends LitElement {
     document.title = title
   }
 }
+
+@customElement('test-page')
+export class ExamplePage extends WizardPage {
+  title = 'test'
+}

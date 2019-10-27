@@ -1,6 +1,6 @@
 import { LitElement, html, customElement, property } from 'lit-element'
 import { map } from 'rxjs/operators'
-import { WizardElement } from './abstract/element'
+import { WizardElement } from '../abstract/element'
 
 @customElement('test-element')
 export class TestElement extends WizardElement {
