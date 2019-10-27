@@ -10,20 +10,23 @@ export class TestElement extends WizardElement {
 
   constructor() {
     super()
-  }
-
-  firstUpdated() {
     this.globalEvents.location.pipe(
       map(location => location.pathname.replace('/', '')),
-    ).subscribe(pathname =>
-      this.pathname = pathname)
+    ).subscribe(pathname => {
+      console.log('got pathname from global events', pathname)
+      this.pathname = pathname
+    })
   }
 
   render() {
     return html`
       <h1>Test Element</h1>
-      <h2>(with arg: ${this.arg || this.pathname || this.defaultArg})
+      <h2>(with arg: ${this.makeArg()})
       <br>
     `
+  }
+
+  makeArg() {
+    return this.arg || this.pathname || this.defaultArg
   }
 }
