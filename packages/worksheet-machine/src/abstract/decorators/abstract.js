@@ -56,46 +56,10 @@ export class Decorator {
     this.decorate = this.decorate.bind(this)
   }
 
-  doesSupport(type) {
-    let isTypeSupportedBy = (supported, type) =>
-      this.deconstructType(supported).includes(type)
-    return !!this.supportedTypes.find(supported =>
-      isTypeSupportedBy(supported, type))
-  }
-
-  @bind
-  deconstructType(type) {
-    let deepFlat = arr => arr instanceof Array
-        ? arr.flatMap(deepFlat)
-        : arr,
-      mergeTypes = (...types) =>
-        Array.from(new Set(deepFlat(types.map(this.deconstructType))))
-    switch (type) {
-      case Type.property:
-        return [type, Type.instanceProperty, Type.staticProperty]
-      case Type.method:
-        return [type, Type.instanceMethod, Type.staticMethod]
-      case Type.accessor:
-        return [type, ...mergeTypes(Type.instanceAccessor, Type.staticAccessor)]
-      case Type.instanceAccessor:
-        return [type, Type.getter, Type.setter, Type.instanceGetter, Type.instanceSetter]
-      case Type.staticAccessor:
-        return [type, Type.getter, Type.setter, Type.staticGetter, Type.staticSetter]
-      case Type.getter:
-        return [type, Type.instanceAccessor, Type.staticAccessor, Type.instanceGetter, Type.staticGetter]
-      case Type.setter:
-        return [type, Type.instanceAccessor, Type.staticAccessor, Type.instanceSetter, Type.staticSetter]
-      default:
-        return [type]
-    }
-  }
-
-  decorated = []
   decorate(...args) {
     let type = this.getActualType(...args)
     if (this.doesSupport(type) === false)
       throw this.getUnsupportedDecorateeError(type)
-    this.decorated.push(type)
     return this.decorateByType(type, ...args)
   }
 
@@ -121,6 +85,37 @@ export class Decorator {
       }
     }
     throw new Error(`Could not understand what ${this.constructor.name} is decorating.`)
+  }
+
+  doesSupport(type) {
+    let isTypeSupportedBy = (supported, type) =>
+      this.getActualTypesOfType(supported).includes(type)
+    return !!this.supportedTypes.find(supported =>
+      isTypeSupportedBy(supported, type))
+  }
+
+  @bind
+  getActualTypesOfType(type) {
+    let mergeTypes = (...types) =>
+        Array.from(new Set(types.map(this.getActualTypesOfType).flat()))
+    switch (type) {
+      case Type.property:
+        return [type, Type.instanceProperty, Type.staticProperty]
+      case Type.method:
+        return [type, Type.instanceMethod, Type.staticMethod]
+      case Type.accessor:
+        return [type, ...mergeTypes(Type.instanceAccessor, Type.staticAccessor)]
+      case Type.instanceAccessor:
+        return [type, Type.getter, Type.setter, Type.instanceGetter, Type.instanceSetter]
+      case Type.staticAccessor:
+        return [type, Type.getter, Type.setter, Type.staticGetter, Type.staticSetter]
+      case Type.getter:
+        return [type, Type.instanceAccessor, Type.staticAccessor, Type.instanceGetter, Type.staticGetter]
+      case Type.setter:
+        return [type, Type.instanceAccessor, Type.staticAccessor, Type.instanceSetter, Type.staticSetter]
+      default:
+        return [type]
+    }
   }
 
   getUnsupportedDecorateeError(type) {

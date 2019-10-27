@@ -1,5 +1,6 @@
 import { SubSuite, Test } from 'polymorphic-tests'
-import { Decorators, DecoratorSuite } from './abstract.spec'
+import { Decorators } from './abstract.spec'
+import { DecoratorSuite } from './decorator-suite.spec'
 import { CachedReturn } from './cached-return'
 
 @SubSuite(Decorators) export class CacheReturnDecorator extends DecoratorSuite {
@@ -57,6 +58,5 @@ import { CachedReturn } from './cached-return'
     let i3 = C.getInstance()
     t.expect(callCount).to.equal(1)
     t.expect(i1).to.equal(i2).to.equal(i3)
-    t.expect(i1.i).to.equal(i2.i).to.equal(i3.i)
   }
 }
