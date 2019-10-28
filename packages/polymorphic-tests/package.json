@@ -11,10 +11,11 @@
     "start": "ts-node src/cli.ts",
     "pretest": "npm run build:polytest",
     "test": "./src/cli/internal-polytest run -r tap | tap-mocha-reporter spec",
+    "posttest": "npm run build",
     "build": "rm -rf lib && tsc -p ./tsconfig.json",
     "build:polytest": "rm -rf lib && tsc -p ./tsconfig.polytest.json",
     "refresh": "rm -rf ./node_modules ./package-lock.json && npm install",
-    "publish-version": "npm run build && npm publish && git push && git push --tags"
+    "prepublish": "npm run build"
   },
   "repository": {
     "type": "git",
