@@ -58,7 +58,7 @@ import { SubSuite, Test, TestSuite } from "../src/public-api"
   @Test() async 'fail when overriding with shorter timeout than current duration'(t) {
     let config = this.decoratorConfig
     @decorateSuite(config) class TimeoutSuite extends TestSuite {
-      timeout = 15
+      timeout = 20
       @decorateTest(config) async 'should timeout'(t) {
         await new Promise(resolve => setTimeout(resolve, 2))
         t.timeout = 1
@@ -73,7 +73,7 @@ import { SubSuite, Test, TestSuite } from "../src/public-api"
     let errorMessage = report[0].children[0].reason.message
     t.expect(errorMessage).to.include('"should timeout" changed timeout to 1ms,')
     let passedTime = Number(/but (\d+)ms passed/.exec(errorMessage)[1])
-    t.expect(passedTime).to.be.within(1, 10)
+    t.expect(passedTime).to.be.within(1, 19)
   }
 
   // Undesired but unavoidable.
