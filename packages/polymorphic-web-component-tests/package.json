@@ -1,0 +1,19 @@
+{
+  "name": "polymorphic-web-component-tests",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@wizard.tower:/repos/polymorphic-web-component-tests.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "polymorphic-tests": "^0.1.4"
+  }
+}
