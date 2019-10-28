@@ -58,12 +58,14 @@ Current release:
       Raw:
         Parses finished event stream to standard report (JSON? YAML?)
         The base summary reporter class wraps this reporter
-        ☐ Parse event stream to standard report
+        ✔ Parse event stream to standard report @done(19-10-28 15:46)
     Summary:
       Simple:
         ☐ Extend base summary reporter class to report based on standard summary
 
 Next release:
+  ☐ Figure out what to do with:
+    ☐ Failed tests with an after hook that also fails. Which error to report?
   ☐ Refactor library to JS with tests in TS
   ☐ Run meta tests directly without stupid hack
   ☐ Add assertion reporting

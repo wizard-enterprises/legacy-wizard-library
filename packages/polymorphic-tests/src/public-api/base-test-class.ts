@@ -16,9 +16,14 @@ export class TestSuite implements TestSuiteRunnerDelegate {
   public async runTestPolymorphically(reporter: TestReporterDelegate, testMethod: PolymorphicTestMethod, testArg: TestArg) {
     let clone = this.cloneSelf()
     testMethod.methodBinding = clone
-    await clone.before(testArg)
-    await testMethod.superRunTestEntity(reporter, testArg)
-    await clone.after(testArg)
+    try {
+      await clone.before(testArg)
+      await testMethod.superRunTestEntity(reporter, testArg)
+    } catch (e) {
+      throw e
+    } finally {
+      await clone.after(testArg)
+    }
   }
 
   private cloneSelf(obj = this) {

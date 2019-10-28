@@ -1,6 +1,7 @@
 import { Suite, Test, TestSuite } from "../src/public-api";
 import { decorateSubSuite, decorateSuite, decorateTest } from "../src/public-api/decorators";
 import { RawTestRunnerSuite } from './test-runner-suite';
+import { TestEntityStatus } from "../src/core/abstract-test-entity";
 
 @Suite() class LifecycleHooks extends RawTestRunnerSuite {
   @Test() async 'hooks run in correct order'(t) {
@@ -27,6 +28,49 @@ import { RawTestRunnerSuite } from './test-runner-suite';
       'before', 'test 2', 'after',
       'teardown',
     ])
+  }
+
+  @Test() async 'failed test should still run after'(t) {
+    let config = this.decoratorConfig,
+      didAfterRun = false
+    @decorateSuite(config) class FailedTestWithAfter extends TestSuite {
+      @decorateTest(config) 'failing'(t) {
+        t.expect(true).to.equal(false)
+      }
+      after(t) {
+        didAfterRun = true
+      }
+    }
+    t.expect(await this.runSuiteAndGetReport()).to.shallowDeepEqual([
+      this.suiteReport('FailedTestWithAfter', { status: TestEntityStatus.failed, children: [
+        this.testReport('FailedTestWithAfter: failing', TestEntityStatus.failed),
+      ]}),
+    ])
+    t.expect(didAfterRun).to.equal(true)
+  }
+
+  @Test() async 'failure in before should not run test but still run after'(t) {
+    let config = this.decoratorConfig,
+      didTestRun = false,
+      didAfterRun = false
+    @decorateSuite(config) class FailedBeforeWithAfter extends TestSuite {
+      before(t) {
+        t.expect(true).to.equal(false)
+      }
+      after(t) {
+        didAfterRun = true
+      }
+      @decorateTest(config) 'test'(t) {
+        didTestRun = true
+      }
+    }
+    t.expect(await this.runSuiteAndGetReport()).to.shallowDeepEqual([
+      this.suiteReport('FailedBeforeWithAfter', { status: TestEntityStatus.failed, children: [
+        this.testReport('FailedBeforeWithAfter: test', TestEntityStatus.failed),
+      ]}),
+    ])
+    t.expect(didTestRun).to.equal(false)
+    t.expect(didAfterRun).to.equal(true)
   }
 
   @Test() async 'allow before to modify test arg'(t) {
