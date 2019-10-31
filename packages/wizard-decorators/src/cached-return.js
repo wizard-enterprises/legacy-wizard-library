@@ -34,11 +34,12 @@ export class CachedReturn extends Decorator {
   
   getCachedMethod(proto, name, descriptor) {
     let method = descriptor.value
-    return () =>
-      proto[INSTANCE][name] =
-      proto[CACHED].includes(name)
-      ? proto[INSTANCE][name]
-      : proto[CACHED].push(name) && method()
+    return function() {
+      return proto[INSTANCE][name] =
+        proto[CACHED].includes(name)
+        ? proto[INSTANCE][name]
+        : proto[CACHED].push(name) && method.bind(this)()
+    }
   }
         
   decorateGetter(protoOrCtor, name, descriptor) {

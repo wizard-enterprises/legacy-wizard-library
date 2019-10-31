@@ -1,10 +1,8 @@
 import { SubSuite, Test, TestSuite, Suite } from 'polymorphic-tests'
 import { Decorator, DecorateeType } from './abstract'
-import { DecoratorSuite } from './decorator-suite.spec'
-
-@Suite() export class Decorators extends TestSuite {}
-
-@SubSuite(Decorators) class DecoratorFoundation extends TestSuite {}
+import { DecoratorSuite } from './decorator-suite'
+console.log('in abstract.spec')
+@Suite() class DecoratorFoundation extends TestSuite {}
 
 @SubSuite(DecoratorFoundation) class NoSupportDecoratorTest extends DecoratorSuite {
   decoratorClass = class NoSupportDecorator extends Decorator {}

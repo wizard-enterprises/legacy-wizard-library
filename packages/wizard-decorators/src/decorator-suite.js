@@ -1,5 +1,5 @@
-import { SubSuite, Test, TestSuite, Suite } from 'polymorphic-tests'
-import { Decorator, DecorateeType } from './abstract'
+import { Test, TestSuite } from 'polymorphic-tests'
+import { DecorateeType } from './abstract'
 
 export class DecoratorSuite extends TestSuite {
   decoratorClass

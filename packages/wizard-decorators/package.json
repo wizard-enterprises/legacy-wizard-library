@@ -1,0 +1,27 @@
+{
+  "name": "wizard-decorators",
+  "version": "1.0.0",
+  "author": "Eden <eden@wizard.enterprises>",
+  "private": true,
+  "main": "./lib",
+  "repository": {
+    "type": "git",
+    "url": "git@wizard.tower:/repos/wizard-library"
+  },
+  "scripts": {
+    "test": "polytest run",
+    "build": "babel src --out-dir lib"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.6.4",
+    "@babel/core": "^7.6.4",
+    "@babel/plugin-proposal-class-properties": "^7.5.5",
+    "@babel/plugin-proposal-decorators": "^7.6.0",
+    "@babel/preset-env": "^7.6.3",
+    "@babel/register": "^7.6.2",
+    "polymorphic-tests": "^0.1.4"
+  },
+  "dependencies": {
+    "bind-decorator": "^1.0.11"
+  }
+}

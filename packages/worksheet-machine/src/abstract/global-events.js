@@ -1,4 +1,4 @@
-import { CachedReturn } from './decorators'
+import { CachedReturn } from 'wizard-decorators'
 import { BehaviorSubject, fromEvent } from 'rxjs'
 import { map, tap } from 'rxjs/operators'
 

@@ -1,9 +1,8 @@
-import { SubSuite, Test } from 'polymorphic-tests'
-import { Decorators } from './abstract.spec'
-import { DecoratorSuite } from './decorator-suite.spec'
+import { Suite, Test } from 'polymorphic-tests'
 import { CachedReturn } from './cached-return'
+import { DecoratorSuite } from './decorator-suite'
 
-@SubSuite(Decorators) export class CacheReturnDecorator extends DecoratorSuite {
+@Suite() export class CacheReturnDecorator extends DecoratorSuite {
   decoratorClass = CachedReturn
   @Test() 'decorated methods are called once'(t) {
     let calls = []
@@ -25,6 +24,19 @@ import { CachedReturn } from './cached-return'
     t.expect(c.x()).to.equal(c.x())
     t.expect(calls)
       .to.deep.equal(['static', 'instance'])
+  }
+
+  @Test() 'decorated methods are bound to instance'(t) {
+    class C {
+      x = 5
+      @this.decorate
+      getX() { return this.x }
+    }
+    let c = new C
+    t.expect(c.x).to.equal(5)
+    let ret
+    t.expect(() => ret = c.getX()).not.to.throw()
+    t.expect(ret).to.equal(5)
   }
 
   @Test() 'decorated getters are called once'(t) {

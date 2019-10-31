@@ -1,0 +1,4 @@
+{
+  "testFileGlobs": ["src/**/*.spec.js"],
+  "setupFiles": ["test-setup.js"]
+}
