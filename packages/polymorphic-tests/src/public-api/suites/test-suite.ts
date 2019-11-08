@@ -1,6 +1,6 @@
-import { TestArg } from "../test-method"
-import { PolymorphicTestMethod } from "../test-method/polymorphic"
-import { TestReporterDelegate } from "../core/reporters/test-reporter"
+import { TestArg } from "../../test-method"
+import { PolymorphicTestMethod } from "../../test-method/polymorphic"
+import { TestReporterDelegate } from "../../core/reporters/test-reporter"
 
 export interface TestSuiteRunnerDelegate {
   runTestPolymorphically(reporter: TestReporterDelegate, testMethod: PolymorphicTestMethod, testArg: TestArg): Promise<void>,
@@ -13,8 +13,11 @@ export class TestSuite implements TestSuiteRunnerDelegate {
   before(t: TestArg): any|Promise<any> {}
   after(t: TestArg): any|Promise<any> {}
 
+  static onDecorate() {}
+
   public async runTestPolymorphically(reporter: TestReporterDelegate, testMethod: PolymorphicTestMethod, testArg: TestArg) {
     let clone = this.cloneSelf()
+    // testMethod.testSuite = clone
     testMethod.methodBinding = clone
     try {
       await clone.before(testArg)
