@@ -4,6 +4,9 @@
   "author": "Eden <eden@wizard.enterprises>",
   "license": "ISC",
   "main": "./lib",
+  "files": [
+    "/lib"
+  ],
   "repository": {
     "type": "git",
     "url": "git@wizard.tower:/repos/wizard-library"
@@ -11,7 +14,7 @@
   "scripts": {
     "test": "polytest run",
     "build": "rm -rf lib && babel src --out-dir lib",
-    "prepublish": "npm run build"
+    "prepare": "npm run build"
   },
   "devDependencies": {
     "@babel/cli": "^7.6.4",

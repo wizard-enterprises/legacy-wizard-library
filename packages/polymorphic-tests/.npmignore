@@ -1,7 +1,0 @@
-.*
-**/tsconfig.json
-src
-test
-node_modules
-examples
-web-component-temp-build

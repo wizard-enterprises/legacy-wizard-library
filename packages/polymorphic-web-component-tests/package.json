@@ -4,6 +4,9 @@
   "author": "Eden <eden@wizard.enterprises>",
   "license": "ISC",
   "main": "lib",
+  "files": [
+    "/lib"
+  ],
   "repository": {
     "type": "git",
     "url": "git@wizard.tower:/repos/wizard-library"
@@ -11,7 +14,7 @@
   "scripts": {
     "test": "polytest run | tap-mocha-reporter spec",
     "build": "rm -rf lib && tsc -p ./tsconfig.json",
-    "prepublish": "npm run build"
+    "prepare": "npm run build"
   },
   "dependencies": {
     "@babel/core": "^7.7.2",

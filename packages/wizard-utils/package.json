@@ -4,6 +4,9 @@
   "author": "Eden <eden@wizard.enterprises>",
   "license": "ISC",
   "main": "lib",
+  "files": [
+    "/lib"
+  ],
   "repository": {
     "type": "git",
     "url": "git@wizard.tower:/repos/wizard-library"

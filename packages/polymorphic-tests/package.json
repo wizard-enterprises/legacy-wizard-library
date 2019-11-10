@@ -6,6 +6,10 @@
   "bin": {
     "polytest": "./bin/polytest"
   },
+  "files": [
+    "/lib",
+    "/bin"
+  ],
   "license": "ISC",
   "scripts": {
     "start": "ts-node src/cli.ts",
@@ -15,7 +19,7 @@
     "build": "rm -rf lib && tsc -p ./tsconfig.json",
     "build:polytest": "rm -rf lib && tsc -p ./tsconfig.polytest.json",
     "refresh": "rm -rf ./node_modules ./package-lock.json && npm install",
-    "prepublish": "npm run build"
+    "prepare": "npm run build"
   },
   "repository": {
     "type": "git",
