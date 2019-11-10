@@ -1,6 +1,6 @@
 {
   "name": "polymorphic-web-component-tests",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "author": "Eden <eden@wizard.enterprises>",
   "license": "ISC",
   "main": "lib",
@@ -36,7 +36,7 @@
     "copyfiles": "^2.1.1",
     "html-webpack-plugin": "^3.2.0",
     "lit-element": "^2.2.1",
-    "polymorphic-tests": "^0.1.4",
+    "polymorphic-tests": "^0.1.5",
     "polymorphic-web-component-tests": "^0.1.0",
     "tap-mocha-reporter": "^5.0.0",
     "typescript": "^3.7.2",
