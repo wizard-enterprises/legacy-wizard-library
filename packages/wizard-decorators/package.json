@@ -1,6 +1,6 @@
 {
   "name": "wizard-decorators",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "author": "Eden <eden@wizard.enterprises>",
   "license": "ISC",
   "main": "./lib",
@@ -23,7 +23,7 @@
     "@babel/plugin-proposal-decorators": "^7.6.0",
     "@babel/preset-env": "^7.6.3",
     "@babel/register": "^7.6.2",
-    "polymorphic-tests": "^0.1.6"
+    "polymorphic-tests": "^0.1.7"
   },
   "dependencies": {
     "bind-decorator": "^1.0.11"
