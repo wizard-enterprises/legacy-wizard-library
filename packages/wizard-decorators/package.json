@@ -1,6 +1,6 @@
 {
   "name": "wizard-decorators",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "author": "Eden <eden@wizard.enterprises>",
   "license": "ISC",
   "main": "./lib",
