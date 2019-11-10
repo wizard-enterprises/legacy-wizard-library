@@ -1,4 +1,4 @@
-import { TestSuite } from "./base-test-class"
+import { TestSuite } from "./suites"
 import { GlobalSuite } from "../suite/global"
 import { TestEntityRegistery } from "../core/test-registery"
 import { TestEntityIdStore } from "../core/abstract-test-entity"
@@ -31,7 +31,7 @@ export function Suite(opts: SuiteDecoratorOpts = {}) {
   return decorateSuite(defaultConfig, opts)
 }
 
-export function decorateSuite(config, opts: SuiteDecoratorOpts = {}) {
+export function decorateSuite(config: DecoratorConfig, opts: SuiteDecoratorOpts = {}) {
   return decorateSubSuite(config, null, opts)
 }
 
@@ -39,7 +39,7 @@ export function SubSuite(parentSuite: new () => TestSuite, opts: SuiteDecoratorO
   return decorateSubSuite(defaultConfig, parentSuite, opts)
 }
 
-export function decorateSubSuite(config, parentSuite: new () => TestSuite, opts: SuiteDecoratorOpts = {}) {
+export function decorateSubSuite(config: DecoratorConfig, parentSuite: new () => TestSuite, opts: SuiteDecoratorOpts = {}) {
   return function (target: new () => TestSuite) {
     if (doesClassExtend(target, TestSuite) === false)
       throw new Error(`Invalid class registered as suite. Class "${target.name}" must extend TestSuite.`)

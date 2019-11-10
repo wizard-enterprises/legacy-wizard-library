@@ -76,7 +76,7 @@ export class TapReporter extends RawReporter<string[]> {
     let entityContent = entity.type === TestEntityType.errorSubtest
       ? this.makeErrorDiagnosticLines(entity, indentation + '  ')
       : this.makeSuiteChildrenReportLines(entity.children, indentation + this.indentationUnit)
-
+    
     return [...lines, ...this.makeComplexEntityReportLines(
       entity, index, indentation, entityContent,
     )]
@@ -137,50 +137,65 @@ exitCode: 1
   }
 
   private makeErrorDiagnosticLines(entity: TestEntityReport, indentation: string) {
-    //@ts-ignore
-    if (!(entity.status === TestEntityStatus.failed && entity.type === TestEntityType.errorSubtest)) return []
     let {
       yamlStack, stackStartFile, stackStartLine, stackStartColumn, stackStartFunction
     } = this.parseErrorForYaml(entity)
-    return [...`\
+    return (`\
 ---
 ${[
   entity.reason['actual'] ? YAML.stringify({found: entity.reason['actual']}).trim() : null,
   entity.reason['expected'] ? YAML.stringify({wanted: entity.reason['expected']}).trim() : null,
-].filter(x => !isNull(x)).map(s => s + '\n').join('')}stack: |
+].filter(x => !isNull(x)).map(s => s + '\n').join('')}` + (!yamlStack ? '' : `stack: |
 ${yamlStack}
 at:
-  line: ${stackStartLine}
-  column: ${stackStartColumn}
-  file: ${stackStartFile}
-  function: "${stackStartFunction}"
-tapCaught: ${entity.reason.name}
-test: ${stackStartFunction.split('.')[1]}
-...`.split('\n').map(s => indentation + s)//, indentation
-    ]
+${[
+  ['line', stackStartLine],
+  ['column', stackStartColumn],
+  ['file', stackStartFile],
+  ['function', stackStartFunction ? '"' + stackStartFunction + '"' : undefined],
+]
+  .filter(pair => pair[1] !== undefined)
+  .map(([key, value]) => `  ${key}: ${value}\n`)
+  .join('')
+}`) + `tapCaught: ${entity.reason.name}${
+  stackStartFunction
+    ? '\ntest: ' + stackStartFunction.split('.')[1] + '\n'
+    : ''
+}...`).split('\n').map(s => indentation + s)
   }
 
   private parseErrorForYaml(entity) {
-    let yamlStack = entity.reason.stack
-      .substr(entity.reason.stack.indexOf(entity.name) + entity.name.length)
-      .replace(/at /g, '')
-      .replace(/\n\s+/g, '\n  ')
-      .substr(1)
-    let firstLineOfStack, locationOfFirstLineOfStack
-    try {
-      firstLineOfStack = yamlStack.substr(0, yamlStack.indexOf('\n'))
-      locationOfFirstLineOfStack = /\((.+)\)\s*$/.exec(firstLineOfStack)[1]
-    } catch (e) {
-      this.console.error('could not parse stack of error', entity.name)
-      throw entity.reason
-    }
-    let [stackStartFile, stackStartLine, stackStartColumn] = locationOfFirstLineOfStack.split(':'),
+    let yamlStack,
+      stackStartFile,
+      stackStartLine,
+      stackStartColumn,
+      stackStartFunction
+    if (entity.reason.stack) {
+      yamlStack = entity.reason.stack
+        .substring(entity.reason.stack.indexOf(entity.name) + entity.name.length)
+        .replace(/at /g, '')
+        .replace(/\n\s+/g, '\n  ')
+        .substring(1)
+      let firstLineOfStack, locationOfFirstLineOfStack
+      try {
+        firstLineOfStack = yamlStack.substring(0, yamlStack.indexOf('\n'))
+        locationOfFirstLineOfStack = /\((.+)\)\s*$/.exec(firstLineOfStack)[1]
+      } catch (e) {
+        this.console.error('could not parse stack of error', entity.name)
+        throw entity.reason
+      }
+      [stackStartFile, stackStartLine, stackStartColumn] = locationOfFirstLineOfStack.split(':')
       stackStartFunction = firstLineOfStack
         .replace(locationOfFirstLineOfStack, '')
         .replace(/\s*$/, '')
         .replace('()', '')
         .trim()
-    
+    } else {
+      console.error('\n')
+      console.error('entity.reason')
+      console.error(entity.reason)
+      console.error('\n')
+    }
     return {yamlStack, stackStartFile, stackStartLine, stackStartColumn, stackStartFunction}
   }
 }

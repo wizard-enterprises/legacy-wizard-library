@@ -1,11 +1,10 @@
 {
   "include": [
-    "src/**/*"
+    "./src/**/*.ts"
   ],
   "exclude": [
-    "**/*.spec.ts",
-    "node_modules",
-    "examples"
+    "test",
+    "node_modules"
   ],
   "compilerOptions": {
     "target": "es2018",

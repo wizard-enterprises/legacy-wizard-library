@@ -1,7 +1,7 @@
 import { Suite, SuiteOpts } from "."
 import { TestEntityIdStore } from "../core/abstract-test-entity"
 import { TestReporterDelegate } from "../core/reporters/test-reporter"
-import { TestSuite } from "../public-api/base-test-class"
+import { TestSuite } from "../public-api"
 
 export class PolymorphicSuite extends Suite {
   constructor(name: string, opts: SuiteOpts, private externalSuite: TestSuite, idStore?: TestEntityIdStore) {
@@ -18,8 +18,17 @@ export class PolymorphicSuite extends Suite {
   }
 
   async runTestEntity(reporter: TestReporterDelegate) {
-    await this.externalSuite.setup()
-    await super.runTestEntity(reporter)
-    await this.externalSuite.teardown()
+    if (this.shouldSkipEntity(this) || this.opts.skip) {
+      await super.runTestEntity(reporter)
+    } else {
+      try {
+        await this.externalSuite.setup()
+        await super.runTestEntity(reporter)
+      } catch (e) {
+        throw e
+      } finally {
+        await this.externalSuite.teardown()
+      }
+    }
   }
 }

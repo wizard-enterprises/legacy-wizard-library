@@ -1,7 +1,7 @@
 {
   "sourceMaps": "inline",
   "presets": [
-    ["@babel/preset-env", { "targets": { "esmodules": true } }]
+    ["@babel/preset-env", { "targets": ["current node", { "esmodules": true }] }]
   ],
   "plugins": [
     ["@babel/plugin-proposal-decorators", { "legacy": true }],

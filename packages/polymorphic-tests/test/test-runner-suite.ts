@@ -23,6 +23,7 @@ export abstract class TestRunnerSuite extends TestSuite {
     await super.before(t)
     this.globalSuite = GlobalSuiteForTests.getNewInstance()
     this.decoratorConfig = DecoratorConfigForTests.getNewInstance()
+    t.config = this.decoratorConfig
     this.idStore = TestEntityIdStoreForTests.getNewInstance()
     this.registery = new TestEntityRegistery(this.globalSuite, this.idStore)
     this.decoratorConfig.registery = this.registery

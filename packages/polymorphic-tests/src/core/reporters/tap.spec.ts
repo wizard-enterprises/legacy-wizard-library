@@ -7,8 +7,7 @@ import * as path from 'path'
 @Suite() export class RawReporterSuite extends RawTestRunnerSuite {
   reporterType = TestReporterType.tap
   @Test() async 'empty suite'(t) {
-    let config = this.decoratorConfig
-    @decorateSuite(config) class EmptySuite extends TestSuite {}
+    @decorateSuite(t.config) class EmptySuite extends TestSuite {}
     let report = (await this.runSuiteAndGetReport()).join('\n')
     t.expect(report).to.match(new RegExp(`\
 TAP Version 13
@@ -21,9 +20,8 @@ ok 1 - EmptySuite # ${timeRegex} {
   }
   
   @Test() async 'passing test'(t) {
-    let config = this.decoratorConfig
-    @decorateSuite(config) class PassingSuite extends TestSuite {
-      @decorateTest(config) 'should pass'(t) {}
+    @decorateSuite(t.config) class PassingSuite extends TestSuite {
+      @decorateTest(t.config) 'should pass'(t) {}
     }
     let report = (await this.runSuiteAndGetReport()).join('\n')
     t.expect(report).to.match(new RegExp(`\
@@ -41,11 +39,10 @@ ok 1 - PassingSuite # ${timeRegex} {
   }
 
   @Test() async 'skipping tests'(t) {
-    let config = this.decoratorConfig
-    @decorateSuite(config) class SuiteWithSkips extends TestSuite {
-      @decorateTest(config, {only: true}) 'should run'(t) {}
-      @decorateTest(config, {only: true, skip: true}) 'should be skipped'(t) { t.expect(true).to.equal(false) }
-      @decorateTest(config) 'should also be skipped'(t) { t.expect(true).to.equal(false) }
+    @decorateSuite(t.config) class SuiteWithSkips extends TestSuite {
+      @decorateTest(t.config, {only: true}) 'should run'(t) {}
+      @decorateTest(t.config, {only: true, skip: true}) 'should be skipped'(t) { t.expect(true).to.equal(false) }
+      @decorateTest(t.config) 'should also be skipped'(t) { t.expect(true).to.equal(false) }
     }
     let report = (await this.runSuiteAndGetReport()).join('\n')
     t.expect(report).to.match(new RegExp(`\
@@ -66,8 +63,7 @@ ok 1 - SuiteWithSkips # ${timeRegex} {
   }
 
   @Test() async 'failing test'(t) {
-    let config = this.decoratorConfig,
-      failureMessage = 'this is a test error',
+    let failureMessage = 'this is a test error',
       CustomError = function(message) {
         //@ts-ignore
         let _this = this
@@ -80,15 +76,15 @@ ok 1 - SuiteWithSkips # ${timeRegex} {
     CustomError.prototype = new Error()
     CustomError.prototype.name = "CustomError"
 
-    @decorateSuite(config) class FailingSuite extends TestSuite {
-      @decorateTest(config) 'should pass'(t) {}
-      @decorateTest(config, {skip: true}) 'should be skipped'(t) { t.expect(true).to.equal(false) }
-      @decorateTest(config) 'should fail'(t) { t.expect(
+    @decorateSuite(t.config) class FailingSuite extends TestSuite {
+      @decorateTest(t.config) 'should pass'(t) {}
+      @decorateTest(t.config, {skip: true}) 'should be skipped'(t) { t.expect(true).to.equal(false) }
+      @decorateTest(t.config) 'should fail'(t) { t.expect(
         {foo: 'bar', string: ['this is a string']}
       ).to.deep.equal(
         {foo: 'bar', string: ['this is a long string']}
       ) }
-      @decorateTest(config) 'should also fail'(t) { throw new CustomError(failureMessage) }
+      @decorateTest(t.config) 'should also fail'(t) { throw new CustomError(failureMessage) }
     }
     let report = (await this.runSuiteAndGetReport()).join('\n')
     t.expect(report).to.match(new RegExp(`\

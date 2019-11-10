@@ -1,0 +1,11 @@
+{
+  "name": "wizard-utils",
+  "version": "0.0.1",
+  "author": "Eden <eden@wizard.enterprises>",
+  "license": "ISC",
+  "main": "lib",
+  "repository": {
+    "type": "git",
+    "url": "git@wizard.tower:/repos/wizard-library"
+  }
+}

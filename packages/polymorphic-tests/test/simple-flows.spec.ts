@@ -9,17 +9,15 @@ class SimpleFlows extends TestRunnerSuite {
   protected reporterType = TestReporterType.simple
 
   @Test() async 'report no tests'(t) {
-    let config = this.decoratorConfig
-    @decorateSuite(config) class ExampleSuite extends TestSuite {}
+        @decorateSuite(t.config) class ExampleSuite extends TestSuite {}
     t.expect((await this.runSuiteAndGetReport()).lines).to.deep.equal(
       ['Running tests...', 'Run successful, 0/0 passed.'],
     )
   }
   
   @Test() async 'report one skipped test'(t) {
-    let config = this.decoratorConfig
-    @decorateSuite(config) class ExampleSuite extends TestSuite {
-      @decorateTest(config, {skip: true}) skip(t) { t.expect(false).to.equal(true) }
+        @decorateSuite(t.config) class ExampleSuite extends TestSuite {
+      @decorateTest(t.config, {skip: true}) skip(t) { t.expect(false).to.equal(true) }
     }
     t.expect((await this.runSuiteAndGetReport()).lines).to.deep.equal(
       ['Running tests...', 'Run successful, 0/1 passed.'],
@@ -27,9 +25,8 @@ class SimpleFlows extends TestRunnerSuite {
   }
 
   @Test() async 'report one passing test'(t) {
-    let config = this.decoratorConfig
-    @decorateSuite(config) class ExampleSuite extends TestSuite {
-      @decorateTest(config) pass(t) { t.expect(true).to.equal(true) }
+        @decorateSuite(t.config) class ExampleSuite extends TestSuite {
+      @decorateTest(t.config) pass(t) { t.expect(true).to.equal(true) }
     }
     t.expect((await this.runSuiteAndGetReport()).lines).to.deep.equal(
       ['Running tests...', 'Run successful, 1/1 passed.'],
@@ -37,11 +34,10 @@ class SimpleFlows extends TestRunnerSuite {
   }
   
   @Test() async 'report failing suite'(t) {
-    let config = this.decoratorConfig
-    @decorateSuite(config) class ExampleSuite extends TestSuite {
-      @decorateTest(config) fail() { t.expect(false).to.equal(true) }
-      @decorateTest(config) pass() { t.expect(true).to.equal(true) }
-      @decorateTest(config, {skip: true}) skip() { t.expect(false).to.equal(true) }
+        @decorateSuite(t.config) class ExampleSuite extends TestSuite {
+      @decorateTest(t.config) fail() { t.expect(false).to.equal(true) }
+      @decorateTest(t.config) pass() { t.expect(true).to.equal(true) }
+      @decorateTest(t.config, {skip: true}) skip() { t.expect(false).to.equal(true) }
     }
     let reportLines = (await this.runSuiteAndGetReport()).lines
     t.expect(reportLines[0]).to.equal('Running tests...')
@@ -51,39 +47,38 @@ class SimpleFlows extends TestRunnerSuite {
   }
   
   @Test() async 'report with only and skip'(t) {
-    let config = this.decoratorConfig,
-      runCount = 0,
+    let runCount = 0,
       passingTest = t => runCount++,
       skipOpts: TestEntityOpts = {skip: true},
       onlyOpts: TestEntityOpts = {only: true},
       skipAndOnlyOpts: TestEntityOpts = {only: true, skip: true}
     
-    @decorateSuite(config, skipAndOnlyOpts) class ShouldBeSkipped1 extends TestSuite {
-      @decorateTest(config) shouldSkip1(t) { t.expect(true).to.equal(false) }
-      @decorateTest(config, onlyOpts) shouldSkip2(t) { t.expect(true).to.equal(false) }
+    @decorateSuite(t.config, skipAndOnlyOpts) class ShouldBeSkipped1 extends TestSuite {
+      @decorateTest(t.config) shouldSkip1(t) { t.expect(true).to.equal(false) }
+      @decorateTest(t.config, onlyOpts) shouldSkip2(t) { t.expect(true).to.equal(false) }
     }
-    @decorateSuite(config, skipOpts) class ShouldBeSkipped2 extends TestSuite {
-      @decorateTest(config) shouldSkip3(t) { t.expect(true).to.equal(false) }
-      @decorateTest(config, onlyOpts) shouldSkip4(t) { t.expect(true).to.equal(false) }
+    @decorateSuite(t.config, skipOpts) class ShouldBeSkipped2 extends TestSuite {
+      @decorateTest(t.config) shouldSkip3(t) { t.expect(true).to.equal(false) }
+      @decorateTest(t.config, onlyOpts) shouldSkip4(t) { t.expect(true).to.equal(false) }
     }
-    @decorateSuite(config) class ShouldNotRun1 extends TestSuite {
-      @decorateTest(config) shouldNotRun(t) { t.expect(true).to.equal(false) }
-      @decorateTest(config, onlyOpts) shouldRun(t) { passingTest(t) }
+    @decorateSuite(t.config) class ShouldNotRun1 extends TestSuite {
+      @decorateTest(t.config) shouldNotRun(t) { t.expect(true).to.equal(false) }
+      @decorateTest(t.config, onlyOpts) shouldRun(t) { passingTest(t) }
     }
-    @decorateSuite(config, onlyOpts) class ShouldRun1 extends TestSuite {
-      @decorateTest(config, skipOpts) shouldBeSkipped(t) { t.expect(true).to.equal(false) }
-      @decorateTest(config) shouldRun(t) { passingTest(t) }
+    @decorateSuite(t.config, onlyOpts) class ShouldRun1 extends TestSuite {
+      @decorateTest(t.config, skipOpts) shouldBeSkipped(t) { t.expect(true).to.equal(false) }
+      @decorateTest(t.config) shouldRun(t) { passingTest(t) }
     }
-    @decorateSubSuite(config, ShouldRun1) class ShouldRun2 extends TestSuite {
-      @decorateTest(config, skipOpts) shouldBeSkipped(t) { t.expect(true).to.equal(false) }
-      @decorateTest(config) shouldRun(t) { passingTest(t) }
+    @decorateSubSuite(t.config, ShouldRun1) class ShouldRun2 extends TestSuite {
+      @decorateTest(t.config, skipOpts) shouldBeSkipped(t) { t.expect(true).to.equal(false) }
+      @decorateTest(t.config) shouldRun(t) { passingTest(t) }
     }
-    @decorateSuite(config, onlyOpts) class ShouldRun3 extends TestSuite {
-      @decorateTest(config, onlyOpts) shouldRun(t) { passingTest(t) }
-      @decorateTest(config) shouldNotRun(t) { t.expect(true).to.equal(false) }
+    @decorateSuite(t.config, onlyOpts) class ShouldRun3 extends TestSuite {
+      @decorateTest(t.config, onlyOpts) shouldRun(t) { passingTest(t) }
+      @decorateTest(t.config) shouldNotRun(t) { t.expect(true).to.equal(false) }
     }
-    @decorateSubSuite(config, ShouldRun3) class ShouldNotRun3 extends TestSuite {
-      @decorateTest(config) shouldNotRun(t) { t.expect(true).to.equal(false) }
+    @decorateSubSuite(t.config, ShouldRun3) class ShouldNotRun3 extends TestSuite {
+      @decorateTest(t.config) shouldNotRun(t) { t.expect(true).to.equal(false) }
     }
     let report = await this.runSuiteAndGetReport()
     t.expect(report.lastLine).to.equal('Run successful, 4/13 passed.', report.full)
@@ -99,7 +94,7 @@ class SimpleFlows extends TestRunnerSuite {
       waitMs = () => new Promise(resolve => setTimeout(resolve, 1)),
       config = this.decoratorConfig
     
-    @decorateSuite(config)
+    @decorateSuite(t.config)
     class ExampleSuite extends TestSuite {
       private counter = null
     
@@ -135,17 +130,17 @@ class SimpleFlows extends TestRunnerSuite {
         teardownCalledTimes++
       }
       
-      @decorateTest(config) 'first test'(t) {
+      @decorateTest(t.config) 'first test'(t) {
         this.counter *= 2
         t.expect(this.counter).to.equal(4)
       }
       
-      @decorateTest(config) 'second test'(t) {
+      @decorateTest(t.config) 'second test'(t) {
         this.counter *= 5
         t.expect(this.counter).to.equal(10)
       }
     
-      @decorateTest(config) 'third test'(t) {
+      @decorateTest(t.config) 'third test'(t) {
         t.expect(this.counter).to.equal(2)
       }
     }
@@ -160,15 +155,14 @@ class SimpleFlows extends TestRunnerSuite {
   }
 
   @Test() async 'inherit test'(t) {
-    let config = this.decoratorConfig
-    class UnregisteredGrandParentSuite extends TestSuite {
-      @decorateTest(config) 'test in grandparent'(t) { t.expect(true).to.equal(true) }
+        class UnregisteredGrandParentSuite extends TestSuite {
+      @decorateTest(t.config) 'test in grandparent'(t) { t.expect(true).to.equal(true) }
     }
-    @decorateSuite(config) class ParentSuite extends UnregisteredGrandParentSuite {
-      @decorateTest(config) 'test in parent'(t) { t.expect(true).to.equal(true) }
+    @decorateSuite(t.config) class ParentSuite extends UnregisteredGrandParentSuite {
+      @decorateTest(t.config) 'test in parent'(t) { t.expect(true).to.equal(true) }
     }
-    @decorateSuite(config) class ChildSuite extends ParentSuite {
-      @decorateTest(config) 'test in child'(t) { t.expect(true).to.equal(true) }
+    @decorateSuite(t.config) class ChildSuite extends ParentSuite {
+      @decorateTest(t.config) 'test in child'(t) { t.expect(true).to.equal(true) }
     }
     let report = await this.runSuiteAndGetReport()
     t.expect(report.lastLine).to.equal('Run successful, 5/5 passed.')

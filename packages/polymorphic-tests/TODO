@@ -63,6 +63,8 @@ Current release:
       Simple:
         ☐ Extend base summary reporter class to report based on standard summary
 
+☐ Add component lifecycle protected hook in WebComponentSuite to wait for component initialization and capture any async errors
+
 Next release:
   ☐ Figure out what to do with:
     ☐ Failed tests with an after hook that also fails. Which error to report?

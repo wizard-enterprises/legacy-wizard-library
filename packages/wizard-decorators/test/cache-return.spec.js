@@ -1,6 +1,6 @@
 import { Suite, Test } from 'polymorphic-tests'
-import { CachedReturn } from './cached-return'
-import { DecoratorSuite } from './decorator-suite'
+import { CachedReturn } from '../src/cached-return'
+import { DecoratorSuite } from '../src/decorator-suite'
 
 @Suite() export class CacheReturnDecorator extends DecoratorSuite {
   decoratorClass = CachedReturn

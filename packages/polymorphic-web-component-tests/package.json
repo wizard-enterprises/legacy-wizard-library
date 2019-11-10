@@ -1,0 +1,45 @@
+{
+  "name": "polymorphic-web-component-tests",
+  "version": "0.1.0",
+  "author": "Eden <eden@wizard.enterprises>",
+  "license": "ISC",
+  "main": "lib",
+  "repository": {
+    "type": "git",
+    "url": "git@wizard.tower:/repos/wizard-library"
+  },
+  "scripts": {
+    "test": "polytest run | tap-mocha-reporter spec",
+    "build": "rm -rf lib && tsc -p ./tsconfig.json",
+    "prepublish": "npm run build"
+  },
+  "dependencies": {
+    "@babel/core": "^7.7.2",
+    "@babel/generator": "^7.6.4",
+    "@babel/parser": "^7.6.4",
+    "@types/puppeteer": "^1.20.2",
+    "babel-loader": "^8.0.6",
+    "express": "^4.17.1",
+    "pkg-up": "^3.1.0",
+    "puppeteer": "^2.0.0",
+    "rimraf": "^3.0.0",
+    "ts-loader": "^6.2.1",
+    "webpack": "^4.41.2",
+    "wise-inspection": "^1.0.1",
+    "wizard-decorators": "^1.0.0",
+    "wizard-utils": "^0.0.1"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.1",
+    "@types/node": "^12.12.6",
+    "clean-webpack-plugin": "^3.0.0",
+    "copyfiles": "^2.1.1",
+    "html-webpack-plugin": "^3.2.0",
+    "lit-element": "^2.2.1",
+    "polymorphic-tests": "^0.1.4",
+    "polymorphic-web-component-tests": "^0.1.0",
+    "tap-mocha-reporter": "^5.0.0",
+    "typescript": "^3.7.2",
+    "webpack-cli": "^3.3.9"
+  }
+}

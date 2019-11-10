@@ -14,8 +14,10 @@ import { WizardElement } from '../element'
     return this
   }
 
-  firstUpdated(props) {
+  async firstUpdated(props) {
     this.router = new Router(this)
-    this.router.setRoutes(this.routes)
+    await this.router.setRoutes(this.routes)
+    await this.router.render()
+    await this.router.ready
   }
 }

@@ -31,13 +31,13 @@ export class Suite extends TestEntity<SuiteOpts> {
   
   private applyOptsToSubEntities(entities: TestEntity[], opts: SuiteOpts = this.opts) {
     for (let entity of entities) {
-      entity.parentSuite = this
       opts = {...opts}
       delete opts.rootSuite
       delete opts.only 
       let entityOpts = {
         ...opts,
         ...entity.opts,
+        skip: opts.skip || entity.opts.skip,
         skipBecauseOfOnly: this.shouldApplySkipBecauseOfOnlyToSubEntity(
           entity, {...entity.opts, ...opts},
         ),
@@ -45,6 +45,7 @@ export class Suite extends TestEntity<SuiteOpts> {
       if (!entityOpts.timeout)
         entityOpts.timeout = this.testTimeout
       entity.opts = entityOpts
+      entity.parentSuite = this
     }
     return entities
   }
@@ -55,6 +56,7 @@ export class Suite extends TestEntity<SuiteOpts> {
   }
 
   run(reporter: TestReporterDelegate) {
+    this.applyOptsToSubEntities(this.subTestEntities)
     return super.run(reporter).pipe(
       tap(() => {
         if (this.subTestEntities.find(e => e.status === TestEntityStatus.failed))

@@ -8,8 +8,8 @@ import { SubSuite, Test, TestSuite } from "../src/public-api"
   @Test() async 'run async test'(t) {
     let testDuration = 10, 
       config = this.decoratorConfig
-    @decorateSuite(config) class ExampleSuite extends TestSuite {
-      @decorateTest(config) 'async test'(t) {
+    @decorateSuite(t.config) class ExampleSuite extends TestSuite {
+      @decorateTest(t.config) 'async test'(t) {
         return new Promise(resolve => setTimeout(resolve, testDuration))
       }
     }
@@ -22,10 +22,9 @@ import { SubSuite, Test, TestSuite } from "../src/public-api"
   }
 
   @Test() async 'timeout from suite config'(t) {
-    let config = this.decoratorConfig
-    @decorateSuite(config) class TimeoutSuite extends TestSuite {
+    @decorateSuite(t.config) class TimeoutSuite extends TestSuite {
       timeout = 5
-      @decorateTest(config) async 'should timeout'(t) {
+      @decorateTest(t.config) async 'should timeout'(t) {
         await new Promise(resolve => setTimeout(resolve, 10))
       }
     }
@@ -39,10 +38,9 @@ import { SubSuite, Test, TestSuite } from "../src/public-api"
   }
 
   @Test() async 'override timeout config in test'(t) {
-    let config = this.decoratorConfig
-    @decorateSuite(config) class TimeoutSuite extends TestSuite {
+    @decorateSuite(t.config) class TimeoutSuite extends TestSuite {
       timeout = 10
-      @decorateTest(config) async 'should not timeout'(t) {
+      @decorateTest(t.config) async 'should not timeout'(t) {
         t.timeout = 30
         await new Promise(resolve => setTimeout(resolve, 20))
       }
@@ -56,10 +54,9 @@ import { SubSuite, Test, TestSuite } from "../src/public-api"
   }
 
   @Test() async 'fail when overriding with shorter timeout than current duration'(t) {
-    let config = this.decoratorConfig
-    @decorateSuite(config) class TimeoutSuite extends TestSuite {
+    @decorateSuite(t.config) class TimeoutSuite extends TestSuite {
       timeout = 20
-      @decorateTest(config) async 'should timeout'(t) {
+      @decorateTest(t.config) async 'should timeout'(t) {
         await new Promise(resolve => setTimeout(resolve, 2))
         t.timeout = 1
       }
@@ -78,11 +75,10 @@ import { SubSuite, Test, TestSuite } from "../src/public-api"
 
   // Undesired but unavoidable.
   @Test() async 'timed out test should not stop executing'(t) {
-    let config = this.decoratorConfig,
-      continuedExecution = false
-    @decorateSuite(config) class TimeoutSuite extends TestSuite {
+    let continuedExecution = false
+    @decorateSuite(t.config) class TimeoutSuite extends TestSuite {
       timeout = 1
-      @decorateTest(config) async 'should timeout'(t) {
+      @decorateTest(t.config) async 'should timeout'(t) {
         await new Promise(resolve => setTimeout(resolve, 2))
         continuedExecution = true
       }

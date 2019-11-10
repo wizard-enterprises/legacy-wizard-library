@@ -1,7 +1,7 @@
 import { TestArg, TestMethod } from "."
 import { TestEntityIdStore } from "../core/abstract-test-entity"
 import { TestReporterDelegate } from "../core/reporters/test-reporter"
-import { TestSuite } from "../public-api/base-test-class"
+import { TestSuite } from "../public-api"
 import { TestDecoratorOpts } from "../public-api/decorators"
 
 export class PolymorphicTestMethod extends TestMethod {
@@ -9,12 +9,12 @@ export class PolymorphicTestMethod extends TestMethod {
     name: string,
     boundMethod: Function,
     public opts: TestDecoratorOpts,
-    private testSuite: TestSuite,
     idStore?: TestEntityIdStore
   ) {
     super(name, boundMethod, opts, idStore)
   }
 
+  public testSuite: TestSuite
   superRunTestEntity = super.runTestEntity.bind(this)
 
   runTestEntity(reporter: TestReporterDelegate, testArg?: TestArg) {

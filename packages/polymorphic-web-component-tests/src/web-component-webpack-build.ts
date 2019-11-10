@@ -1,0 +1,58 @@
+import path from 'path'
+import webpack from 'webpack'
+import pkgUp from 'pkg-up'
+import { CleanWebpackPlugin } from 'clean-webpack-plugin'
+import HtmlWebpackPlugin from 'html-webpack-plugin'
+import CopyPlugin from 'copy-webpack-plugin'
+
+export function build(buildDir: string, components: {[key: string]: string}) {
+  return new Promise(async (resolve, reject) => {
+    webpack(await makeWebpackConfig(buildDir, components), (e, stats) => {
+      if (e || stats.hasErrors()) reject(e || stats.compilation.errors)
+      resolve(stats)
+    })
+  })
+}
+
+async function makeWebpackConfig(buildDir: string, components: {[key: string]: string}): Promise<webpack.Configuration> {
+  return {
+    mode: 'development',
+    entry: components,
+    output: {
+      path: path.resolve(__dirname, buildDir),
+      filename: '[name]-[contenthash].js',
+    },
+    cache: true,
+    devtool: 'inline-source-map',
+    resolve: {
+      extensions: ['.ts', '.js']
+    },
+    plugins: [
+      new CleanWebpackPlugin(),
+      ...Object.keys(components).map(name =>
+        new HtmlWebpackPlugin({
+          title: name,
+          chunks: ['common', name],
+          filename: `${name}.html`,
+        }
+      )),
+    ],
+    optimization: {
+      splitChunks: {
+        name: true,
+        cacheGroups: {
+          common: {
+            chunks: 'all',
+            name: 'common',
+          },
+        },
+      },
+    },
+    module: {
+      rules: [
+        { test: /\.ts$/, exclude: [/node_modules/], loader: "ts-loader"},
+        { test: /\.js$/, exclude: [/node_modules/], loader: "babel-loader"},
+      ],
+    },
+  }
+}

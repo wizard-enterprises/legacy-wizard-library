@@ -2,7 +2,7 @@
   "name": "wizard-decorators",
   "version": "1.0.0",
   "author": "Eden <eden@wizard.enterprises>",
-  "private": true,
+  "license": "ISC",
   "main": "./lib",
   "repository": {
     "type": "git",
@@ -10,7 +10,8 @@
   },
   "scripts": {
     "test": "polytest run",
-    "build": "babel src --out-dir lib"
+    "build": "rm -rf lib && babel src --out-dir lib",
+    "prepublish": "npm run build"
   },
   "devDependencies": {
     "@babel/cli": "^7.6.4",

@@ -1,6 +1,6 @@
 {
   "name": "polymorphic-tests",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Description",
   "main": "./lib",
   "bin": {
@@ -25,11 +25,11 @@
   "devDependencies": {
     "@types/figlet": "^1.2.0",
     "@types/fs-extra": "^8.0.0",
-    "@types/node": "^12.7.4",
+    "@types/node": "^12.11.7",
     "chai-shallow-deep-equal": "^1.4.6",
     "tap-mocha-reporter": "^5.0.0",
-    "ts-node": "^8.3.0",
-    "typescript": "^3.6.2"
+    "ts-node": "^8.4.1",
+    "typescript": "^3.7.2"
   },
   "dependencies": {
     "chai": "^4.2.0",
@@ -45,6 +45,7 @@
     "pjson": "^1.0.9",
     "rxjs": "^6.5.3",
     "source-map-support": "^0.5.13",
+    "wizard-decorators": "^1.0.0",
     "yaml": "^1.7.1"
   }
 }

@@ -113,10 +113,9 @@ export abstract class TestEntity<OptsType extends TestEntityOpts = TestEntityOpt
 
   public run(reporter: TestReporterDelegate): Observable<void> {
     this.shouldSkipBecauseOfOnly = this.doesEntityHaveSubentitiesWithOnly(this) || !!this.opts.skipBecauseOfOnly
-    if (this.shouldSkipEntity(this)) {
-      if (this.type === TestEntityType.suite)
-        return from(this.runTestEntity(reporter))
+    if (this.shouldSkipEntity(this) && this.type === TestEntityType.test) {
       reporter.testEntitySkipped(this)
+      this.end = new Date
       return of(null)
     }
 
@@ -128,11 +127,11 @@ export abstract class TestEntity<OptsType extends TestEntityOpts = TestEntityOpt
       : race(from(this.runTestEntity(reporter)), this.testTimeoutTerminator).toPromise()
     ).then(r => {
       if (r instanceof Error) throw r
-      this.end = new Date 
       reporter.testEntityPassed(this)
     }).catch(e => {
-      this.end = new Date
       reporter.testEntityFailed(this, e)
+    }).finally(() => {
+      this.end = new Date
     })
     this.runStarted.next(null)
     return from(p) as Observable<void>
@@ -163,8 +162,8 @@ export abstract class TestEntity<OptsType extends TestEntityOpts = TestEntityOpt
     return !!(e.subTestEntities.find(entity => entity.opts.only))
   }
 
-  private shouldSkipEntity(entity: TestEntity) {
-    return entity.type === TestEntityType.test && entity.opts.skip || entity.opts.skipBecauseOfOnly
+  protected shouldSkipEntity(entity: TestEntity) {
+    return entity.opts.skip || entity.opts.skipBecauseOfOnly || (entity.parentSuite && entity.parentSuite.opts.skip)
   }
 
   protected failureReasonsOverride: Error[] = []
