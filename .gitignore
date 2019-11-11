@@ -1,3 +1,4 @@
 .history
 **/node_modules
 **/web-component-temp-build
+yarn-error.log

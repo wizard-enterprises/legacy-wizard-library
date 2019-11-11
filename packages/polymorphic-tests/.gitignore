@@ -1,7 +1,4 @@
 C*npm/
-*.js
-*.js.map
-!test/setup.js
 !examples/**
 node_modules
 lib

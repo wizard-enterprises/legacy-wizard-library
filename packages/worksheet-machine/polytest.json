@@ -1,6 +1,0 @@
-{
-  "testFileGlobs": ["src/**/*.spec.js"],
-  "sourceFileGlobs": ["src/**/*.js", "!src/**/*.spec.js"],
-  "setupFiles": ["test-setup.js"],
-  "reporter": "tap"
-}
