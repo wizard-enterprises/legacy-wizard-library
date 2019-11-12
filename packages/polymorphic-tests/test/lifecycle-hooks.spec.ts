@@ -139,27 +139,6 @@ import { RawTestRunnerSuite } from './test-runner-suite'
     ])
   }
 
-  @Test() async 'allow before to modify test arg'(t) {
-    @decorateSuite(t.config) class ModifyTestArg extends TestSuite {
-      wasSet = false
-      before(t) {
-        super.before(t)
-        t.doThing = () => this.wasSet = true
-      }
-      @decorateTest(t.config) 'should have modified test arg'(t) {
-        t.expect(this.wasSet).to.equal(false)
-        t.expect(t.doThing).to.be.a('function')
-        t.doThing()
-        t.expect(this.wasSet).to.equal(true)
-      }
-    }
-    t.expect(await this.runSuiteAndGetReport()).to.shallowDeepEqual([
-      this.suiteReport('ModifyTestArg', { children: [
-        this.testReport('ModifyTestArg: should have modified test arg'),
-      ]}),
-    ])
-  }
-
   @Test() async 'run static onDecorate hook'(t) {
     let didOnDecorateRun = false 
     @decorateSuite(t.config) class WithOnDecorate extends TestSuite {

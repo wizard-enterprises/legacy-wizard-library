@@ -5,7 +5,7 @@ import { TestEntityStatus } from "../src/core/abstract-test-entity";
 
 @Suite() class Polymorphism extends RawTestRunnerSuite {
   @Test() async 'instance should be cloned after setup for every test'(t) {
-        @decorateSuite(t.config) class CloneInstancePerTest extends TestSuite {
+    @decorateSuite(t.config) class CloneInstancePerTest extends TestSuite {
       i: number
       setup() {
         this.i = 10
@@ -28,7 +28,7 @@ import { TestEntityStatus } from "../src/core/abstract-test-entity";
   }
 
   @Test() async 'should inherit tests from abstract test suite'(t) {
-        abstract class AbstractSuite extends TestSuite {
+    abstract class AbstractSuite extends TestSuite {
       static counter = 1
       abstract expectedCounter: number
       after() {
@@ -67,7 +67,7 @@ import { TestEntityStatus } from "../src/core/abstract-test-entity";
   }
 
   @Test() async 'run inherited tests from abstract to specific'(t) {
-        abstract class GrandparentSuite extends TestSuite {
+    abstract class GrandparentSuite extends TestSuite {
       @decorateTest(t.config) 'grandparent test'(t) { t.expect(true).to.equal(true) }
     }
     abstract class ParentSuite extends GrandparentSuite {
@@ -84,9 +84,54 @@ import { TestEntityStatus } from "../src/core/abstract-test-entity";
       ]}),
     ])
   }
+  
+  @Test() async 'allow before to modify test arg'(t) {
+    @decorateSuite(t.config) class ModifyTestArg extends TestSuite {
+      wasSet = false
+      before(t) {
+        super.before(t)
+        t.doThing = () => this.wasSet = true
+      }
+      @decorateTest(t.config) 'should have modified test arg'(t) {
+        t.expect(this.wasSet).to.equal(false)
+        t.expect(t.doThing).to.be.a('function')
+        t.doThing()
+        t.expect(this.wasSet).to.equal(true)
+      }
+    }
+    t.expect(await this.runSuiteAndGetReport()).to.shallowDeepEqual([
+      this.suiteReport('ModifyTestArg', { children: [
+        this.testReport('ModifyTestArg: should have modified test arg'),
+      ]}),
+    ])
+  }
+
+  @Test() async 'hooks and tests should be properly bound to instance clone'(t) {
+    let beforeResult, testResult, afterResult
+    @decorateSuite(t.config) class Binding extends TestSuite {
+      beforeResult
+      testResult
+      afterResult
+      before(t) {
+        super.before(t)
+        this.beforeResult = 1
+      }
+      @decorateTest(t.config) 'test'(t) {
+        this.testResult = 5
+      }
+      after(t) {
+        super.after(t)
+        this.afterResult = 10
+        ;[beforeResult, testResult, afterResult] = [this.beforeResult, this.testResult, this.afterResult]
+      }
+    }
+    await this.runSuite()
+    t.expect([beforeResult, testResult, afterResult])
+      .to.deep.equal([1, 5, 10])
+  }
 
   @Test() async 'ignore tests without only when inheriting tests with only'(t) {
-        abstract class ParentSuite extends TestSuite {
+    abstract class ParentSuite extends TestSuite {
       @decorateTest(t.config, {only: true}) 'should run from parent'(t) { t.expect(true).to.equal(true) }
       @decorateTest(t.config) 'should be skipped from parent'(t) { t.expect(true).to.equal(false) }
     }
