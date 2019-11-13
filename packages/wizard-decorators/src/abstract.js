@@ -1,4 +1,4 @@
-import bind from "bind-decorator"
+import bind from 'bind-decorator'
 
 function makeStringEnum(...members) {
   return members.reduce((acc, member) => ({...acc, [member]: member}), {})
@@ -84,7 +84,7 @@ export class Decorator {
           return Type.instanceSetter
       }
     }
-    throw new Error(`Could not understand what ${this.constructor.name} is decorating.`)
+    throw new Error(`Could not understand what ${this.constructor.name} is decorating. Got arguments: [` + args.map(a => `${a}`).join(', ') + ']')
   }
 
   doesSupport(type) {

@@ -1,2 +1,2 @@
-export {decorate as CachedReturn} from './cached-return'
-export {Decorator} from './abstract'
+export { Decorator, DecorateeType } from './abstract'
+export { decorate as CachedReturn } from './cached-return'
