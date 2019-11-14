@@ -1,3 +1,4 @@
+import 'source-map-support/register'
 import globby from 'globby'
 import * as path from 'path'
 import { getReporterOfType } from '../core/reporters'
@@ -7,7 +8,6 @@ import { CliOptionOverrides, PolytestConfig } from './index-types'
 import { composeConfig } from './utils'
 
 export async function runTests(options: CliOptionOverrides = {}) {
-  require('source-map-support/register')
   let config = await composeConfig(options)
   await runGlobalSuite(config)
 }
