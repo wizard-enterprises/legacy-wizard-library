@@ -5,6 +5,7 @@ function makeStringEnum(...members) {
 }
 
 export const DecorateeType = makeStringEnum(
+  'all',
   'class',
   'property',
   'instanceProperty',
@@ -49,18 +50,26 @@ export function getTypeForDisplay(type, plural = false) {
 }
 
 export class Decorator {
+  static withArgs = false
   supportedTypes = []
-  
+
   constructor() {
     // In constructor to also bind decorate overrides
     this.decorate = this.decorate.bind(this)
   }
 
   decorate(...args) {
-    let type = this.getActualType(...args)
-    if (this.doesSupport(type) === false)
-      throw this.getUnsupportedDecorateeError(type)
-    return this.decorateByType(type, ...args)
+    let _decorate = ((...args) => {
+      let type = this.getActualType(...args)
+      if (this.doesSupport(type) === false)
+        throw this.getUnsupportedDecorateeError(type)
+      return this.decorateByType(type, ...args)
+    }).bind(this)
+    if (this.constructor.withArgs === false)
+      return _decorate(...args)
+    this.args = args
+    return ((...args) => _decorate(...args)).bind(this)
+    // return ((...args) => this.decorateByType(type, ...args)).bind(this)
   }
 
   getActualType(...args) {
@@ -99,6 +108,8 @@ export class Decorator {
     let mergeTypes = (...types) =>
         Array.from(new Set(types.map(this.getActualTypesOfType).flat()))
     switch (type) {
+      case Type.all:
+        return [type, ...mergeTypes(Type.class, Type.property, Type.method, Type.accessor)]
       case Type.property:
         return [type, Type.instanceProperty, Type.staticProperty]
       case Type.method:
@@ -187,6 +198,10 @@ export class Decorator {
     ctor = this.decorateStaticAccessor(ctor, name, descriptor)
     return this.decorateSetter(ctor, name, descriptor)
   }
+}
+
+export class DecoratorWithArgs extends Decorator {
+  static withArgs = true
 }
 
 function isPrototype(func) {

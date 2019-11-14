@@ -1,5 +1,5 @@
 import { SubSuite, Test, TestSuite, Suite } from 'polymorphic-tests'
-import { Decorator, DecorateeType } from '../src/abstract'
+import { Decorator, DecoratorWithArgs, DecorateeType } from '../src/abstract'
 import { DecoratorSuite } from '../src/decorator-suite'
 
 @Suite() class DecoratorFoundation extends TestSuite {}
@@ -33,7 +33,7 @@ import { DecoratorSuite } from '../src/decorator-suite'
 }
 
 class SupportTypeOverridesDecorator extends Decorator {
-  supportedTypes = ['class', 'property', 'method', 'accessor']
+  supportedTypes = ['all']
   calls = []
   decorateClass(...args) {
     super.decorateClass(...args)
@@ -154,5 +154,27 @@ class SupportTypeOverridesDecorator extends Decorator {
 
   expectedCalls(...calls) {
     return calls.map(call => `decorate${call.charAt(0).toUpperCase() + call.substring(1)}`)
+  }
+}
+
+@SubSuite(DecoratorFoundation) class DecoratorWithArgsTest extends DecoratorSuite {
+  static didDecorate = false
+  decoratorClass = class SomeDecoratorWithArgs extends DecoratorWithArgs {
+    supportedTypes = [DecorateeType.all]
+    decorate(...args) {
+      let decorated = super.decorate(...args)
+      DecoratorWithArgsTest.didDecorate = this.args
+      return decorated
+    }
+  }
+
+  after(t) {
+    super.after(t)
+    DecoratorWithArgsTest.didDecorate = false
+  }
+
+  @Test() 'saves args to property'(t) {
+    @this.decorate(1,2,3) class C {}
+    t.expect(DecoratorWithArgsTest.didDecorate).to.deep.equal([1,2,3])
   }
 }
