@@ -27,6 +27,7 @@
     "tap-mocha-reporter": "^5.0.0"
   },
   "dependencies": {
-    "bind-decorator": "^1.0.11"
+    "bind-decorator": "^1.0.11",
+    "wizard-utils": "^0.0.3"
   }
 }

@@ -2,6 +2,7 @@
 
 let root = {
   jsonStringifyWithEscapedCircularRefs,
+  makeStringEnum,
 }, contextual = Object.entries({
   puppeteer: {
     makeWindowErrorSerializable,
@@ -13,6 +14,10 @@ let root = {
 module.exports = {
   ...root,
   ...contextual,
+}
+
+function makeStringEnum(...members) {
+  return members.reduce((acc, member) => ({...acc, [member]: member}), {})
 }
 
 function jsonStringifyWithEscapedCircularRefs(obj) {

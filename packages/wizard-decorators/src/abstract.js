@@ -1,8 +1,5 @@
 import bind from 'bind-decorator'
-
-function makeStringEnum(...members) {
-  return members.reduce((acc, member) => ({...acc, [member]: member}), {})
-}
+import { makeStringEnum } from 'wizard-utils'
 
 export const DecorateeType = makeStringEnum(
   'all',
