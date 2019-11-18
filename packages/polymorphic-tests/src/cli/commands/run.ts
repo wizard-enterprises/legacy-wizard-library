@@ -52,7 +52,6 @@ export default class Run extends Command {
     let global = GlobalSuite.getInstance(),
       reporterCtor = getReporterOfType(config.reporter),
       reporter = new reporterCtor
-    reporter['console'] = this
     global.testTimeout = config.timeout
     await new TestRunner(global, reporter).run()
   }
