@@ -1,7 +1,7 @@
-import { Suite, SubSuite, Test, TestSuite } from "../src/public-api"
+import { Suite, SubSuite, Test, TestSuite } from "../lib/public-api"
 import { RawTestRunnerSuite } from "./test-runner-suite"
-import { decorateSuite, decorateTest, decorateSubSuite } from "../src/public-api/decorators"
-import { TestEntityStatus as Status } from "../src/core/abstract-test-entity"
+import { decorateSuite, decorateTest, decorateSubSuite } from "../lib/public-api/decorators"
+import { TestEntityStatus as Status } from "../lib/core/abstract-test-entity"
 
 @Suite() class TestSelection extends RawTestRunnerSuite {}
 @SubSuite(TestSelection) class Skip extends RawTestRunnerSuite {

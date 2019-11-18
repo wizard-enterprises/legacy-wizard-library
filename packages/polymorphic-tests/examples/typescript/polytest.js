@@ -1,8 +1,8 @@
 module.exports = {
-  testFileGlobs: ["src/*.spec.ts"],
-  sourceFileGlobs: ["src/*.ts", "!src/*.spec.ts"],
+  tests: ["src/*.spec.ts"],
+  codes: ["src/*.ts", "!src/*.spec.ts"],
   reporter: "simple",
   setup: () => {
-    require('ts-node/register')
+    require('ts-node/register/transpile-only')
   },
 }

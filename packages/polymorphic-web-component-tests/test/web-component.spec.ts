@@ -141,3 +141,6 @@ abstract class PerComponent extends TestComponentSuite {
   static componentPath = path.resolve(__dirname, 'test-web-component-2.ts')
   static componentTag = 'test-element-2'
 }
+
+let foo: (typeof TestComponent2)['componentTag'] = TestComponent2.componentTag
+let bar: (typeof TestComponent2)['componentPath'] = TestComponent2.componentPath

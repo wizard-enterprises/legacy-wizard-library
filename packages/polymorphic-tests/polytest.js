@@ -1,6 +1,6 @@
 module.exports = {
-  testFileGlobs: ['lib/(src|test)/**/*.spec.js'],
-  sourceFileGlobs: ['lib/src/**/*.js'],
+  tests: ['test/**/*.spec.ts'],
+  codes: ['lib/**/*.js'],
   setup: () => {
     const chai = require('chai')
     chai.use(require('chai-shallow-deep-equal'))

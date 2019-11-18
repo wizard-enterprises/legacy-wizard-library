@@ -1,41 +1,16 @@
 {
   "name": "polymorphic-tests",
-  "version": "0.1.7",
   "description": "Description",
-  "main": "./lib",
-  "bin": {
-    "polytest": "./bin/polytest"
-  },
-  "files": [
-    "/lib",
-    "/bin"
-  ],
-  "license": "ISC",
-  "scripts": {
-    "start": "ts-node src/cli.ts",
-    "pretest": "npm run build:polytest",
-    "test": "./src/cli/internal-polytest run -r tap | tap-mocha-reporter spec",
-    "posttest": "npm run build",
-    "build": "rm -rf lib && tsc -p ./tsconfig.json",
-    "build:polytest": "rm -rf lib && tsc -p ./tsconfig.polytest.json",
-    "refresh": "rm -rf ./node_modules ./package-lock.json && npm install",
-    "prepare": "npm run build"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git@wizard.tower:/repos/polymorphic-tests"
-  },
+  "version": "0.1.7",
   "author": "homunculus@wizard.enterprises",
-  "devDependencies": {
-    "@types/figlet": "^1.2.0",
-    "@types/fs-extra": "^8.0.0",
-    "@types/node": "^12.11.7",
-    "chai-shallow-deep-equal": "^1.4.6",
-    "tap-mocha-reporter": "^5.0.0",
-    "ts-node": "^8.4.1",
-    "typescript": "^3.7.2"
+  "bin": {
+    "polytest": "./bin/run"
   },
+  "bugs": "https://github.com/[object Object]/issues",
   "dependencies": {
+    "@oclif/command": "^1.5.19",
+    "@oclif/config": "^1.13.3",
+    "@oclif/plugin-help": "^2.2.1",
     "chai": "^4.2.0",
     "chalk": "^2.4.2",
     "clear": "^0.1.0",
@@ -49,7 +24,55 @@
     "pjson": "^1.0.9",
     "rxjs": "^6.5.3",
     "source-map-support": "^0.5.13",
+    "tslib": "^1.10.0",
     "wizard-decorators": "^1.0.2",
+    "wizard-utils": "^0.0.3",
     "yaml": "^1.7.1"
-  }
+  },
+  "devDependencies": {
+    "@oclif/dev-cli": "^1.22.2",
+    "@types/figlet": "^1.2.0",
+    "@types/fs-extra": "^8.0.0",
+    "@types/node": "^12.12.8",
+    "chai-shallow-deep-equal": "^1.4.6",
+    "tap-mocha-reporter": "^5.0.0",
+    "ts-node": "^8.5.2",
+    "typescript": "^3.3"
+  },
+  "files": [
+    "/bin",
+    "/lib",
+    "/npm-shrinkwrap.json",
+    "/oclif.manifest.json"
+  ],
+  "homepage": "https://github.com/wizard-enterprises/polymorphic-tests",
+  "keywords": [
+    "oclif"
+  ],
+  "license": "ISC",
+  "main": "./lib",
+  "oclif": {
+    "commands": "./lib/cli/commands",
+    "bin": "polytest",
+    "plugins": [
+      "@oclif/plugin-help"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wizard-enterprises/polymorphic-tests"
+  },
+  "scripts": {
+    "build": "rm -rf lib && tsc -p ./tsconfig.json",
+    "build:polytest": "rm -rf lib && tsc -p ./tsconfig.polytest.json",
+    "postpack": "rm -f oclif.manifest.json",
+    "prepack": "rm -rf lib && tsc -b && oclif-dev manifest && oclif-dev readme",
+    "prepare": "npm run build",
+    "refresh": "rm -rf ./node_modules ./package-lock.json && npm install",
+    "start": "ts-node src/cli.ts",
+    "pretest": "npm run build",
+    "test": "./bin/run run -r tap | tap-mocha-reporter spec",
+    "version": "oclif-dev readme && git add README.md"
+  },
+  "types": "lib/index.d.ts"
 }

@@ -42,7 +42,9 @@
     "lit-element": "^2.2.1",
     "polymorphic-tests": "^0.1.7",
     "polymorphic-web-component-tests": "^0.1.2",
+    "reflect-metadata": "^0.1.13",
     "tap-mocha-reporter": "^5.0.0",
+    "ts-node": "^8.5.2",
     "webpack-cli": "^3.3.9"
   }
 }

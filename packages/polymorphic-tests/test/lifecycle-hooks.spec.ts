@@ -1,6 +1,6 @@
-import { TestEntityStatus } from "../src/core/abstract-test-entity"
-import { Suite, Test, TestSuite } from "../src/public-api"
-import { decorateSuite, decorateSubSuite, decorateTest } from "../src/public-api/decorators"
+import { TestEntityStatus } from "../lib/core/abstract-test-entity"
+import { Suite, Test, TestSuite } from "../lib/public-api"
+import { decorateSuite, decorateSubSuite, decorateTest } from "../lib/public-api/decorators"
 import { RawTestRunnerSuite } from './test-runner-suite'
 
 @Suite() class LifecycleHooks extends RawTestRunnerSuite {

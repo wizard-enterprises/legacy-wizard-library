@@ -11,10 +11,11 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "lib": [
-      "es2018", "dom"
+       "dom", "es2017"
     ],
     "typeRoots": [
-      "types"
+      "types",
+      "../../node_modules/@types"
     ],
     "declaration": true,
     "declarationDir": "lib",
@@ -25,6 +26,7 @@
     "strictNullChecks": false,
     "downlevelIteration": true,
     "inlineSourceMap": true,
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   }
 }

@@ -1,7 +1,7 @@
-import { Suite, Test, TestSuite } from "../src/public-api";
-import { decorateSubSuite, decorateSuite, decorateTest } from "../src/public-api/decorators";
+import { Suite, Test, TestSuite } from "../lib/public-api";
+import { decorateSubSuite, decorateSuite, decorateTest } from "../lib/public-api/decorators";
 import { RawTestRunnerSuite } from './test-runner-suite';
-import { TestEntityStatus } from "../src/core/abstract-test-entity";
+import { TestEntityStatus } from "../lib/core/abstract-test-entity";
 
 @Suite() class Polymorphism extends RawTestRunnerSuite {
   @Test() async 'instance should be cloned after setup for every test'(t) {

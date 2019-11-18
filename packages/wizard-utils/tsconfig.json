@@ -1,0 +1,14 @@
+{
+  "include": [
+    "./src"
+  ],
+  "compilerOptions": {
+    "sourceMap": true,
+    "declaration": true,
+    "declarationDir": "./lib",
+    "outDir": "./lib",
+    "target": "es2017",
+    "moduleResolution": "node",
+    "module": "commonjs"
+  }
+}

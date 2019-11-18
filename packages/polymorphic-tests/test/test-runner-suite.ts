@@ -1,13 +1,13 @@
-import { TestEntityIdStore, TestEntityType as Type, TestEntityStatus as Status } from "../src/core/abstract-test-entity"
-import { getReporterOfType, TestReporterType } from "../src/core/reporters"
-import { RawReporter } from "../src/core/reporters/raw"
-import { TestReporter } from "../src/core/reporters/test-reporter"
-import { TestEntityRegistery } from "../src/core/test-registery"
-import { TestRunner } from "../src/core/test-runner"
-import { TestSuite } from "../src/public-api"
-import { DecoratorConfig } from "../src/public-api/decorators"
-import { Suite as InternalSuite } from '../src/suite'
-import { GlobalSuite } from "../src/suite/global"
+import { TestEntityIdStore, TestEntityType as Type, TestEntityStatus as Status } from "../lib/core/abstract-test-entity"
+import { getReporterOfType, TestReporterType } from "../lib/core/reporters"
+import { RawReporter } from "../lib/core/reporters/raw"
+import { TestReporter } from "../lib/core/reporters/test-reporter"
+import { TestEntityRegistery } from "../lib/core/test-registery"
+import { TestRunner } from "../lib/core/test-runner"
+import { TestSuite } from "../lib/public-api"
+import { DecoratorConfig } from "../lib/public-api/decorators"
+import { Suite as InternalSuite } from '../lib/suite'
+import { GlobalSuite } from "../lib/suite/global"
 import { ConsoleSpy, DecoratorConfigForTests, GlobalSuiteForTests, TestEntityIdStoreForTests } from "./mocks"
 
 export abstract class TestRunnerSuite extends TestSuite {

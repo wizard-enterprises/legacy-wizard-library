@@ -1,8 +1,8 @@
 import { PlainTests } from "./plain-tests.spec"
 import { RawTestRunnerSuite } from "./test-runner-suite"
-import { decorateSuite, decorateTest } from "../src/public-api/decorators"
-import { TestEntityStatus as Status } from "../src/core/abstract-test-entity"
-import { SubSuite, Test, TestSuite } from "../src/public-api"
+import { decorateSuite, decorateTest } from "../lib/public-api/decorators"
+import { TestEntityStatus as Status } from "../lib/core/abstract-test-entity"
+import { SubSuite, Test, TestSuite } from "../lib/public-api"
 
 @SubSuite(PlainTests) class TestTimeoutSuite extends RawTestRunnerSuite {
   @Test() async 'run async test'(t) {

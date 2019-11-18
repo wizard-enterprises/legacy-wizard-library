@@ -1,6 +1,6 @@
 {
   "include": [
-    "src/**/*"
+    "src/**/*.ts"
   ],
   "exclude": [
     "**/*.spec.ts",
@@ -8,17 +8,19 @@
     "examples"
   ],
   "compilerOptions": {
-    "target": "es2018",
+    "target": "es2017",
     "module": "commonjs",
     "moduleResolution": "node",
     "lib": [
       "es2018", "dom"
     ],
     "typeRoots": [
-      "types"
+      "types",
+      "../../node_modules/@types"
     ],
     "declaration": true,
-    "declarationDir": "lib",
+    "importHelpers": true,
+    // "declarationDir": "lib",
     "outDir": "./lib",
     "strict": true,
     "esModuleInterop": true,
@@ -26,6 +28,7 @@
     "strictNullChecks": false,
     "downlevelIteration": true,
     "inlineSourceMap": true,
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   }
 }

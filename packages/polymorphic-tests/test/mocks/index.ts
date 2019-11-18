@@ -1,7 +1,7 @@
-import { GlobalSuite } from '../../src/suite/global'
-import { SuiteOpts } from '../../src/suite'
-import { DecoratorConfig } from '../../src/public-api/decorators'
-import { TestEntityIdStore } from '../../src/core/abstract-test-entity'
+import { GlobalSuite } from '../../lib/suite/global'
+import { SuiteOpts } from '../../lib/suite'
+import { DecoratorConfig } from '../../lib/public-api/decorators'
+import { TestEntityIdStore } from '../../lib/core/abstract-test-entity'
 
 export * from './console'
 

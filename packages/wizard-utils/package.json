@@ -3,12 +3,19 @@
   "version": "0.0.3",
   "author": "Eden <eden@wizard.enterprises>",
   "license": "ISC",
-  "main": "lib",
+  "main": "./lib",
   "files": [
-    "/lib"
+    "./lib"
   ],
   "repository": {
     "type": "git",
     "url": "git@wizard.tower:/repos/wizard-library"
+  },
+  "scripts": {
+    "build": "rm -rf lib && tsc",
+    "prepare": "npm run build"
+  },
+  "devDependencies": {
+    "typescript": "^3.7.2"
   }
 }

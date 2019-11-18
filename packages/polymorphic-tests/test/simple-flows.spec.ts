@@ -1,8 +1,8 @@
-import { TestEntityOpts } from '../src/core/abstract-test-entity'
-import { Suite, Test, TestSuite } from '../src/public-api'
-import { decorateSubSuite, decorateSuite, decorateTest } from '../src/public-api/decorators'
+import { TestEntityOpts } from '../lib/core/abstract-test-entity'
+import { Suite, Test, TestSuite } from '../lib/public-api'
+import { decorateSubSuite, decorateSuite, decorateTest } from '../lib/public-api/decorators'
 import { TestRunnerSuite } from './test-runner-suite'
-import { TestReporterType } from '../src/core/reporters'
+import { TestReporterType } from '../lib/core/reporters'
 
 @Suite()
 class SimpleFlows extends TestRunnerSuite {

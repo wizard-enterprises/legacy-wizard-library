@@ -1,6 +1,6 @@
 module.exports = {
-  testFileGlobs: ["src/**/*.spec.js"],
-  sourceFileGlobs: ["src/**/*.js", "!src/**/*.spec.js"],
+  tests: ["src/**/*.spec.js"],
+  codes: ["src/**/*.js", "!src/**/*.spec.js"],
   reporter: "tap",
   setup: () => {
     require('@babel/register')()

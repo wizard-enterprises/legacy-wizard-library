@@ -1,9 +1,7 @@
-import path from 'path'
-import webpack from 'webpack'
-import pkgUp from 'pkg-up'
 import { CleanWebpackPlugin } from 'clean-webpack-plugin'
 import HtmlWebpackPlugin from 'html-webpack-plugin'
-import CopyPlugin from 'copy-webpack-plugin'
+import path from 'path'
+import webpack from 'webpack'
 
 export function build(buildDir: string, components: {[key: string]: string}) {
   return new Promise(async (resolve, reject) => {
@@ -50,8 +48,8 @@ async function makeWebpackConfig(buildDir: string, components: {[key: string]: s
     },
     module: {
       rules: [
-        { test: /\.ts$/, exclude: [/node_modules/], loader: "ts-loader"},
         { test: /\.js$/, exclude: [/node_modules/], loader: "babel-loader"},
+        { test: /\.ts$/, exclude: [/node_modules/], loader: "ts-loader"},
       ],
     },
   }

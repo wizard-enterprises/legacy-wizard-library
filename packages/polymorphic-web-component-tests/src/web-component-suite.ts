@@ -8,7 +8,8 @@ import puppeteer, {EvaluateFn} from 'puppeteer'
 import pkgUp from 'pkg-up'
 import express, {Application} from 'express'
 import { Subject } from 'rxjs'
-import { puppeteer as utils } from 'wizard-utils'
+import * as utils from 'wizard-utils/lib/puppeteer'
+
 export abstract class WebComponentSuite extends TestSuite {
   timeout = 10 * 1000
   static componentPath: string
@@ -74,7 +75,8 @@ export abstract class WebComponentSuite extends TestSuite {
   }
 
   private async getTempBuildDir() {
-    return path.resolve(path.dirname(await pkgUp()), 'web-component-temp-build/')
+    // return path.resolve(path.dirname(await pkgUp({cwd: process.cwd()})), 'web-component-temp-build/')
+    return path.resolve(process.cwd(), 'web-component-temp-build/')
   }
 
   @CachedReturn

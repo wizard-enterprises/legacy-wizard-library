@@ -1,5 +1,5 @@
-import { Suite, Test, TestSuite } from "../src/public-api";
-import { decorateSubSuite, decorateSuite, decorateTest } from "../src/public-api/decorators";
+import { Suite, Test, TestSuite } from "../lib/public-api";
+import { decorateSubSuite, decorateSuite, decorateTest } from "../lib/public-api/decorators";
 import { RawTestRunnerSuite } from './test-runner-suite';
 
 @Suite() export class PlainTests extends RawTestRunnerSuite {

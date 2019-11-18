@@ -1,2 +1,0 @@
-#!/bin/sh 
-":" //# comment; exec /usr/bin/env node "$(pwd)/lib/src/cli" "$@"
