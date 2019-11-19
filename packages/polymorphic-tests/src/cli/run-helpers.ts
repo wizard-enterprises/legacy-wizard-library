@@ -36,9 +36,7 @@ async function readConfigFromPackageJson() {
 
 function readConfigFromConfigFile() {
   let filePath = path.join(process.cwd(), 'polytest.js')
-  console.log('reading config from config file', filePath)
-  return import(filePath).then(content => {
-    console.log('got content', content.default)
-    return content.default
-  }).catch(e => ({}))
+  return import(filePath).then(content =>
+    content.default
+  ).catch(e => ({}))
 }

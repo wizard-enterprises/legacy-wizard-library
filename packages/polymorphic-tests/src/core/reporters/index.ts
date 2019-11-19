@@ -1,10 +1,12 @@
-import {SimpleTestReporter} from './simple'
-import {TapReporter} from './tap'
+import { SimpleTestReporter } from './simple'
+import { TapReporter } from './tap'
+import { MochaSpecReporter } from './mocha-spec'
 
 export enum TestReporterType {
   simple = 'simple',
-  tap = 'tap',
   raw = 'raw',
+  tap = 'tap',
+  mochaSpec = 'mochaSpec',
 }
 
 export function getReporterOfType(type: TestReporterType) {
@@ -13,5 +15,7 @@ export function getReporterOfType(type: TestReporterType) {
       return SimpleTestReporter
     case TestReporterType.tap:
       return TapReporter
+    case TestReporterType.mochaSpec:
+      return MochaSpecReporter
   }
 }

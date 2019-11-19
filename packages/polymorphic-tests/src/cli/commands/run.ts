@@ -1,12 +1,10 @@
 import 'source-map-support/register'
 import { Command, flags } from '@oclif/command'
-import globby from 'globby'
-import * as path from 'path'
-import { getReporterOfType, TestReporterType } from '../../core/reporters'
-import { TestRunner } from '../../core/test-runner'
-import { GlobalSuite } from '../../suite/global'
-import { CliOptionOverrides, PolytestConfig } from '../index-types'
-import { composeConfig } from '../utils'
+import { fork } from 'child_process'
+import watch from 'glob-watcher'
+import { TestReporterType } from '../../core/reporters'
+import { PolytestConfig } from '../index-types'
+import { composeConfig } from '../run-helpers'
 
 export default class Run extends Command {
   static description = 'run tests'
@@ -38,39 +36,61 @@ export default class Run extends Command {
   }
   
   async run() {
-    const {flags} = this.parse(Run)
-    await this.runTests(flags)
-  }
-  
-  async runTests(options: CliOptionOverrides = {}) {
-    let config = await composeConfig(options)
-    await this.runGlobalSuite(config)
+    let {flags} = this.parse(Run),
+      config = await composeConfig(flags)
+    return flags.watch
+      ? this.startWatchMode(config)
+      : this.runTests(config).then(() => process.exit())
   }
 
-  async runGlobalSuite(config: PolytestConfig) {
-    await this.importAllTestFiles(config)
-    let global = GlobalSuite.getInstance(),
-      reporterCtor = getReporterOfType(config.reporter),
-      reporter = new reporterCtor
-    global.testTimeout = config.timeout
-    await new TestRunner(global, reporter).run()
+  async startWatchMode(config: PolytestConfig) {
+    console.log('Starting in watch mode, Ctrl+C to stop.', config)
+    let allGlobs = this.getAllGlobsFromConfig(config),
+      watcher = watch(allGlobs, {awaitWriteFinish: true})
+    for (let event of ['ready', 'all'])
+      watcher.on(event, () => this.runTests(config))
   }
 
-  async importAllTestFiles(config: PolytestConfig) {
-    await this.importOrRunSetup(config.setup)
-    let testFiles = await globby(
-      config.tests.map(glob =>
-        path.join(process.cwd(), glob)))
-    await Promise.all(testFiles.map(file => import(file)))
+  getAllGlobsFromConfig(config: PolytestConfig) {
+    let setupGlobs = (config.setup instanceof Array ? config.setup : [config.setup])
+      .filter(setup => setup === `${setup}`)
+    return [...setupGlobs , ...config.codes, ...config.tests] as string[]
   }
 
-  importOrRunSetup(setup: PolytestConfig['setup']) {
-    if (setup instanceof Function) return (async () => await setup())()
-    if (setup === `${setup}`)
-      return globby(path.join(process.cwd(), setup))
-        .then(paths => paths.map(path => import(path)))
+  private runTestsScriptPath = require.resolve('../run-tests')
+  runTests(config: PolytestConfig) {
+    return new Promise((resolve, reject) => {
+      config = this.parseConfigForFork(config)
+      try {
+        let runScript = fork(this.runTestsScriptPath)
+        runScript.send(config)
+        let rejected = false
+        runScript.on('error', e => {
+          rejected = true
+          reject(e)
+        })
+        runScript.on('exit', m => {
+          if (rejected === false) {
+            if (runScript.killed === false) runScript.kill()
+            resolve(m)
+          } 
+        })
+      } catch (e) {
+        reject(e)
+      }
+    })
+  }
+
+  parseConfigForFork(config: PolytestConfig) {
+    config.setup = this.parseConfigSetupForFork(config.setup)
+    return config
+  }
+
+  parseConfigSetupForFork(setup: PolytestConfig['setup']) {
     if (setup instanceof Array)
-      return Promise.all(setup.map(c => this.importOrRunSetup(c)))
-  } 
-
+      return setup.map(setup => this.parseConfigSetupForFork(setup))
+    if (setup instanceof Function)
+      return setup.toString()
+    return setup
+  }
 }

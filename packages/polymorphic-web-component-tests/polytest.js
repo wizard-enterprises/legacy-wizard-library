@@ -1,7 +1,7 @@
 module.exports = {
   tests: ['test/**/*.spec.ts'],
   codes: ['src/**/*.ts'],
-  reporter: 'tap',
+  reporter: 'mochaSpec',
   setup: () => {
     require('ts-node/register/transpile-only')
   },

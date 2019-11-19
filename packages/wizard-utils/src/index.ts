@@ -1,3 +1,7 @@
+import _getCallerFile from 'get-caller-file'
+
+export const getCallerFile = _getCallerFile
+
 export function makeStringEnum<T extends string = string>(
   ...members: string[]
 ): {T: T} {
@@ -16,4 +20,22 @@ export function jsonStringifyWithEscapedCircularRefs(obj: Object) {
       return value
     }
   })())
+}
+
+export function makeFunctionFromStringified(funcString) {
+  if (!funcString.replace) throw new Error(`Can't make function from function string because it's not a string: ${funcString}`)
+  funcString = funcString
+    .replace(/^\s*(public|protected|private) /, '')
+    .replace(/^\s*export /, '')
+    .replace(/^\s*(module\.)?exports = /, '')
+  if ([
+    /^\s*\(/,
+    /^\s*(async\s+)?function/,
+    /^\s*[\w\d_]+\s*\=\>/,
+  ].find(regex => funcString.match(regex)) === undefined) {
+    funcString = funcString.match(/^\s*async/)
+      ? funcString.replace('async', 'async function')  
+      : 'function ' + funcString
+  }
+  return new Function(`return (${funcString}).apply(this.window || this.global || this || null, arguments)`)
 }

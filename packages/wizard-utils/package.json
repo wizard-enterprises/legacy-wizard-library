@@ -17,5 +17,8 @@
   },
   "devDependencies": {
     "typescript": "^3.7.2"
+  },
+  "dependencies": {
+    "get-caller-file": "^2.0.5"
   }
 }
