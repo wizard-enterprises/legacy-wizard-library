@@ -1,6 +1,6 @@
 {
   "name": "wizard-utils",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "author": "Eden <eden@wizard.enterprises>",
   "license": "ISC",
   "main": "./lib",
