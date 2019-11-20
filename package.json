@@ -9,6 +9,8 @@
     "test": "lerna run test"
   },
   "devDependencies": {
-    "lerna": "^3.18.3"
+    "lerna": "^3.18.3",
+    "ts-node": "^8.5.2",
+    "typescript": "^3.7.2"
   }
 }
