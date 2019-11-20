@@ -44,7 +44,7 @@ export default class Run extends Command {
   }
 
   async startWatchMode(config: PolytestConfig) {
-    console.log('Starting in watch mode, Ctrl+C to stop.', config)
+    console.log('Starting in watch mode, Ctrl+C to stop.')
     let allGlobs = this.getAllGlobsFromConfig(config),
       watcher = watch(allGlobs, {awaitWriteFinish: true})
     for (let event of ['ready', 'all'])

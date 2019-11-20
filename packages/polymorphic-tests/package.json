@@ -1,7 +1,7 @@
 {
   "name": "polymorphic-tests",
   "description": "Polymorphic test framework for JS by Wizard Enterprises.",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "author": "homunculus@wizard.enterprises",
   "bin": {
     "polytest": "./bin/run"
