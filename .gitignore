@@ -2,3 +2,4 @@
 **/node_modules
 **/web-component-temp-build
 yarn-error.log
+lerna-debug.log
