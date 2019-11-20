@@ -155,7 +155,7 @@ export default class Init extends Command {
     return `{
   codes: ['${srcDir}/**/*.${ext}', '!${srcDir}/**/*.spec.${ext}', '!${srcDir}/**/*.test.${ext}'],
   tests: ['src/**/*.spec.${ext}', 'src/**/*.test.${ext}'${testDirString}],
-  reporter: 'simple',
+  reporter: 'mochaSpec',
   setup: [() => {
     ${setupFuncContent}
   }]

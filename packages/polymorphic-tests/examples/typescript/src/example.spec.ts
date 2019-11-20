@@ -1,8 +1,7 @@
 import {TestSuite, Suite, Test} from 'polymorphic-tests'
 import {add} from './example'
 
-@Suite()
-class ExampleSuite extends TestSuite {
+@Suite() class ExampleSuite extends TestSuite {
   @Test({only: true}) 'passing test'(t) {
     t.expect(add(1, 1)).to.equal(2)
   }

@@ -1,12 +1,12 @@
 {
   "name": "polymorphic-tests",
-  "description": "Description",
+  "description": "Polymorphic test framework for JS by Wizard Enterprises.",
   "version": "0.1.7",
   "author": "homunculus@wizard.enterprises",
   "bin": {
     "polytest": "./bin/run"
   },
-  "bugs": "https://github.com/[object Object]/issues",
+  "bugs": "https://github.com/wizard-enterprises/wizard-library/issues",
   "dependencies": {
     "@oclif/command": "^1.5.19",
     "@oclif/config": "^1.13.3",
@@ -48,7 +48,7 @@
     "/npm-shrinkwrap.json",
     "/oclif.manifest.json"
   ],
-  "homepage": "https://github.com/wizard-enterprises/polymorphic-tests",
+  "homepage": "https://github.com/wizard-enterprises/wizard-library/blob/master/packages/polymorphic-tests",
   "keywords": [
     "oclif"
   ],
@@ -63,7 +63,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/wizard-enterprises/polymorphic-tests"
+    "url": "https://github.com/wizard-enterprises/wizard-library/blob/master/packages/polymorphic-tests"
   },
   "scripts": {
     "build": "rm -rf lib && tsc -p ./tsconfig.json",

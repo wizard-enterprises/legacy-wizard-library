@@ -61,15 +61,14 @@ Current release:
         ✔ Parse event stream to standard report @done(19-10-28 15:46)
     Summary:
       Simple:
-        ☐ Extend base summary reporter class to report based on standard summary
+        ✔ Extend base summary reporter class to report based on standard summary @done(19-11-20 13:21)
 
-☐ Add component lifecycle protected hook in WebComponentSuite to wait for component initialization and capture any async errors
+✔ Add component lifecycle protected hook in WebComponentSuite to wait for component initialization and capture any async errors @done(19-11-20 13:21)
 
 Next release:
   ☐ Figure out what to do with:
     ☐ Failed tests with an after hook that also fails. Which error to report?
-  ☐ Refactor library to JS with tests in TS
-  ☐ Run meta tests directly without stupid hack
+  ✔ Run meta tests directly without stupid hack @done(19-11-20 13:21)
   ☐ Add assertion reporting
     ☐ Run test with passing assertions
     ☐ Run test with failing assertion
