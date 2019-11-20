@@ -9,7 +9,7 @@
   <a href="https://github.com/wizard-enterprises/wizard-library/blob/master/packages/polymorphic-tests/graphs/commit-activity" target="_blank">
     <img alt="Maintenance" src="https://img.shields.io/badge/Maintained%3F-yes-green.svg" />
   </a>
-  <a href="https://github.com/wizard-enterprises/wizard-library/blob/master/packages/polymorphic-tests/blob/master/LICENSE" target="_blank">
+  <a href="https://github.com/wizard-enterprises/wizard-library/blob/master/packages/polymorphic-tests/LICENSE" target="_blank">
     <img alt="License: ISC" src="https://img.shields.io/github/license/wizard-enterprises/polymorphic-tests" />
   </a>
 </p>
