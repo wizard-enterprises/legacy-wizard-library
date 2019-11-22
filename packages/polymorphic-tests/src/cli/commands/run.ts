@@ -48,7 +48,7 @@ export default class Run extends Command {
     let allGlobs = this.getAllGlobsFromConfig(config),
       watcher = watch(allGlobs, {awaitWriteFinish: true})
     for (let event of ['ready', 'all'])
-      watcher.on(event, () => this.runTests(config))
+      watcher.on(event, () => this.runTests(config, event === 'ready' ? null : 'Rerunning...'))
   }
 
   getAllGlobsFromConfig(config: PolytestConfig) {
@@ -58,7 +58,8 @@ export default class Run extends Command {
   }
 
   private runTestsScriptPath = require.resolve('../run-tests')
-  runTests(config: PolytestConfig) {
+  runTests(config: PolytestConfig, log?: string) {
+    if (log) console.log(log)
     return new Promise((resolve, reject) => {
       config = this.parseConfigForFork(config)
       try {
