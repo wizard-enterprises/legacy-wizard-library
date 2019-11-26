@@ -9,7 +9,11 @@ abstract class PerComponent extends TestComponentSuite {
     return super.hookMethodAndPromiseNames.set(...this.event('custom-event'))
   }
 
-  @Test() async 'should wait for custom-event'(t) {
+  @Test() 'should wait for custom-event'(t) {
+    return this.createComponentAndDispatchCustomEvent(t)
+  }
+
+  protected async createComponentAndDispatchCustomEvent(t) {
     let p = this.createComponent(t)
     await new Promise(res => setTimeout(res, 500))
     //@ts-ignore
@@ -76,17 +80,16 @@ abstract class PerComponent extends TestComponentSuite {
   static componentPath = require.resolve('./test-web-component-2')
   static componentTag = 'test-element-2'
 }
-@SubSuite(TestComponents, {skip: true}) class Both extends PerComponent {
+@SubSuite(TestComponents) class Both extends PerComponent {
   static componentPath = require.resolve('./test-web-component-with-both')
   static componentTag = 'test-element-with-both'
-  static additionalTestComponents = [One.componentPath, Two.componentPath]
 
   @Test() async 'should render both test components'(t) {
-    console.log('should render both')
-    await this.createComponent(t)
-    console.log('created component')
-    let headers = await Promise.all(['test-element', 'test-element-2'].map(elTag => t.eval(elTag => {
-      let el = document.body.querySelector(`${elTag} > h1`)
+    await this.createComponentAndDispatchCustomEvent(t)
+    let headers = await Promise.all(['test-element', 'test-element-2'].map(elTag => t.eval((elTag, {element}) => {
+      let subEl = element.shadowRoot.querySelector(`${elTag}`)
+      if (!subEl) return null
+      let el = subEl.shadowRoot.querySelector('h1')
       return el && el.textContent
     }, elTag)))
     t.expect(headers).to.deep.equal([

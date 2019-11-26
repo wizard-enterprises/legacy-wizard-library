@@ -17,7 +17,7 @@ async function makeWebpackConfig(buildDir: string, components: {[key: string]: s
     mode: 'development',
     entry: components,
     output: {
-      path: path.resolve(__dirname, buildDir),
+      path: buildDir,
       filename: '[name]-[contenthash].js',
     },
     cache: true,
