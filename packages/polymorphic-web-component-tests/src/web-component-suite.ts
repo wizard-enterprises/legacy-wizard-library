@@ -5,10 +5,11 @@ import fs from 'fs'
 import rimraf from 'rimraf'
 import path from 'path'
 import puppeteer, {EvaluateFn} from 'puppeteer'
-import pkgUp from 'pkg-up'
 import express, {Application} from 'express'
 import { Subject } from 'rxjs'
 import * as utils from 'wizard-utils/lib/puppeteer'
+
+type WindowErrorRegistration = string | [string, boolean]
 
 export abstract class WebComponentSuite extends TestSuite {
   timeout = 10 * 1000
@@ -27,7 +28,7 @@ export abstract class WebComponentSuite extends TestSuite {
       // '--no-first-run',
     ]
   }
-  protected errorEvents: string[] = []
+  protected errorEvents: WindowErrorRegistration[] = []
 
   private get tag() {
     //@ts-ignore
@@ -145,22 +146,17 @@ export abstract class WebComponentSuite extends TestSuite {
     await this.page.waitForFunction(`Boolean(customElements.get('${this.tag}'))`)
     let waitFuncString = this.waitForReady.toString(),
       waitFuncArgs = this.getWaitFuncArgs(),
-      errorEvents = [
-        'error', 'unhandledrejection', ...this.errorEvents,
+      errorEvents: WindowErrorRegistration[] = [
+        'error', 'unhandledrejection', 'unhandledRejection', ['loaded', false], ...this.errorEvents,
       ],
-      errorEventsAfterRegistrationGenerators = errorEvents.map(event =>
-        this.waitForEventHandlerRegistrationThenEvent(event, 'window'))
-    await Promise.all(errorEventsAfterRegistrationGenerators.map(gen => gen.next()))
+      errorEventsAfterRegistrationGenerators = this.waitForEventHandlersRegistrationThenEvents(errorEvents, 'window')
+    await errorEventsAfterRegistrationGenerators.next()
     let element = await Promise.race([
-      ...errorEventsAfterRegistrationGenerators.map(eventPromiseGenerator =>
-        (eventPromiseGenerator.next() as unknown as Promise<any>)
-          .then(ev => {throw (ev.reason || ev)})
-          .catch(({value: e}) => {
-            if (e.message && e.message.includes('Target closed'))
-              return
-            throw e
-          })
-      ),
+      errorEventsAfterRegistrationGenerators.next().catch(e => {
+        if (e.message && e.message.includes('Target closed'))
+          return
+        throw e
+      }),
       this.page.evaluate(async (tag, waitFuncString, ...waitFuncArgs) => {
         let waitForReady = window['utils'].makeFunctionFromStringified(waitFuncString)
         let el = document.createElement(tag)
@@ -178,68 +174,73 @@ export abstract class WebComponentSuite extends TestSuite {
         await this.page.waitForSelector(`#${this.componentElementId}`)
         return await this.page.$(`#${this.componentElementId}`)
       }),
-    ]).catch(e => {throw e}) as unknown as puppeteer.ElementHandle
+    ]) as unknown as puppeteer.ElementHandle
     await this.page.evaluate('function getConvenienceGlobals() { return {element} }')
-    if (t) {
-      //@ts-ignore
-      t.eval = this.eval.bind(this)
-      //@ts-ignore
-      t.$eval = this.$eval.bind(this)
-      //@ts-ignore
-      t.$$eval = this.$$eval.bind(this)
-    }
+    if (t)
+      for (let name of ['', '$', '$$'].map(s => s + 'eval'))
+        t[name] = this[name].bind(this)
     return this.component = element
   }
 
-  protected waitForEvent(eventName: string, selector: 'window')
-  protected async waitForEvent(eventName: string, selector: string = `#${this.componentElementId}`) {
-    let generator = this.waitForEventHandlerRegistrationThenEvent(eventName, selector)
+  protected waitForEvent(event: WindowErrorRegistration, selector: 'window')
+  protected async waitForEvent(event: WindowErrorRegistration, selector: string = `#${this.componentElementId}`) {
+    let generator = this.waitForEventHandlersRegistrationThenEvents([event], selector)
     await generator.next()
     return await generator.next()
   }
-  protected async *waitForEventHandlerRegistrationThenEvent(eventName: string, selector: string = `#${this.componentElementId}`) {
-    let funcName = ['polytestHandleError', eventName, Date.now()].join('_')
-    let subject = new Subject
-    try {
-      await this.page.exposeFunction(funcName, async err => {
+  // TODO: register all events at once
+  protected async *waitForEventHandlersRegistrationThenEvents(events: WindowErrorRegistration[], selector: string = `#${this.componentElementId}`) {
+    events = events.map(event => event instanceof Array
+      ? event
+      : [event, true])
+    let eventNames = events.map(ev => ev[0])
+    let funcName = 'polytestHandleError'
+    let subject = new Subject<[number, any]>()
+    await this.page.exposeFunction(funcName, (i, err) => {
+      try {
+        err = utils.parseSerializedError(err)
         if (err instanceof Error)
           subject.error(err)
         else {
-          subject.next(err)
+          subject.next([i, err])
           subject.complete()
         }
-      })
-      await this.page.evaluate(async (eventName, funcName, selector) => {
-        window[funcName + 'Data'] = {eventName, selector}
-        window[funcName + 'Handler'] = async function(x, e, ...args) {
-          let error
-          try {
-            let {selector, eventName} = window[funcName + 'Data'] 
-            ;(selector === 'window' ? window : document.body.querySelector(selector)).removeEventListener(eventName, window[funcName + 'Handler'])
-            error =
-              e && ((e.detail && e.detail.error) || e.error || e.reason) || e
-              || x && ((x.detail && x.detail.error) || x.error || x.reason) || x
-            throw error
-          } catch (e) {
-            error = window['utils'].makeWindowErrorSerializable(e)
-          }
-          
-          //@ts-ignore
-          return await window[funcName](error)
-        }
-      }, eventName, funcName, selector)
-      let doWait = async (el, funcName, eventName, selector) => {
-        if (selector === 'window' && el === null) el = window
-        el.addEventListener(eventName, window[funcName + 'Handler'])
+      } catch (e) {
+        subject.error(e)
       }
-      await (selector === 'window'
-        ? this.page.evaluate(doWait, null, funcName, eventName, selector)
-        : this.page.$eval(selector, doWait, funcName, eventName, selector))
-      yield
-      return await subject.toPromise()
-    } catch (e) {
-      return Promise.reject(e)
-    }
+    })
+    await this.page.evaluate(async (eventNames, funcName, selector) => {
+      window[funcName + 'Handler'] = i => function(x, e) {
+        let error
+        try {
+          removeErrorListeners()
+          error = getErrorFromEvent(e) || getErrorFromEvent(x)
+          throw error
+        } catch (e) {
+          error = window['utils'].makeWindowErrorSerializable(e)
+        }
+        
+        //@ts-ignore
+        window[funcName](i, error)
+
+        function getErrorFromEvent(e) {
+          return e && ((e.detail && e.detail.error) || e.error || e.reason) || e
+        }
+      }
+      let el = selector === 'window' ? window : document.querySelector(selector)
+      for (let [i, eventName] of Object.entries(eventNames))
+        el.addEventListener(eventName, window[funcName + 'Handler'](Number(i)))
+      
+      function removeErrorListeners() {
+        for (let eventName of eventNames)
+          el.removeEventListener(eventName, window[funcName + 'Handler'])
+      }
+    }, eventNames, funcName, selector)
+    yield
+    return await subject.toPromise().then(([i, x]) => {
+      if (events[i][1]) {throw (x['reason'] || x)}
+      return x
+    })
   }
 
   protected getWaitFuncArgs(): any[] {
@@ -265,8 +266,19 @@ export abstract class WebComponentSuite extends TestSuite {
       selector = null
     }
     if (func instanceof Function) {
-      args = [func.toString(), func.length, ...args]
-      func = (maybeElement, evalFuncString, evalFuncArgLength, ...args) => {
+      let wrapped = this.wrapEvalFunc(args, func) 
+      args = wrapped.args
+      func = wrapped.func
+    }
+    return selector
+      ? this.page[pageMethod](selector, func, ...args)
+      : this.page[pageMethod](func, ...args)
+  }
+
+  private wrapEvalFunc(args, func) {
+    return {
+      args: [func.toString(), func.length, ...args],
+      func: (maybeElement, evalFuncString, evalFuncArgLength, ...args) => {
         if (maybeElement !== `${maybeElement}`)
           args = [maybeElement, ...args]
         else {
@@ -278,10 +290,7 @@ export abstract class WebComponentSuite extends TestSuite {
         let index = evalFuncArgLength - (argDiff ? 1 : 0)
         args.splice(index, 0, window['getConvenienceGlobals']())
         return window['utils'].makeFunctionFromStringified(evalFuncString)(...args)
-      }
+      },
     }
-    return selector
-      ? this.page[pageMethod](selector, func, ...args)
-      : this.page[pageMethod](func, ...args)
   }
 }

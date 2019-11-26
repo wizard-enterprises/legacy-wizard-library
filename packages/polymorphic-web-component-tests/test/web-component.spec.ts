@@ -1,78 +1,6 @@
 require('wise-inspection')(Promise)
-import path from 'path'
-import { Suite, Test, TestSuite, SubSuite } from 'polymorphic-tests'
-import { LitElementSuite } from '../src/lit-element-suite'
-
-abstract class TestComponentSuite extends LitElementSuite {
-  static componentPath = path.resolve(__dirname, 'test-web-component.ts')
-  static componentTag = 'test-element'
-}
-
-@Suite() class TestingWebComponents extends TestSuite {}
-@SubSuite(TestingWebComponents) class Eval extends TestSuite {}
-
-@SubSuite(Eval) class StringEval extends TestComponentSuite {
-  @Test() async 'return expression'(t) {
-    t.expect(await t.eval('5')).to.equal(5)
-  }
-
-  @Test() async 'have convenience globals on window for string eval'(t) {
-    t.expect(await t.eval('element.id')).to.equal(this.componentElementId)
-  }
-}
-
-@SubSuite(Eval) class FunctionEval extends TestComponentSuite {
-  @Test() async 'no args'(t) {
-    t.expect(await t.eval(() => 5)).to.equal(5)
-  }
-
-  @Test() async 'custom arg'(t) {
-    t.expect(await t.eval(x => x, 5)).to.equal(5)
-    t.expect(await t.eval(x => x, null)).to.equal(null)
-  }
-}
-
-@SubSuite(Eval) class QueryEval extends TestComponentSuite {
-  private selector = `#${this.componentElementId}`
-
-  @Test() async 'query for component'(t) {
-    t.expect(await t.$eval(
-      this.selector, comp => comp.id
-    )).to.equal(this.componentElementId)
-  }
-
-  @Test() async 'come before custom args'(t) {
-    t.expect(await t.$eval(
-      this.selector, (comp, x) => comp.id + x, 'x'
-    )).to.equal(this.componentElementId + 'x')
-  }
-}
-
-@SubSuite(Eval) class ConvenienceGlobalsInjection extends TestComponentSuite {
-  @Test() async 'pass to func when not receiving custom arg'(t) {
-    t.expect(await t.eval(g => g.element.id)).to.equal(this.componentElementId)
-  }
-
-  @Test() async 'come after custom args'(t) {
-    t.expect(await t.eval((x, g) => g.element.id + x, 'a')).to.equal(this.componentElementId + 'a')
-    t.expect(await t.eval(
-      (x, y, z, g) => g.element.id + x + y + z, 'a', 'b', 'c'
-    )).to.equal(this.componentElementId + 'abc')
-  }
-
-  @Test() async 'come before rest params'(t) {
-    t.expect(await t.eval(
-      (g, ...rest) => g.element.id + rest.join(''), 'a', 'b', 'c'
-    )).to.equal(this.componentElementId + 'abc')
-  }
-
-  @Test() async 'query, then custom args, then convenience globals, then rest params'(t) {
-    t.expect(await t.$eval(
-      '#' + this.componentElementId,
-      (el, x, y, g, ...rest) => el.id + g.element.id + x + y + rest.join(''), 'x', 'y', 'a', 'b', 'c'
-    )).to.equal(this.componentElementId + this.componentElementId + 'xyabc')
-  }
-}
+import { Suite, SubSuite, Test, TestSuite } from 'polymorphic-tests'
+import { TestComponentSuite } from './index.spec'
 
 abstract class PerComponent extends TestComponentSuite {
   createComponentInBefore = false
@@ -93,20 +21,26 @@ abstract class PerComponent extends TestComponentSuite {
   }
 
   @Test() async 'catch custom-error'(t) {
-    let p = this.createComponent(t)
+    let createComponentError, createCompProm, p
+    try {
+      createCompProm = this.createComponent(t)
+      p = createCompProm.catch(e => {
+        createComponentError = e
+      })
+    } catch (e) {}
     await new Promise(res => setTimeout(res, 500))
     //@ts-ignore
     t.expect(p.inspect().state).to.equal('pending')
     await this.page.evaluate('dispatchEvent(new ErrorEvent("custom-error", {error: new Error("custom error")}))')
     //@ts-ignore
     if (p.inspect().state === 'pending')
-      try {await p} catch (e) {console.log('await p error', e)}
+      await p
     //@ts-ignore
-    t.expect(p.inspect().state).to.equal('rejected')
+    t.expect(createCompProm.inspect().state).to.equal('rejected')
     //@ts-ignore
-    console.log(p.inspect().reason)
+    t.expect(createCompProm.inspect().reason.message).to.include('custom error')
     //@ts-ignore
-    t.expect(p.inspect().reason.message).to.include('custom error')
+    t.expect(createComponentError).to.equal(createCompProm.inspect().reason)
   }
   
   @Test() async 'id should be standard and component should exist'(t) {
@@ -136,11 +70,28 @@ abstract class PerComponent extends TestComponentSuite {
   }
 }
 
-@SubSuite(TestingWebComponents) class TestComponent extends PerComponent {}
-@SubSuite(TestingWebComponents) class TestComponent2 extends PerComponent {
-  static componentPath = path.resolve(__dirname, 'test-web-component-2.ts')
+@Suite() class TestComponents extends TestSuite {}
+@SubSuite(TestComponents) class One extends PerComponent {}
+@SubSuite(TestComponents) class Two extends PerComponent {
+  static componentPath = require.resolve('./test-web-component-2')
   static componentTag = 'test-element-2'
 }
+@SubSuite(TestComponents, {skip: true}) class Both extends PerComponent {
+  static componentPath = require.resolve('./test-web-component-with-both')
+  static componentTag = 'test-element-with-both'
+  static additionalTestComponents = [One.componentPath, Two.componentPath]
 
-let foo: (typeof TestComponent2)['componentTag'] = TestComponent2.componentTag
-let bar: (typeof TestComponent2)['componentPath'] = TestComponent2.componentPath
+  @Test() async 'should render both test components'(t) {
+    console.log('should render both')
+    await this.createComponent(t)
+    console.log('created component')
+    let headers = await Promise.all(['test-element', 'test-element-2'].map(elTag => t.eval(elTag => {
+      let el = document.body.querySelector(`${elTag} > h1`)
+      return el && el.textContent
+    }, elTag)))
+    t.expect(headers).to.deep.equal([
+      'Test Element',
+      'Test Element 2',
+    ])
+  }
+}

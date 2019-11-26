@@ -1,14 +1,14 @@
 import { LitElement, html, customElement, property } from 'lit-element'
 
-@customElement('test-element')
+@customElement('test-element-with-both')
 export class TestElement extends LitElement {
   @property() arg
   defaultArg = 'default'
 
   render() {
     return html`
-      <h1>Test Element</h1>
-      <h2>(with arg: ${this.makeArg()})</h2>
+      <test-element></test-element>
+      <test-element-2></test-element-2>
     `
   }
 
