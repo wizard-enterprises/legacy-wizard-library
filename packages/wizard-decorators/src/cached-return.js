@@ -27,34 +27,41 @@ export class CachedReturn extends Decorator {
   }
 
   decorateMethod(proto, name, descriptor) {
-    if (!proto[INSTANCE]) proto[INSTANCE] = {}
-    if (!proto[CACHED]) proto[CACHED] = []
     descriptor.value = this.getCachedMethod(proto, name, descriptor)
   }
   
   getCachedMethod(proto, name, descriptor) {
     let method = descriptor.value
-    return function() {
-      return proto[INSTANCE][name] =
-        proto[CACHED].includes(name)
-        ? proto[INSTANCE][name]
-        : proto[CACHED].push(name) && method.bind(this)()
+    return function(...args) {
+      if (!this[CACHED]) this[CACHED] = {}
+      if (this[CACHED][name] === undefined) this[CACHED][name] = {
+        ran: false,
+      }
+      if (this[CACHED][name].ran === false) this[CACHED][name] = {
+        ran: true,
+        value: method.call(this, ...args),
+      }
+      return this[CACHED][name].value
     }
   }
         
   decorateGetter(protoOrCtor, name, descriptor) {
-    if (!protoOrCtor[INSTANCE]) protoOrCtor[INSTANCE] = {}
-    if (!protoOrCtor[CACHED]) protoOrCtor[CACHED] = []
     descriptor.get = this.getCachedGetter(protoOrCtor, name, descriptor)
   }
 
   getCachedGetter(protoOrCtor, name, descriptor) {
     let getter = descriptor.get
-    return () =>
-      protoOrCtor[INSTANCE][name] =
-        protoOrCtor[CACHED].includes(name + 'Getter')
-          ? protoOrCtor[INSTANCE][name]
-          : protoOrCtor[CACHED].push(name + 'Getter') && getter()
+    return function() {
+      if (!this[CACHED]) this[CACHED] = {}
+      if (this[CACHED][name] === undefined) this[CACHED][name] = {
+        ran: false,
+      }
+      if (this[CACHED][name].ran === false) this[CACHED][name] = {
+        ran: true,
+        value: getter.call(this),
+      }
+      return this[CACHED][name].value
+    }
   }
 }
 
