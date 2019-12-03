@@ -54,7 +54,7 @@ export class PipelineElement<inputT = any, outputT = inputT> extends LitElement 
     if (nextIndex >= this.pipeline.pipes.length || this.pipeline.pipes.length === 0)
       nextIndex = -1
     
-    let slotChangeProm = (prevIndex === nextIndex)
+    let slotChangeProm = prevIndex === nextIndex
       ? Promise.resolve()
       : new Promise(res => this.pipeSlot.addEventListener('slotchange', res))
     this.currentSlot = nextIndex

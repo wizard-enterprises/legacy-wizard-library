@@ -149,7 +149,7 @@ export default class Init extends Command {
   }
 
   composeConfigString(ext: string, setupFuncContent: string, srcDir: string, testDir?: string) {
-    let testDirString = (testDir && testDir !== srcDir)
+    let testDirString = testDir && testDir !== srcDir
       ? `, '${testDir}/**/*.spec.${ext}', '${testDir}/**/*.spec.${ext}'`
       : ''
     return `{

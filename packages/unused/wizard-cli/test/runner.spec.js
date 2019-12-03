@@ -179,7 +179,7 @@ import { run } from '../src/runner'
   async generateCommandFile(command, dependencies, babelOptions) {
     let content = dependencies
       .map(rawDep => {
-        let [name, dep] = (`${rawDep}` === rawDep)
+        let [name, dep] = `${rawDep}` === rawDep
           ? new Array(2).fill(rawDep)
           : Object.entries(rawDep)[0]
         return `import * as ${name} from '${dep}'`
