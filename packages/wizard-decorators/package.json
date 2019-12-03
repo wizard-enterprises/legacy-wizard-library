@@ -3,7 +3,7 @@
   "version": "1.0.3",
   "author": "Eden <eden@wizard.enterprises>",
   "license": "ISC",
-  "main": "./lib",
+  "main": "lib/index.js",
   "files": [
     "/lib"
   ],

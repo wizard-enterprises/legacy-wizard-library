@@ -8,6 +8,7 @@ import puppeteer, {EvaluateFn} from 'puppeteer'
 import express, {Application} from 'express'
 import { Subject } from 'rxjs'
 import * as utils from 'wizard-utils/lib/puppeteer'
+import crypto from 'crypto'
 
 type WindowErrorRegistration = string | [string, boolean]
 
@@ -182,19 +183,19 @@ export abstract class WebComponentSuite extends TestSuite {
     return this.component = element
   }
 
-  protected waitForEvent(event: WindowErrorRegistration, selector: 'window')
-  protected async waitForEvent(event: WindowErrorRegistration, selector: string = `#${this.componentElementId}`) {
-    let generator = this.waitForEventHandlersRegistrationThenEvents([event], selector)
+  // protected waitForEvent(event: WindowErrorRegistration, selector: 'window', isGlobalVar?: false)
+  protected async waitForEvent(event: WindowErrorRegistration, selector: string = `#${this.componentElementId}`, isGlobalVar: boolean = false) {
+    let generator = this.waitForEventHandlersRegistrationThenEvents([event], selector, isGlobalVar)
     await generator.next()
     return await generator.next()
   }
   // TODO: register all events at once
-  protected async *waitForEventHandlersRegistrationThenEvents(events: WindowErrorRegistration[], selector: string = `#${this.componentElementId}`) {
+  protected async *waitForEventHandlersRegistrationThenEvents(events: WindowErrorRegistration[], selector: string = `#${this.componentElementId}`, isGlobalVar: boolean = false) {
     events = events.map(event => event instanceof Array
       ? event
       : [event, true])
     let eventNames = events.map(ev => ev[0])
-    let funcName = 'polytestHandleError'
+    let funcName = 'polytestHandleError' + crypto.randomBytes(10).toString('hex')
     let subject = new Subject<[number, any]>()
     await this.page.exposeFunction(funcName, (i, err) => {
       try {
@@ -209,7 +210,7 @@ export abstract class WebComponentSuite extends TestSuite {
         subject.error(e)
       }
     })
-    await this.page.evaluate(async (eventNames, funcName, selector) => {
+    await this.page.evaluate(async (eventNames, funcName, selector, isGlobalVar) => {
       window[funcName + 'Handler'] = i => function(x, e) {
         let error
         try {
@@ -227,7 +228,11 @@ export abstract class WebComponentSuite extends TestSuite {
           return e && ((e.detail && e.detail.error) || e.error || e.reason) || e
         }
       }
-      let el = selector === 'window' ? window : document.querySelector(selector)
+      let el = selector === 'window'
+        ? window
+        : isGlobalVar
+          ? window[selector]
+          : document.querySelector(selector)
       for (let [i, eventName] of Object.entries(eventNames))
         el.addEventListener(eventName, window[funcName + 'Handler'](Number(i)))
       
@@ -235,7 +240,7 @@ export abstract class WebComponentSuite extends TestSuite {
         for (let eventName of eventNames)
           el.removeEventListener(eventName, window[funcName + 'Handler'])
       }
-    }, eventNames, funcName, selector)
+    }, eventNames, funcName, selector, isGlobalVar)
     yield
     return await subject.toPromise().then(([i, x]) => {
       if (events[i][1]) {throw (x['reason'] || x)}

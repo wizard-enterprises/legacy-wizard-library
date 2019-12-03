@@ -53,7 +53,7 @@
     "oclif"
   ],
   "license": "ISC",
-  "main": "./lib",
+  "main": "lib/index.js",
   "oclif": {
     "commands": "./lib/cli/commands",
     "bin": "polytest",
@@ -66,8 +66,8 @@
     "url": "https://github.com/wizard-enterprises/wizard-library/blob/master/packages/polymorphic-tests"
   },
   "scripts": {
-    "build": "rm -rf lib && tsc -p ./tsconfig.json",
-    "build:polytest": "rm -rf lib && tsc -p ./tsconfig.polytest.json",
+    "build": "rm -rf lib && tsc -b ./tsconfig.json",
+    "build:polytest": "rm -rf lib && tsc -b ./tsconfig.polytest.json",
     "postpack": "rm -f oclif.manifest.json",
     "prepack": "rm -rf lib && tsc -b && oclif-dev manifest && oclif-dev readme",
     "prepare": "npm run build",

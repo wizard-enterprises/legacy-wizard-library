@@ -3,7 +3,7 @@
   "version": "0.1.3",
   "author": "Eden <eden@wizard.enterprises>",
   "license": "ISC",
-  "main": "lib",
+  "main": "lib/index.js",
   "files": [
     "/lib"
   ],
@@ -13,7 +13,7 @@
   },
   "scripts": {
     "test": "polytest run",
-    "build": "rm -rf lib && tsc -p ./tsconfig.json",
+    "build": "rm -rf lib && tsc -b .",
     "prepare": "npm run build"
   },
   "dependencies": {

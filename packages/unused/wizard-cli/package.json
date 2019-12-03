@@ -2,7 +2,7 @@
   "name": "wizard-cli",
   "version": "1.0.0",
   "private": true,
-  "main": "lib",
+  "main": "lib/index.js",
   "files": [
     "lib"
   ],
