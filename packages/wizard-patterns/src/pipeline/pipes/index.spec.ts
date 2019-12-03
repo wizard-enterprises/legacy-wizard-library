@@ -17,13 +17,17 @@ export abstract class PipeSuite<UnderTest extends Pipe = Pipe> extends TestSuite
   }
 
   private makePipeAndSetLast(shouldSetLast: boolean, ...pipeArgs) {
-    let pipe = new this.underTest(...pipeArgs)
+    let pipe = this.makeUnderTestPipe(...pipeArgs)
     if (shouldSetLast) this.lastPipe = pipe
     return pipe
   }
+
+  protected makeUnderTestPipe(...pipeArgs) {
+    return new this.underTest(...pipeArgs)
+  }
 }
 
-@SubSuite(Pipes) class Status extends PipeSuite<ManualPipe> {
+@Suite() class PipeStatusTracking extends PipeSuite<ManualPipe> {
   underTest = ManualPipe
 
   @Test() async 'track pipe status'(t) {

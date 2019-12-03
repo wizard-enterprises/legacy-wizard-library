@@ -18,3 +18,8 @@ export abstract class WrappedPipe<inputT = any, beforeWrapT = any, outputT = bef
     return pipeline.run(value)
   }
 }
+
+export class ManualWrappedPipe<inputT = any, beforeWrapT = any, outputT = beforeWrapT, afterWrapT = inputT> extends WrappedPipe<inputT, beforeWrapT, outputT, afterWrapT> {
+  beforeWrapping: Pipe<inputT, beforeWrapT>
+  afterWrapping: Pipe<outputT, afterWrapT>
+}
