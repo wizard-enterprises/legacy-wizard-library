@@ -3,7 +3,7 @@
   "version": "0.0.4",
   "author": "Eden <eden@wizard.enterprises>",
   "license": "ISC",
-  "main": "./lib",
+  "main": "lib/index.js",
   "files": [
     "./lib"
   ],
@@ -12,7 +12,7 @@
     "url": "git@wizard.tower:/repos/wizard-library"
   },
   "scripts": {
-    "build": "rm -rf lib && tsc",
+    "build": "rm -rf lib && tsc -b .",
     "prepare": "npm run build"
   },
   "devDependencies": {

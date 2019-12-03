@@ -25,3 +25,11 @@ export function parseSerializedError(e) {
       && ['message', 'arguments', 'type', 'name', 'stack'].filter(key => e[key]).length > 0
   }
 }
+
+export function changeInputValue(inputEl, value) {
+  inputEl.focus()
+  inputEl.value = value
+  inputEl.dispatchEvent(new Event('input', { bubbles: true }))
+  inputEl.dispatchEvent(new Event('change', { bubbles: true }))
+  inputEl.blur()
+}
