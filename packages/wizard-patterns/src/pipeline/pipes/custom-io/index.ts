@@ -11,20 +11,21 @@ export interface CustomIOPipeFactoryResult<inputT = any, outputT = inputT> {
 export abstract class CustomIOPipe<T, inputT = any, outputT = inputT> extends Pipe<inputT, outputT> {
   defaultType?: T
   protected wrappedPipe: WrappedPipe<inputT, inputT, outputT, outputT>
-  
+  public ioPipe?: Pipe<inputT, outputT>
+  private type: T
+
   constructor(type?: T) {
     super(type)
-    type = type === undefined ? this.defaultType : type
-    if (type === undefined)
+    this.type = type === undefined ? this.defaultType : type
+    if (this.type === undefined)
       throw new Error('custom IO pipe instantiated with no type or default type')
-    this.wrappedPipe = this.makeWrappedPipe(type)
   }
 
   abstract factory(T): CustomIOPipeFactoryResult
   protected makeWrappedPipe(type: T) {
     let customIO = this.factory(type),
     pipe = new ManualWrappedPipe<inputT, inputT, outputT, outputT>(
-      new TransformPipe(input => this.pipe(input))
+      this.ioPipe || new TransformPipe<inputT, outputT>(input => this.pipe(input))
     )
     pipe.beforeWrapping = new TransformPipe(input => customIO.input.call(customIO, input))
     pipe.afterWrapping = new TransformPipe(output => customIO.output.call(customIO, output))
@@ -32,6 +33,11 @@ export abstract class CustomIOPipe<T, inputT = any, outputT = inputT> extends Pi
   }
 
   run(input: inputT) {
+    this.wrappedPipe = this.makeWrappedPipe(this.type)
     return this.wrappedPipe.run(input)
+  }
+
+  pipe(input: inputT) {
+    return input as unknown as outputT
   }
 }

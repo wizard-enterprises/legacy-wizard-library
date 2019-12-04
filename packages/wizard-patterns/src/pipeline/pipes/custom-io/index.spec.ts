@@ -1,6 +1,7 @@
 import { SubSuite, Test } from 'polymorphic-tests'
 import { Pipes, PipeSuite } from '../index.spec'
 import { CustomIOPipe, CustomIOPipeFactoryResult } from '.'
+import { TransformPipe } from '../transform'
 
 enum CustomIOType {
   type1, type2, type3,
@@ -32,7 +33,11 @@ class TestCustomIOPipe extends CustomIOPipe<CustomIOType, number> {
     }
   }
 
-  pipe(x) { return x }
+  pipe(x) {
+    return this.doAsyncIO
+      ? new Promise(res => setTimeout(() => res(x), 1))
+      : x
+  }
 }
 
 @SubSuite(Pipes) class CustomIO extends PipeSuite<TestCustomIOPipe> {
@@ -60,6 +65,12 @@ class TestCustomIOPipe extends CustomIOPipe<CustomIOType, number> {
     let runProm = this.makePipe(CustomIOType.type1).run(1)
     t.expect(runProm).to.be.an.instanceof(Promise)
     t.expect(await runProm).to.equal(91)
+  }
+
+  @Test() 'set wrapped pipe externally'(t) {
+    let pipe = this.makePipe(CustomIOType.type1)
+    pipe.ioPipe = new TransformPipe(x => x + 8)
+    t.expect(pipe.run(1)).to.equal(99)
   }
 
   makeUnderTestPipe(...pipeArgs) {
