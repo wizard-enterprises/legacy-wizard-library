@@ -37,7 +37,7 @@ export class WizardPipeForm<inputT = any, outputT = inputT> extends PipeComponen
   render() {
     let [schema, config] = [this.schema, this.config].map(p => this.parseJsonFormParam(p)),
       input = this.parseInput()
-     return html`
+    return html`
       <json-form schema=${schema} config=${config} value=${input || '{}'}></json-form>
       <button id="submit" @click=${this.trySubmit}>Submit</button>
     `

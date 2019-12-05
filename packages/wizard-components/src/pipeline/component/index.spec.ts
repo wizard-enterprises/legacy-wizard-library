@@ -1,6 +1,7 @@
-import { Suite, Test } from 'polymorphic-tests'
+import { Suite, Test, SubSuite, TestSuite } from 'polymorphic-tests'
 import { LitElementSuite } from 'polymorphic-web-component-tests'
 import { PipeStatus } from 'wizard-patterns/lib/pipeline'
+import { PipelineElementIOType } from '../abstract/types'
 
 interface PipeDescription {
   tag: string,
@@ -19,31 +20,78 @@ let makeFormPipeDescription = (schema = {}, config = {}) => makePipeDescription<
 })
 let makeNumberFormPipeDescription = (config = {}) => makeFormPipeDescription({type: 'number', title: 'Number'}, config)
 
-@Suite() class PipelineTests extends LitElementSuite {
+@Suite() class Pipelines extends TestSuite {}
+
+abstract class PipelineSuite extends LitElementSuite {
   static componentPath = require.resolve('./for-tests')
   static componentTag = 'wizard-pipeline-for-tests'
   protected createComponentInBefore = false
+  abstract type: PipelineElementIOType
+  protected ioFactoryArgs: any[] = []
 
   protected async createComponent(t, ...pipes: PipeDescription[]) {
     let component = await super.createComponent(t)
-    await t.eval((pipes, {element}) => {
+    await t.eval((pipes, type, ioFactoryArgs, {element}) => {
+      element.ioFactoryArgs = JSON.parse(ioFactoryArgs)
+      if (type !== undefined) element.setAttribute('type', type)
       for (let pipe of pipes) {
         let pipeEl = document.createElement(pipe.tag)
         for (let [key, value] of Object.entries(pipe.attributes))
           pipeEl.setAttribute(key, value instanceof Object ? JSON.stringify(value) : value)
         element.appendChild(pipeEl)
       }
-    }, pipes)
-    
+    }, pipes, this.type, JSON.stringify(Array.from(this.ioFactoryArgs)))
     return component
   }
 
+  protected startRun(t, input) {
+    return this.runPipeline(t, input, false)
+  }
+
+  protected waitForRunEnd(t) {
+    return t.eval('pipelineRunPromise')
+  }
+
+  protected runPipeline(t, input, waitForRun = true) {
+    return t.eval(async (input, waitForRun, {element}) => {
+      window['slotElement'] = element.getPipeSlot()
+      window['pipelineRunPromise'] = element.run(input)
+      let wait = waitForRun
+        ? window['pipelineRunPromise']
+        : new Promise(res => setTimeout(res, 1)).then(() => element.updateComplete)
+      return await wait
+    }, input, waitForRun)
+  }
+
+  protected async deconstructNumberFormPipeInSlot(t) {
+    await t.eval('pipeForm = slotElement.assignedElements()[0]')
+    await this.page.waitForFunction('Boolean(pipeForm["jsonForm"])')
+    await t.eval('pipeForm.pipe.manual.waitForStatus(0)')
+    await t.eval(`
+    jsonForm = pipeForm['jsonForm'].shadowRoot
+    numberLabel = jsonForm.querySelector('label')
+    numberInput = jsonForm.querySelector('input')
+    submitBtn = pipeForm.shadowRoot.querySelector('button#submit')
+    `)
+  }
+
+  protected async setNumberFormInputAndSubmit(t, input) {
+    await t.eval((input) => window['utils'].changeInputValue(window['numberInput'], input), input)
+    await t.eval(async PipeStatus => {
+      window['submitBtn'].click()
+      await window['pipeForm'].pipe.waitForStatus(PipeStatus.piped)
+      await new Promise(res => window['slotElement'].addEventListener('slotchange', res))
+    }, PipeStatus)
+  }
+}
+
+abstract class SharedPipelineTests extends PipelineSuite {
   @Test() async 'empty pipeline'(t) {
     await this.createComponent(t)
     t.expect(await t.eval('window["slotElement"]')).to.equal(undefined)
     t.expect(await this.runPipeline(t, 10)).to.equal(10)
     t.expect(await t.eval('slotElement.id')).to.equal('pipe-slot')
-    t.expect((await t.eval('slotElement.innerHTML')).trim()).to.equal('')
+    t.expect(await t.eval('slotElement.assignedElements().length')).to.equal(0)
   }
 
   @Test() async 'pipeline with simple form'(t) {
@@ -79,44 +127,46 @@ let makeNumberFormPipeDescription = (config = {}) => makeFormPipeDescription({ty
     }
     t.expect(await this.waitForRunEnd(t)).to.equal(30)
   }
+}
 
-  protected startRun(t, input) {
-    return this.runPipeline(t, input, false)
+@SubSuite(Pipelines) class InMemory extends SharedPipelineTests {
+  type = PipelineElementIOType.inMemory
+}
+
+abstract class StoragePipelineSuite extends SharedPipelineTests {
+  storageKey = 'test-storage-key'
+  ioFactoryArgs = [this.storageKey]
+
+  async runPipeline(t, input, waitForRun = true) {
+    await this.setItem(t, input)
+    return super.runPipeline(t, input, waitForRun)
   }
-
+  
   protected waitForRunEnd(t) {
-    return t.eval('pipelineRunPromise')
+    return this.getItem(t)
   }
 
-  protected runPipeline(t, input, waitForRun = true) {
-    return t.eval(async (input, waitForRun, {element}) => {
-      window['slotElement'] = element.getPipeSlot()
-      window['pipelineRunPromise'] = element.run(input)
-      let wait = waitForRun
-        ? window['pipelineRunPromise']
-        : new Promise(res => setTimeout(res, 1)).then(() => element.updateComplete)
-      return await wait
-    }, input, waitForRun)
+  private getItem(t) {
+    return t.eval((type, key) => 
+      //@ts-ignore
+      JSON.parse(window[type].getItem(key)),
+      this.type, this.storageKey,  
+    )
   }
 
-  protected async deconstructNumberFormPipeInSlot(t) {
-    await t.eval('pipeForm = slotElement.assignedElements()[0]')
-    await this.page.waitForFunction('Boolean(pipeForm["jsonForm"])')
-    await t.eval('pipeForm.wrappedPipe.waitForStatus(0)')
-    await t.eval(`
-    jsonForm = pipeForm['jsonForm'].shadowRoot
-    numberLabel = jsonForm.querySelector('label')
-    numberInput = jsonForm.querySelector('input')
-    submitBtn = pipeForm.shadowRoot.querySelector('button#submit')
-    `)
+  private setItem(t, value) {
+    return t.eval((type, key, value) =>
+      // @ts-ignore
+      window[type].setItem(key, JSON.stringify(value)),
+      this.type, this.storageKey, value  
+    )
   }
+}
 
-  protected async setNumberFormInputAndSubmit(t, input) {
-    await t.eval((input) => window['utils'].changeInputValue(window['numberInput'], input), input)
-    await t.eval(async PipeStatus => {
-      window['submitBtn'].click()
-      await window['pipeForm'].pipe.waitForStatus(PipeStatus.piped)
-      await new Promise(res => window['slotElement'].addEventListener('slotchange', res))
-    }, PipeStatus)
-  }
+@SubSuite(Pipelines) class LocalStorage extends StoragePipelineSuite {
+  type = PipelineElementIOType.localStorage
+}
+
+@SubSuite(Pipelines) class SessionStorage extends StoragePipelineSuite {
+  type = PipelineElementIOType.sessionStorage
 }

@@ -1,4 +1,4 @@
-import { Pipe } from '../..'
+import { Pipe, PipeStatus } from '../..'
 import { PassThroughPipe } from '../passthrough'
 import { WrappedPipe, ManualWrappedPipe } from '../wrapped'
 import { TransformPipe } from '../transform'
@@ -34,7 +34,8 @@ export abstract class CustomIOPipe<T, inputT = any, outputT = inputT> extends Pi
 
   run(input: inputT) {
     this.wrappedPipe = this.makeWrappedPipe(this.type)
-    return this.wrappedPipe.run(input)
+    this.pipeOverride = this.wrappedPipe
+    return super.run(input)
   }
 
   pipe(input: inputT) {

@@ -2,6 +2,8 @@ import { SubSuite, Test } from 'polymorphic-tests'
 import { Pipes, PipeSuite } from '../index.spec'
 import { CustomIOPipe, CustomIOPipeFactoryResult } from '.'
 import { TransformPipe } from '../transform'
+import { ManualPipe } from '../manual'
+import { PipeStatus } from '../..'
 
 enum CustomIOType {
   type1, type2, type3,
@@ -71,6 +73,17 @@ class TestCustomIOPipe extends CustomIOPipe<CustomIOType, number> {
     let pipe = this.makePipe(CustomIOType.type1)
     pipe.ioPipe = new TransformPipe(x => x + 8)
     t.expect(pipe.run(1)).to.equal(99)
+  }
+
+  @Test() async 'pipe correctly tracks created pipe status'(t) {
+    let pipe = this.makePipe(CustomIOType.type1),
+      manualPipe = pipe.ioPipe = new ManualPipe
+    t.expect(pipe.status).to.equal(PipeStatus.clean)
+    let runProm = pipe.run(1) as Promise<number>
+    t.expect(pipe.status).to.equal(PipeStatus.piping)
+    await manualPipe.next(manualPipe.input)
+    t.expect(pipe.status).to.equal(PipeStatus.piped)
+    t.expect(await runProm).to.equal(91)
   }
 
   makeUnderTestPipe(...pipeArgs) {

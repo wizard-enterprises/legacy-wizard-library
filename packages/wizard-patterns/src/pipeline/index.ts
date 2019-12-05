@@ -37,7 +37,7 @@ export abstract class Pipe<inputT = any, outputT = inputT, initArgsT extends any
   public run(input?: inputT): outputT | Promise<outputT> {
     this.input = input
     this.status = PipeStatus.piping
-    let piped = this.pipe(input)
+    let piped = this.pipeOverride ? this.pipeOverride.run(input) : this.pipe(input)
     return this.shouldWaitFor(piped)
       ? (piped as Promise<outputT>).then(output => this.endRun(output))
       : this.endRun(piped as outputT)
@@ -54,6 +54,7 @@ export abstract class Pipe<inputT = any, outputT = inputT, initArgsT extends any
     return output
   }
 
+  protected pipeOverride?: Pipe<inputT, outputT>
   abstract pipe(value: inputT): Promise<outputT> | outputT
 }
 
