@@ -3,7 +3,7 @@ import { Pipe, PipeStatus } from 'wizard-patterns/lib/pipeline'
 import { Pipeline } from 'wizard-patterns/lib/pipeline/pipes'
 import { PipeComponent } from '../abstract/pipe-component'
 import { PipelineElementIOType } from '../abstract/types'
-import { ComponentPipe } from '../abstract/component-pipe'
+import { ComponentPipe, StorageIOReader } from '../abstract/component-pipe'
 
 @customElement('wizard-pipeline')
 export class PipelineElement<inputT = any, outputT = inputT> extends LitElement {
@@ -26,7 +26,7 @@ export class PipelineElement<inputT = any, outputT = inputT> extends LitElement 
     this.makePipeline()
     let runProm = this.pipeline.run(input)
     await new Promise(res => setTimeout(res, 1))
-    await this.runNextPipe(this.startFrom)
+    await this.runNextPipe(this.getStartingIndex())
     return runProm
   }
 
@@ -40,8 +40,19 @@ export class PipelineElement<inputT = any, outputT = inputT> extends LitElement 
   private makePipelineFromElements() {
     let pipes = this.pipeElements.map(el => el.pipe),
       pipeline = new Pipeline<inputT, outputT, ComponentPipe>(...pipes)
-    pipeline.startFrom = this.startFrom
+    pipeline.startFrom = this.getStartingIndex()
     return pipeline
+  }
+
+  private getStartingIndex() {
+    let index = this.startFrom
+    if (index === 0 && this.type !== PipelineElementIOType.inMemory) {
+      if (this.type === PipelineElementIOType.queryParams) throw new Error('unsupported')
+      //@ts-ignore
+      let stored = new StorageIOReader(this.type, this.ioFactoryArgs[0]).read()
+      if (stored && stored.index && (stored.index === Number(stored.index))) index = stored.index
+    }
+    return index
   }
 
   private initPipeElement(index: number, element: PipeComponent) {

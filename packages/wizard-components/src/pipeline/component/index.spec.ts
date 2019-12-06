@@ -48,6 +48,10 @@ abstract class PipelineSuite extends LitElementSuite {
     return this.runPipeline(t, input, false)
   }
 
+  protected getPipeResult(t) {
+    return this.waitForRunEnd(t)
+  }
+
   protected waitForRunEnd(t) {
     return t.eval('pipelineRunPromise')
   }
@@ -64,6 +68,7 @@ abstract class PipelineSuite extends LitElementSuite {
   }
 
   protected async deconstructNumberFormPipeInSlot(t) {
+    await this.page.waitForFunction('Boolean(slotElement.assignedElements()[0])')
     await t.eval('pipeForm = slotElement.assignedElements()[0]')
     await this.page.waitForFunction('Boolean(pipeForm["jsonForm"])')
     await t.eval('pipeForm.pipe.manual.waitForStatus(0)')
@@ -77,12 +82,17 @@ abstract class PipelineSuite extends LitElementSuite {
 
   protected async setNumberFormInputAndSubmit(t, input) {
     await t.eval((input) => window['utils'].changeInputValue(window['numberInput'], input), input)
-    await t.eval(async PipeStatus => {
+    let index = await t.eval(async (PipeStatus, {element}) => {
+      let index = element.currentSlot
       window['submitBtn'].click()
       await window['pipeForm'].pipe.waitForStatus(PipeStatus.piped)
       await new Promise(res => window['slotElement'].addEventListener('slotchange', res))
+      return index
     }, PipeStatus)
+    await this.runAfterPipe(t, index)
   }
+
+  protected runAfterPipe(t, pipeIndex: number) {}
 }
 
 abstract class SharedPipelineTests extends PipelineSuite {
@@ -90,6 +100,7 @@ abstract class SharedPipelineTests extends PipelineSuite {
     await this.createComponent(t)
     t.expect(await t.eval('window["slotElement"]')).to.equal(undefined)
     t.expect(await this.runPipeline(t, 10)).to.equal(10)
+
     t.expect(await t.eval('slotElement.id')).to.equal('pipe-slot')
     t.expect(await t.eval('slotElement.assignedElements().length')).to.equal(0)
   }
@@ -101,7 +112,7 @@ abstract class SharedPipelineTests extends PipelineSuite {
     t.expect(await t.eval('numberLabel.textContent')).to.equal('Number')
     t.expect(await t.eval('numberInput.value')).to.equal('10')
     await this.setNumberFormInputAndSubmit(t, 50)
-    t.expect(await this.waitForRunEnd(t)).to.equal(50)
+    t.expect(await this.getPipeResult(t)).to.equal(50)
   }
 
   @Test() async 'pipeline with three forms'(t) {
@@ -113,7 +124,7 @@ abstract class SharedPipelineTests extends PipelineSuite {
       t.expect(await t.eval('numberInput.value')).to.equal(`${i * 10}`)
       await this.setNumberFormInputAndSubmit(t, i * 10 + 10)
     }
-    t.expect(await this.waitForRunEnd(t)).to.equal(40)
+    t.expect(await this.getPipeResult(t)).to.equal(40)
   }
 
   @Test() async 'start pipeline from middle'(t) {
@@ -125,7 +136,8 @@ abstract class SharedPipelineTests extends PipelineSuite {
       t.expect(await t.eval('numberInput.value')).to.equal(`${i * 10}`)
       await this.setNumberFormInputAndSubmit(t, i * 10 + 10)
     }
-    t.expect(await this.waitForRunEnd(t)).to.equal(30)
+    t.expect(await t.eval('element.pipeline.status')).to.equal(PipeStatus.piped)
+    t.expect(await this.getPipeResult(t)).to.equal(30)
   }
 }
 
@@ -137,20 +149,42 @@ abstract class StoragePipelineSuite extends SharedPipelineTests {
   storageKey = 'test-storage-key'
   ioFactoryArgs = [this.storageKey]
 
-  async runPipeline(t, input, waitForRun = true) {
-    await this.setItem(t, input)
-    return super.runPipeline(t, input, waitForRun)
+
+  @Test() async 'start from stored index'(t) {
+    await this.createComponent(t, ...Array.from(Array(3), () => makeNumberFormPipeDescription()))
+    await this.startRun(t, {value: 10, index: 1})
+    for (let i = 1; i < 3; i++) {
+      await this.deconstructNumberFormPipeInSlot(t)
+      t.expect(await t.eval('numberInput.value')).to.equal(`${i * 10}`)
+      await this.setNumberFormInputAndSubmit(t, i * 10 + 10)
+    }
+    t.expect(await t.eval('element.pipeline.status')).to.equal(PipeStatus.piped)
+    t.expect(await this.getPipeResult(t)).to.equal(30)
   }
-  
-  protected waitForRunEnd(t) {
-    return this.getItem(t)
+
+  async runPipeline(t, input, waitForRun = true) {
+    if (input.value === undefined && input.index === undefined) {
+      await this.setItem(t, {value: input, index: 0})
+    } else {
+      await this.setItem(t, input)
+      input = input.value
+    }
+    return await super.runPipeline(t, input, waitForRun)
+  }
+
+  protected async runAfterPipe(t, pipeIndex: number) {
+    t.expect((await this.getItem(t)).index).to.equal(pipeIndex)
+  }
+
+  protected async getPipeResult(t) {
+    return (await this.getItem(t)).value
   }
 
   private getItem(t) {
-    return t.eval((type, key) => 
+    return t.eval((type, key) =>
       //@ts-ignore
       JSON.parse(window[type].getItem(key)),
-      this.type, this.storageKey,  
+      this.type, this.storageKey,
     )
   }
 
@@ -158,7 +192,7 @@ abstract class StoragePipelineSuite extends SharedPipelineTests {
     return t.eval((type, key, value) =>
       // @ts-ignore
       window[type].setItem(key, JSON.stringify(value)),
-      this.type, this.storageKey, value  
+      this.type, this.storageKey, value
     )
   }
 }

@@ -20,6 +20,7 @@ export abstract class PipeComponent<inputT = any, outputT = inputT> extends LitE
   @CachedReturn get pipe() {
     let pipe = new ComponentPipe(this.type)
     pipe.factoryArgs = this.ioFactoryArgs
+    pipe.slot = Number(this.slot)
     return pipe
   }
 
