@@ -66,6 +66,7 @@ Current release:
 ✔ Add component lifecycle protected hook in WebComponentSuite to wait for component initialization and capture any async errors @done(19-11-20 13:21)
 
 Next release:
+  ☐ Skipped tests (at least via only) get timeout errors when proceeding tests time out (probably)
   ☐ Figure out what to do with:
     ☐ Failed tests with an after hook that also fails. Which error to report?
   ✔ Run meta tests directly without stupid hack @done(19-11-20 13:21)
