@@ -35,9 +35,11 @@ export class TestSuite implements TestSuiteRunnerDelegate {
     let props = Object.getOwnPropertyDescriptors(obj)
     for (let key in props)
       props[key].value = this.cloneSelf(props[key].value)
-    return Object.create(
+    let clone = Object.create(
       Object.getPrototypeOf(obj), 
       props,
     )
+    if (clone instanceof Array) clone = Array.from(clone)
+    return clone
   }
 }

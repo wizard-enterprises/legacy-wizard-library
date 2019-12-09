@@ -8,7 +8,7 @@ export class MochaSpecReporter extends TapReporter {
     let oldConsole = this.console,
       lines = []
     //@ts-ignore
-    this.console = {log: line => lines.push(line)}
+    this.console = {log: line => lines.push(line), error: e => {oldConsole.error(e)}}
     await super.end()
     this.console = oldConsole
     let report = lines.join('\n')

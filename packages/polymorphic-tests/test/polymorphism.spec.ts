@@ -146,4 +146,20 @@ import { TestEntityStatus } from "../lib/core/abstract-test-entity";
       ]}),
     ])
   }
+
+  @Test() async 'should correctly clone arrays'(t) {
+    @decorateSuite(t.config) class SomeSuite extends TestSuite {
+      clonedArray = [1, 2, 3]
+      @decorateTest(t.config) 'cloned array should be iterable'(t) {
+        let arrayMembers = []
+        for (let x of this.clonedArray) arrayMembers.push(x)
+        t.expect(arrayMembers).to.deep.equal(this.clonedArray)
+      }
+    }
+    t.expect(await this.runSuiteAndGetReport()).to.shallowDeepEqual([
+      this.suiteReport('SomeSuite', {children: [
+        this.testReport('SomeSuite: cloned array should be iterable'),
+      ]}),
+    ])
+  }
 }
