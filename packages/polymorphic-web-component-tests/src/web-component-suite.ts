@@ -39,6 +39,7 @@ export abstract class WebComponentSuite extends TestSuite {
   protected browser: puppeteer.Browser
   protected page: puppeteer.Page
   protected component: puppeteer.JSHandle
+  protected componentUrl: string
   private serverListener: ReturnType<Application['listen']>
 
   private static components: {[key: string]: string} = {}
@@ -90,21 +91,35 @@ export abstract class WebComponentSuite extends TestSuite {
     return new Promise(async (resolve, reject) => rimraf(await this.getTempBuildDir(), e => e ? reject(e) : resolve()))
   }
 
-  protected createComponentInBefore = true
+  protected createComponentInPageSetup = true
   async before(t) {
     super.before(t)
-    let url = await this.setupComponentUrl()
-    await this.setupPuppeteerPage(url)
-    if (this.createComponentInBefore)
-      this.component = await this.createComponent(t)
+    this.componentUrl = await this.setupComponentUrl()
+    await this.setupEmptyPuppeteerPage(t)
+    await this.setupPuppeteerPage(t)
+    // if (this.createComponentInPageSetup)
+    //   this.component = await this.createComponent(t)
   }
 
   async after(t) {
+    await this.teardownPage()
+    if (this.browser) await this.browser.close()
+    if (this.serverListener) await new Promise((res, rej) =>
+      this.serverListener.close(e => e ? rej(e) : res()))
+    await super.after(t)
+  }
+
+  private async teardownPage() {
     if (this.component) await this.component.dispose()
     if (this.page) await this.page.close()
-    if (this.browser) await this.browser.close()
-    if (this.serverListener) this.serverListener.close()
-    await super.after(t)
+  }
+
+  protected async refresh(t, url = this.componentUrl, shouldGotoUrl = true) {
+    if (shouldGotoUrl) {
+      await this.teardownPage()
+      await this.setupNewPage()
+    }
+    await this.setupPuppeteerPage(t, url, shouldGotoUrl)
   }
 
   private async setupComponentUrl() {
@@ -115,16 +130,27 @@ export abstract class WebComponentSuite extends TestSuite {
     return `http://127.0.0.1:${this.serverListener.address().port}/${this.tag}.html`
   }
 
-  private async setupPuppeteerPage(url) {
+  private async setupEmptyPuppeteerPage(t) {
     this.browser = await puppeteer.launch(this.puppeteerOpts)
+    await this.setupNewPage()
+  }
+  
+  private async setupNewPage() {
     this.page = await this.browser.newPage()
     this.page.setBypassCSP(true)
-    await this.page.goto(url, {
-      waitUntil: 'domcontentloaded',
-    })
-    await this.page.exposeFunction('log', console.log)
-    await this.page.exposeFunction('error', console.error)
+  }
+
+  private async setupPuppeteerPage(t?, url = this.componentUrl, shouldGotoUrl = true) {
+    if (shouldGotoUrl) {
+      await this.page.goto(url, {
+        waitUntil: 'domcontentloaded',
+      })
+      await this.page.exposeFunction('log', console.log)
+      await this.page.exposeFunction('error', console.error)
+    }
     await this.exposeUtilsOnPage(utils)
+    if (this.createComponentInPageSetup)
+      await this.createComponent(t)
   }
 
   private async exposeUtilsOnPage(utils) {
@@ -179,7 +205,7 @@ export abstract class WebComponentSuite extends TestSuite {
     await this.page.evaluate('function getConvenienceGlobals() { return {element} }')
     if (t)
       for (let name of ['', '$', '$$'].map(s => s + 'eval'))
-        t[name] = this[name].bind(this)
+        t[name] = (...args) => this[name].call(this, ...args)
     return this.component = element
   }
 

@@ -2,8 +2,17 @@ require('wise-inspection')(Promise)
 import { Suite, SubSuite, Test, TestSuite } from 'polymorphic-tests'
 import { TestComponentSuite } from './index.spec'
 
+
+@Suite() class ShouldRefresh extends TestComponentSuite {
+  @Test() async 'should work after refresh'(t) {
+    t.expect(await t.eval('element.id')).to.equal(this.componentElementId)
+    await this.refresh(t)
+    t.expect(await t.eval('element.id')).to.equal(this.componentElementId)
+  }
+}
+
 abstract class PerComponent extends TestComponentSuite {
-  createComponentInBefore = false
+  createComponentInPageSetup = false
   errorEvents = ['custom-error']
   get hookMethodAndPromiseNames() {
     return super.hookMethodAndPromiseNames.set(...this.event('custom-event'))
