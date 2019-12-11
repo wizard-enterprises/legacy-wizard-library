@@ -1,6 +1,6 @@
 {
   "name": "polymorphic-web-component-tests",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "author": "Eden <eden@wizard.enterprises>",
   "license": "ISC",
   "main": "lib/index.js",
@@ -30,8 +30,8 @@
     "typescript": "^3.7.2",
     "webpack": "^4.41.2",
     "wise-inspection": "^1.0.1",
-    "wizard-decorators": "^1.0.3",
-    "wizard-utils": "^0.0.4"
+    "wizard-decorators": "^1.0.4",
+    "wizard-utils": "^0.0.5"
   },
   "devDependencies": {
     "@types/express": "^4.17.1",
@@ -40,7 +40,7 @@
     "copyfiles": "^2.1.1",
     "html-webpack-plugin": "^3.2.0",
     "lit-element": "^2.2.1",
-    "polymorphic-tests": "^0.2.0",
+    "polymorphic-tests": "^0.2.2",
     "reflect-metadata": "^0.1.13",
     "ts-node": "^8.5.2",
     "webpack-cli": "^3.3.9"

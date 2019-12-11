@@ -1,6 +1,6 @@
 {
   "name": "wizard-components",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "> TODO: description",
   "author": "Eden <eden@wizard.enterprises>",
   "homepage": "https://github.com/wizard-enterprises/wizard-library#readme",
@@ -31,12 +31,12 @@
     "json-form-custom-element": "^1.12.0",
     "lit-element": "^2.2.1",
     "ts-json-validator": "^0.3.0",
-    "wizard-decorators": "^1.0.3",
-    "wizard-patterns": "^0.0.1"
+    "wizard-decorators": "^1.0.4",
+    "wizard-patterns": "^0.1.0"
   },
   "devDependencies": {
-    "polymorphic-tests": "^0.2.0",
-    "polymorphic-web-component-tests": "^0.1.3",
+    "polymorphic-tests": "^0.2.2",
+    "polymorphic-web-component-tests": "^0.1.4",
     "ts-node": "^8.5.2",
     "typescript": "^3.7.2"
   }
