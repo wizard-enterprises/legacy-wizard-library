@@ -12,9 +12,6 @@
   "files": [
     "lib"
   ],
-  "publishConfig": {
-    "directory": "lib"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/wizard-enterprises/wizard-library.git"
