@@ -28,5 +28,6 @@
   "dependencies": {
     "bind-decorator": "^1.0.11",
     "wizard-utils": "^0.0.5"
-  }
+  },
+  "gitHead": "739119084d06a0be7dfbd9fc2a0d2eb0f831bad4"
 }

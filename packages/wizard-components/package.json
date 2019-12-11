@@ -36,5 +36,6 @@
     "polymorphic-web-component-tests": "^0.1.4",
     "ts-node": "^8.5.2",
     "typescript": "^3.7.2"
-  }
+  },
+  "gitHead": "739119084d06a0be7dfbd9fc2a0d2eb0f831bad4"
 }

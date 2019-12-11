@@ -44,5 +44,6 @@
     "reflect-metadata": "^0.1.13",
     "ts-node": "^8.5.2",
     "webpack-cli": "^3.3.9"
-  }
+  },
+  "gitHead": "739119084d06a0be7dfbd9fc2a0d2eb0f831bad4"
 }
