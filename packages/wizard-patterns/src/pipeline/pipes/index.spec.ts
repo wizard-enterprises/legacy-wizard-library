@@ -1,4 +1,4 @@
-import { SubSuite, Suite, Test, TestSuite } from 'polymorphic-tests'
+import { Suite, Test, TestSuite } from 'polymorphic-tests'
 import { ManualPipe } from '.'
 import { Pipe, PipeStatus } from '..'
 

@@ -27,32 +27,50 @@ class PipeCustomIOFactory {
   forType(type: Type, ...args: any[]) {
     if (type === undefined) throw new Error('type is undefined')
     switch (type) {
-      case Type.inMemory: return {
-        input: x => x,
-        output: x => x,
-      }
+      case Type.inMemory: return new PassThroughIO
       case Type.localStorage: return new StorageIO(PipelineElementIOType.localStorage, args[0])
       case Type.sessionStorage: return new StorageIO(PipelineElementIOType.sessionStorage, args[0])
+      case Type.queryParams: return new QueryParamsIO(args[0])
     }
   }
 }
 
-class StorageIO<inputT = any, outputT = inputT> {
+class PassThroughIO<inputT = any, outputT = inputT> {
+  input(input?: inputT): inputT { return input }
+  output(output: outputT): outputT { return this.parseOutputForStorage(output) }
+  parseOutputForStorage(output: outputT) { return output }
+}
+
+class IOForPipe<inputT = any, outputT = inputT> extends PassThroughIO<inputT, outputT> {
+  constructor(protected pipe: ComponentPipe) { super() }
+  //@ts-ignore
+  parseOutputForStorage(output) {
+    return {
+      index: this.pipe.slot + 1,
+      value: output,
+    }
+  }
+}
+
+class StorageIO<inputT = any, outputT = inputT> extends IOForPipe<inputT, outputT> {
   protected storageKey: string
   constructor(protected type: StorageType, protected pipe: ComponentPipe) {
+    super(pipe)
     this.storageKey = pipe.factoryArgs[0]
   }
 
-  input(): inputT {
+  input() {
     return new StorageIOReader<inputT>(this.type, this.storageKey).read(false)
   }
 
-  output(output: outputT) {
-    window[this.type].setItem(this.storageKey, JSON.stringify({
-      index: this.pipe.slot,
-      value: output,
-    }))
+  output(output) {
+    let out = super.output(output)
+    window[this.type].setItem(this.storageKey, JSON.stringify(out))
+    //@ts-ignore
+    return out.value
   }
+
+ 
 }
 
 export class StorageIOReader<outputT = any> {
@@ -63,5 +81,22 @@ export class StorageIOReader<outputT = any> {
     return withMetadata
       ? full
       : full.value
+  }
+}
+
+class QueryParamsIO<inputT = any, outputT = inputT> extends IOForPipe<InputEvent, outputT> {
+  input() {
+    let query = new URLSearchParams(window.location.search)
+    return JSON.parse(query.get('value'))
+  }
+
+  output(output) {
+    let out = super.output(output)
+    let search = Object.entries(out)
+      .map(([key, value]) => key += (value === true ? '' : `=${JSON.stringify(value)}`))
+      .join('&')
+    window.location.search = search
+    //@ts-ignore
+    return out.value
   }
 }

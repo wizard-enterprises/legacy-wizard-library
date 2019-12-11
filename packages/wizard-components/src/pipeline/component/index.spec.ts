@@ -2,6 +2,7 @@ import { Suite, Test, SubSuite, TestSuite } from 'polymorphic-tests'
 import { LitElementSuite } from 'polymorphic-web-component-tests'
 import { PipeStatus } from 'wizard-patterns/lib/pipeline'
 import { PipelineElementIOType } from '../abstract/types'
+import querystring from 'querystring'
 
 interface PipeDescription {
   tag: string,
@@ -25,22 +26,26 @@ let makeNumberFormPipeDescription = (config = {}) => makeFormPipeDescription({ty
 abstract class PipelineSuite extends LitElementSuite {
   static componentPath = require.resolve('./for-tests')
   static componentTag = 'wizard-pipeline-for-tests'
-  protected createComponentInBefore = false
+  protected createComponentInPageSetup = false
   abstract type: PipelineElementIOType
   protected ioFactoryArgs: any[] = []
+  protected lastCreateComponentArgs = []
+  protected startFrom: number = 0
 
   protected async createComponent(t, ...pipes: PipeDescription[]) {
     let component = await super.createComponent(t)
-    await t.eval((pipes, type, ioFactoryArgs, {element}) => {
+    pipes = this.lastCreateComponentArgs = pipes.length ? pipes : this.lastCreateComponentArgs
+    await t.eval((pipes, type, ioFactoryArgs, startFrom, {element}) => {
       element.ioFactoryArgs = JSON.parse(ioFactoryArgs)
-      if (type !== undefined) element.setAttribute('type', type)
+      if ([undefined, null].includes(type) === false) element.setAttribute('type', type)
       for (let pipe of pipes) {
         let pipeEl = document.createElement(pipe.tag)
         for (let [key, value] of Object.entries(pipe.attributes))
           pipeEl.setAttribute(key, value instanceof Object ? JSON.stringify(value) : value)
         element.appendChild(pipeEl)
       }
-    }, pipes, this.type, JSON.stringify(Array.from(this.ioFactoryArgs)))
+      element.startFrom = startFrom
+    }, pipes, this.type, JSON.stringify(this.ioFactoryArgs), this.startFrom)
     return component
   }
 
@@ -80,15 +85,19 @@ abstract class PipelineSuite extends LitElementSuite {
     `)
   }
 
+  protected waitForSlotChange = true  
   protected async setNumberFormInputAndSubmit(t, input) {
     await t.eval((input) => window['utils'].changeInputValue(window['numberInput'], input), input)
-    let index = await t.eval(async (PipeStatus, {element}) => {
-      let index = element.currentSlot
+    let index = await t.eval(async (PipeStatus, waitForSlotChange, {element}) => {
+      let index = Number(element.currentSlot)
       window['submitBtn'].click()
       await window['pipeForm'].pipe.waitForStatus(PipeStatus.piped)
-      await new Promise(res => window['slotElement'].addEventListener('slotchange', res))
+      if (waitForSlotChange)
+        await new Promise(res => window['slotElement'].addEventListener('slotchange', res))
       return index
-    }, PipeStatus)
+    }, PipeStatus, this.waitForSlotChange)
+    if (this.waitForSlotChange === false)
+      await this.page.waitForNavigation()
     await this.runAfterPipe(t, index)
   }
 
@@ -128,16 +137,16 @@ abstract class SharedPipelineTests extends PipelineSuite {
   }
 
   @Test() async 'start pipeline from middle'(t) {
-    await this.createComponent(t, ...Array.from(Array(3), () => makeNumberFormPipeDescription()))
-    await t.eval('element.startFrom = 1')
+    this.startFrom = 1
+    await this.createComponent(t, ...Array.from(Array(4), () => makeNumberFormPipeDescription()))
     await this.startRun(t, 10)
-    for (let i = 1; i < 3; i++) {
+    for (let i = 1; i < 4; i++) {
       await this.deconstructNumberFormPipeInSlot(t)
       t.expect(await t.eval('numberInput.value')).to.equal(`${i * 10}`)
       await this.setNumberFormInputAndSubmit(t, i * 10 + 10)
     }
     t.expect(await t.eval('element.pipeline.status')).to.equal(PipeStatus.piped)
-    t.expect(await this.getPipeResult(t)).to.equal(30)
+    t.expect(await this.getPipeResult(t)).to.equal(40)
   }
 }
 
@@ -146,9 +155,7 @@ abstract class SharedPipelineTests extends PipelineSuite {
 }
 
 abstract class StoragePipelineSuite extends SharedPipelineTests {
-  storageKey = 'test-storage-key'
-  ioFactoryArgs = [this.storageKey]
-
+  shouldSetItemOnRunPipeline = true
 
   @Test() async 'start from stored index'(t) {
     await this.createComponent(t, ...Array.from(Array(3), () => makeNumberFormPipeDescription()))
@@ -163,24 +170,34 @@ abstract class StoragePipelineSuite extends SharedPipelineTests {
   }
 
   async runPipeline(t, input, waitForRun = true) {
-    if (input.value === undefined && input.index === undefined) {
-      await this.setItem(t, {value: input, index: 0})
-    } else {
-      await this.setItem(t, input)
-      input = input.value
+    if (this.shouldSetItemOnRunPipeline) {
+      if (input.value === undefined && input.index === undefined) {
+        await this.setItem(t, {value: input, index: 0})
+      } else {
+        await this.setItem(t, input)
+        input = input.value
+      }
     }
     return await super.runPipeline(t, input, waitForRun)
   }
 
   protected async runAfterPipe(t, pipeIndex: number) {
-    t.expect((await this.getItem(t)).index).to.equal(pipeIndex)
+    t.expect((await this.getItem(t)).index).to.equal(pipeIndex + 1)
   }
 
   protected async getPipeResult(t) {
     return (await this.getItem(t)).value
   }
 
-  private getItem(t) {
+  abstract getItem(t): Promise<any>
+  abstract setItem(t, value): Promise<any>
+}
+
+abstract class PageStorageSuite extends StoragePipelineSuite {
+  storageKey = 'test-storage-key'
+  ioFactoryArgs = [this.storageKey]
+
+  getItem(t) {
     return t.eval((type, key) =>
       //@ts-ignore
       JSON.parse(window[type].getItem(key)),
@@ -188,7 +205,7 @@ abstract class StoragePipelineSuite extends SharedPipelineTests {
     )
   }
 
-  private setItem(t, value) {
+  setItem(t, value) {
     return t.eval((type, key, value) =>
       // @ts-ignore
       window[type].setItem(key, JSON.stringify(value)),
@@ -197,10 +214,45 @@ abstract class StoragePipelineSuite extends SharedPipelineTests {
   }
 }
 
-@SubSuite(Pipelines) class LocalStorage extends StoragePipelineSuite {
+@SubSuite(Pipelines) class LocalStorage extends PageStorageSuite {
   type = PipelineElementIOType.localStorage
 }
 
-@SubSuite(Pipelines) class SessionStorage extends StoragePipelineSuite {
+@SubSuite(Pipelines) class SessionStorage extends PageStorageSuite {
   type = PipelineElementIOType.sessionStorage
+}
+
+@SubSuite(Pipelines) class QueryParamsStorage extends StoragePipelineSuite {
+  type = PipelineElementIOType.queryParams
+  query = ''
+  waitForSlotChange = false
+  async refreshForPipe(t, url?: string, gotoUrl: boolean = true) {//, index) {
+    if (gotoUrl && !url)
+      url = this.componentUrl + '?' + (this.query || await t.eval('window.location.search'))
+    this.createComponentInPageSetup = true
+    this.shouldSetItemOnRunPipeline = false
+    await this.refresh(t, url, gotoUrl)
+    await this.startRun(t, null)
+  }
+
+  async getItem(t) {
+    let query = (await this.page.evaluate('window.location.search')).slice(1)
+    let parsedQuery = await querystring.parse(query)
+    for (let key of ['index', 'value'])
+      if (parsedQuery && parsedQuery[key] !== undefined)
+        //@ts-ignore
+        parsedQuery[key] = Number(parsedQuery[key] instanceof Array
+          ? parsedQuery[key][0]
+          : parsedQuery[key])
+    return parsedQuery
+  }
+
+  async runAfterPipe(t, index) {
+    await super.runAfterPipe(t, index)
+    await this.refreshForPipe(t, null, false)
+  }
+  async setItem(t, value) {
+    this.query = querystring.stringify(value)
+    await this.refreshForPipe(t, this.componentUrl + '?' + this.query, true)
+  }
 }

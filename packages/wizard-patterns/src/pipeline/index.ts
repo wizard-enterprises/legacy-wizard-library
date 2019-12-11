@@ -5,9 +5,7 @@ export enum PipeStatus {
 }
 
 export abstract class Pipe<inputT = any, outputT = inputT, initArgsT extends any = any> {
-  public dryRun: boolean = false
   public waitForAsync: boolean = true
-  public didRun: boolean = false
   public input: inputT = null
   public output: outputT = null
   public initArgs: initArgsT = null
@@ -15,7 +13,7 @@ export abstract class Pipe<inputT = any, outputT = inputT, initArgsT extends any
   constructor(args?: initArgsT, opts: {waitForAsync?: boolean} = {}) {
     this.initArgs = args
     if (opts.waitForAsync !== undefined)
-    this.waitForAsync = opts.waitForAsync
+      this.waitForAsync = opts.waitForAsync
   }
 
   protected readonly initialStatus: PipeStatus = PipeStatus.clean
@@ -33,24 +31,23 @@ export abstract class Pipe<inputT = any, outputT = inputT, initArgsT extends any
   public waitForStatus(status: PipeStatus) {
     return this.statusWaiters.waitFor(status)
   }
-  
+
   public run(input?: inputT): outputT | Promise<outputT> {
     this.input = input
     this.status = PipeStatus.piping
     let piped = this.pipeOverride ? this.pipeOverride.run(input) : this.pipe(input)
     return this.shouldWaitFor(piped)
-      ? (piped as Promise<outputT>).then(output => this.endRun(output))
-      : this.endRun(piped as outputT)
+      ? piped.then(output => this.endRun(output))
+      : this.endRun(piped)
   }
 
-  protected shouldWaitFor(thing: Promise<any> | any) {
+  protected shouldWaitFor(thing: outputT | Promise<outputT>): thing is Promise<outputT> {
     return thing instanceof Promise && this.waitForAsync
   }
 
   private endRun(output: outputT) {
     this.output = output
     this.status = PipeStatus.piped
-    this.didRun = true
     return output
   }
 
@@ -60,7 +57,7 @@ export abstract class Pipe<inputT = any, outputT = inputT, initArgsT extends any
 
 class PipeStatusWaiters {
   private waiters = {}
-  constructor (private currentStatus = PipeStatus.clean) {}
+  constructor (private currentStatus: PipeStatus) {}
 
   public waitFor(status: PipeStatus) {
     if (status === this.currentStatus) return Promise.resolve()
@@ -81,7 +78,7 @@ class PipeStatusWaiters {
   private setupStatusWaitersFor(status: PipeStatus) {
     let resolver, promise = new Promise(res => resolver = res)
     this.waiters[status] = {
-      resolver, promise
+      resolver, promise,
     }
   }
 }

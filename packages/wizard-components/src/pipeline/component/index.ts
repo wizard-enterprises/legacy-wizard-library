@@ -46,13 +46,31 @@ export class PipelineElement<inputT = any, outputT = inputT> extends LitElement 
 
   private getStartingIndex() {
     let index = this.startFrom
-    if (index === 0 && this.type !== PipelineElementIOType.inMemory) {
-      if (this.type === PipelineElementIOType.queryParams) throw new Error('unsupported')
-      //@ts-ignore
-      let stored = new StorageIOReader(this.type, this.ioFactoryArgs[0]).read()
-      if (stored && stored.index && (stored.index === Number(stored.index))) index = stored.index
+    if (this.type !== PipelineElementIOType.inMemory) {
+      let storedIndex = this.type === PipelineElementIOType.queryParams
+        ? this.getStartingIndexFromQuery(index)
+        : this.getStartingIndexFromStorage(index)
+      index = Math.max(index, storedIndex)
     }
     return index
+  }
+
+  private getStartingIndexFromQuery(defaultIndex = this.startFrom) {
+    let params = new URLSearchParams(window.location.search.slice(1))
+    if (params.has('index')) {
+      let rawIndex = Number(params.get('index'))
+      if (Number.isNaN(rawIndex) === false)
+        return rawIndex
+    }
+    return defaultIndex
+  }
+
+  private getStartingIndexFromStorage(defaultIndex = this.startFrom) {
+    //@ts-ignore
+    let stored = new StorageIOReader(this.type, this.ioFactoryArgs[0]).read()
+    return stored && stored.index && (stored.index === Number(stored.index))
+      ? stored.index
+      : defaultIndex
   }
 
   private initPipeElement(index: number, element: PipeComponent) {
