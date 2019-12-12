@@ -1,6 +1,6 @@
 export * from '..'
 
-export function waitForSelectorOn(element, selector) {
+export async function waitForSelectorOn(element, selector) {
   if (element.renderRoot.querySelector(selector) !== null)
     return
   return new Promise((resolve, reject) => {
