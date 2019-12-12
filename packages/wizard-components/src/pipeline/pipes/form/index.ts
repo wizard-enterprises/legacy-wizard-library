@@ -13,7 +13,7 @@ export class WizardPipeForm<inputT = any, outputT = inputT> extends PipeComponen
   async firstUpdated(props) {
     await super.firstUpdated(props)
     this.addEventListener('keyup', ev => {
-      if (ev.keyCode === 13) // enter
+      if (ev.key === 'Enter')
         this.trySubmit()
     })
   }
