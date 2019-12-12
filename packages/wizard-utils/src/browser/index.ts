@@ -2,7 +2,7 @@ export * from '..'
 
 export async function waitForSelectorOn(element, selector) {
   if (element.renderRoot.querySelector(selector) !== null)
-    return
+    return Promise.resolve()
   return new Promise((resolve, reject) => {
     try {
       let opts = {subtree: true, attributes: false, childList: true}
