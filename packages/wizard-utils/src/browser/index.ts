@@ -10,7 +10,7 @@ export async function waitForSelectorOn(element, selector) {
         let selected = element.renderRoot.querySelector(selector)
         if (selected === null) return
         observer.disconnect()
-        resolve(selected)
+        window.requestAnimationFrame(() => resolve(selected))
       })
       observer.observe(element, opts)
     } catch (e) {
