@@ -1,6 +1,6 @@
 {
   "name": "polymorphic-web-component-tests",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "author": "Eden <eden@wizard.enterprises>",
   "license": "ISC",
   "main": "lib/index.js",

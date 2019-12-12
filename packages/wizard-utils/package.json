@@ -1,6 +1,6 @@
 {
   "name": "wizard-utils",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "author": "Eden <eden@wizard.enterprises>",
   "license": "ISC",
   "main": "lib/index.js",
