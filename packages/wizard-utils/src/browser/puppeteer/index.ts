@@ -1,4 +1,4 @@
-export * from '../'
+export * from '..'
 
 // Must be duplicate to maintain serializability of functions
 // const errorSerializationKeys = ['message', 'arguments', 'type', 'name', 'stack']

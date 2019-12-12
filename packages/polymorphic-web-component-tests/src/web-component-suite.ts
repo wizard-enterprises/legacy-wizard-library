@@ -7,7 +7,7 @@ import path from 'path'
 import puppeteer, {EvaluateFn} from 'puppeteer'
 import express, {Application} from 'express'
 import { Subject } from 'rxjs'
-import * as utils from 'wizard-utils/lib/puppeteer'
+import * as utils from 'wizard-utils/lib/browser/puppeteer'
 import crypto from 'crypto'
 
 type WindowErrorRegistration = string | [string, boolean]

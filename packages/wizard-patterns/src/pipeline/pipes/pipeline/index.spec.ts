@@ -42,7 +42,7 @@ import { TransformPipe } from '../transform'
   }
 
   private makeTestPipes(beAsync = false) {
-    return Array(3).fill(null).map(() =>
+    return Array.from(Array(3), () =>
       new TransformPipe(x => beAsync
         ? new Promise(res => setTimeout(() => res(x + 10), 1))
         : x + 10))

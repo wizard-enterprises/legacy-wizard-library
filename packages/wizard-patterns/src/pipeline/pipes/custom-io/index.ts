@@ -24,9 +24,9 @@ export abstract class CustomIOPipe<T, inputT = any, outputT = inputT> extends Pi
   abstract factory(T): CustomIOPipeFactoryResult
   protected makeWrappedPipe(type: T) {
     let customIO = this.factory(type),
-    pipe = new ManualWrappedPipe<inputT, inputT, outputT, outputT>(
-      this.ioPipe || new TransformPipe<inputT, outputT>(input => this.pipe(input))
-    )
+      pipe = new ManualWrappedPipe<inputT, inputT, outputT, outputT>(
+        this.ioPipe || new TransformPipe<inputT, outputT>(input => this.pipe(input))
+      )
     pipe.beforeWrapping = new TransformPipe(input => customIO.input.call(customIO, input))
     pipe.afterWrapping = new TransformPipe(output => customIO.output.call(customIO, output))
     return pipe
