@@ -165,7 +165,7 @@ export abstract class WebComponentSuite extends TestSuite {
       ({...acc, [name]: util.toString()}), {})
     await this.page.evaluate(utilStrings => {
       for (let [name, utilString] of Object.entries(utilStrings))
-        window['utils'][name] = window['utils'].makeFunctionFromStringified(utilString)
+        window['utils'][name] = window['utils'].makeFunctionFromStringified(utilString).bind(window['utils'])
     }, utilStrings)
   }
 

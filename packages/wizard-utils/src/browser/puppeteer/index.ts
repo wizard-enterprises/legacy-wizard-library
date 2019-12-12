@@ -31,7 +31,7 @@ export function changeInputValue(inputEl, value, key?) {
   inputEl.value = value
   inputEl.dispatchEvent(new Event('input', { bubbles: true }))
   inputEl.dispatchEvent(new Event('change', { bubbles: true }))
-  if (key) (pressKey || window['utils'].pressKey)(inputEl, key)
+  if (key) this.pressKey(inputEl, key)
   inputEl.blur()
 }
 

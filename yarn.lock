@@ -8663,6 +8663,13 @@ wise-inspection@^1.0.1:
   dependencies:
     bindings "^1.2.1"
 
+wizard-utils@^0.0.5:
+  version "0.0.5"
+  resolved "https://registry.yarnpkg.com/wizard-utils/-/wizard-utils-0.0.5.tgz#ad506c23d76f1be6e0a638c4f3d53db252e3ff42"
+  integrity sha512-7gCEvBFQURZ3fN1T2XcAuaKaH3JmZo/Wn7S6ngGfoeSXeLGnQS/2gkiIKz67wctQhNjs5K6oVliqHhTZcoI4fA==
+  dependencies:
+    get-caller-file "^2.0.5"
+
 wordwrap@~0.0.2:
   version "0.0.3"
   resolved "https://registry.yarnpkg.com/wordwrap/-/wordwrap-0.0.3.tgz#a3d5da6cd5c0bc0008d37234bbaf1bed63059107"
