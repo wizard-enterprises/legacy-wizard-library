@@ -26,10 +26,17 @@ export function parseSerializedError(e) {
   }
 }
 
-export function changeInputValue(inputEl, value) {
+export function changeInputValue(inputEl, value, key?) {
   inputEl.focus()
   inputEl.value = value
   inputEl.dispatchEvent(new Event('input', { bubbles: true }))
   inputEl.dispatchEvent(new Event('change', { bubbles: true }))
+  if (key) (pressKey || window['utils'].pressKey)(inputEl, key)
   inputEl.blur()
+}
+
+export function pressKey(element, key, opts = {}) {
+  opts = {...opts, key}
+  element.dispatchEvent(new KeyboardEvent('keydown', opts))
+  element.dispatchEvent(new KeyboardEvent('keyup', opts))
 }
