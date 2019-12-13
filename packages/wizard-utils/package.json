@@ -1,11 +1,14 @@
 {
   "name": "wizard-utils",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "author": "Eden <eden@wizard.enterprises>",
   "license": "ISC",
   "main": "lib/index.js",
+  "directories": {
+    "lib": "lib"
+  },
   "files": [
-    "./lib"
+    "lib"
   ],
   "repository": {
     "type": "git",
