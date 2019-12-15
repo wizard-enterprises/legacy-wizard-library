@@ -75,13 +75,15 @@ abstract class PipelineSuite extends LitElementSuite {
   protected async deconstructNumberFormPipeInSlot(t) {
     await this.page.waitForFunction('Boolean(slotElement.assignedElements()[0])')
     await t.eval('pipeForm = slotElement.assignedElements()[0]')
-    await this.page.waitForFunction('Boolean(pipeForm["jsonForm"])')
+    await this.page.waitForFunction(`Boolean(pipeForm['wizardForm'])`)
+    await t.eval(`wizardForm = pipeForm['wizardForm']`)
+    await this.page.waitForFunction(`Boolean(wizardForm['jsonForm'])`)
+    await t.eval(`jsonForm = wizardForm['jsonForm'].shadowRoot`)
     await t.eval('pipeForm.pipe.manual.waitForStatus(0)')
     await t.eval(`
-    jsonForm = pipeForm['jsonForm'].shadowRoot
     numberLabel = jsonForm.querySelector('label')
     numberInput = jsonForm.querySelector('input')
-    submitBtn = pipeForm.shadowRoot.querySelector('button#submit')
+    submitBtn = wizardForm.shadowRoot.querySelector('button#submit')
     `)
   }
 
