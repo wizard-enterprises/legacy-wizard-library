@@ -24,6 +24,7 @@ export class PipelineElement<inputT = any, outputT = inputT> extends LitElement 
 
   async run(input: inputT) {
     this.makePipeline()
+    input = this.getDataByType(null, input).value
     let runProm = this.pipeline.run(input)
     await new Promise(res => setTimeout(res, 1))
     await this.runNextPipe(this.getStartingIndex())
@@ -47,30 +48,53 @@ export class PipelineElement<inputT = any, outputT = inputT> extends LitElement 
   private getStartingIndex() {
     let index = this.startFrom
     if (this.type !== PipelineElementIOType.inMemory) {
-      let storedIndex = this.type === PipelineElementIOType.queryParams
-        ? this.getStartingIndexFromQuery(index)
-        : this.getStartingIndexFromStorage(index)
+      let storedIndex = this.getDataByType(this.startFrom).index || index
       index = Math.max(index, storedIndex)
     }
     return index
   }
 
-  private getStartingIndexFromQuery(defaultIndex = this.startFrom) {
-    let params = new URLSearchParams(window.location.search.slice(1))
+  private getDataByType(inMemoryIndex = this.currentSlot, inMemoryInput?: any) {
+    if (this.type === PipelineElementIOType.inMemory)
+      return {
+        index: inMemoryIndex,
+        value: inMemoryInput,
+      }
+    return this.type === PipelineElementIOType.queryParams
+      ? this.getQueryData()
+      : this.getStorageData()
+  }
+
+  private getQueryData() {
+    let params = new URLSearchParams(window.location.search.slice(1)),
+      data: any = {}
     if (params.has('index')) {
       let rawIndex = Number(params.get('index'))
       if (Number.isNaN(rawIndex) === false)
-        return rawIndex
+        data.index = rawIndex
     }
-    return defaultIndex
+    if (params.has('value'))
+      try {
+        data.value = JSON.parse(params.get('value'))
+      } catch (e) {
+        data.value = params.get('value')
+      }
+    return data
   }
 
-  private getStartingIndexFromStorage(defaultIndex = this.startFrom) {
-    //@ts-ignore
-    let stored = new StorageIOReader(this.type, this.ioFactoryArgs[0]).read()
-    return stored && stored.index && (stored.index === Number(stored.index))
+  private getStorageData() {
+    let data: any = {},
+      //@ts-ignore
+      stored = new StorageIOReader(this.type, this.ioFactoryArgs[0]).read()
+    data.index = stored && stored.index && (stored.index === Number(stored.index))
       ? stored.index
-      : defaultIndex
+      : undefined
+    try {
+      data.value = stored && JSON.parse(stored.value)
+    } catch (e) {
+      data.value = stored && stored.value
+    }
+    return data
   }
 
   private initPipeElement(index: number, element: PipeComponent) {
@@ -100,8 +124,12 @@ export class PipelineElement<inputT = any, outputT = inputT> extends LitElement 
   private waitForSlotChangeForIndices(prevIndex, nextIndex) {
     return prevIndex === nextIndex
       ? Promise.resolve()
-      : new Promise(res =>
-          this.pipeSlot.addEventListener('slotchange', res))
+      : this.waitForSlotChange()
+  }
+  
+  private waitForSlotChange() {
+    return new Promise(res =>
+      this.pipeSlot.addEventListener('slotchange', res))
   }
 
   private async updateNextPipeElement(prevIndex, nextIndex) {
@@ -110,7 +138,9 @@ export class PipelineElement<inputT = any, outputT = inputT> extends LitElement 
     if (this.pipeElements[nextIndex])
       await this.pipeElements[nextIndex].pipe.manual.waitForStatus(PipeStatus.piping)
     if (this.currentSlot !== -1 && this.pipeElements[this.currentSlot]) {
-      await this.pipeElements[this.currentSlot].pipedInto()
+      let currentPipe = this.pipeElements[this.currentSlot]
+      await currentPipe.pipedInto()
+      await currentPipe.updateComplete
       await this.updateComplete
     }
   }

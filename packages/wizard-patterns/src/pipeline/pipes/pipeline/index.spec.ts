@@ -30,15 +30,25 @@ import { TransformPipe } from '../transform'
 
   @Test() async 'run pipeline from middle'(t) {
     let pipe = this.makePipe(...this.makeTestPipes(true))
-    t.expect(await pipe.run(0)).to.equal(30)
-    pipe.startFrom = 1
-    t.expect(await pipe.run(0)).to.equal(20)
-    pipe.startFrom = 2
-    t.expect(await pipe.run(0)).to.equal(10)
-    pipe.startFrom = 3
-    t.expect(await pipe.run(0)).to.equal(0)
     pipe.startFrom = 4
     t.expect(() => pipe.run(0)).to.throw(`startFrom index 4 is out of bounds for pipe array of length 3`)
+    pipe.startFrom = 3
+    t.expect(await pipe.run(0)).to.equal(0)
+    pipe.startFrom = 2
+    t.expect(await pipe.run(0)).to.equal(10)
+    pipe.startFrom = 1
+    t.expect(await pipe.run(0)).to.equal(20)
+    pipe.startFrom = 0
+    t.expect(await pipe.run(0)).to.equal(30)
+  }
+
+  @Test() async 'start pipeline at end with pipes that ran'(t) {
+    let pipe = this.makePipe(...this.makeTestPipes()),
+      output = pipe.run(0),
+      usedPipes = pipe.pipes,
+      recyclingPipe = this.makePipe(...usedPipes)
+    recyclingPipe.startFrom = usedPipes.length
+    t.expect(recyclingPipe.pipe(10)).to.equal(output)
   }
 
   private makeTestPipes(beAsync = false) {

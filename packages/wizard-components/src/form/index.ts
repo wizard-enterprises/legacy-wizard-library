@@ -1,30 +1,38 @@
-import { customElement, property, query, html, LitElement } from 'lit-element'
+import 'formiojs/dist/formio.full.min.js'
+import { customElement, property, LitElement } from 'lit-element'
 import { CachedReturn } from 'wizard-decorators'
-import 'json-form-custom-element'
+import { Formio, FormBuilder } from 'formiojs'
 
 @customElement('wizard-form')
-export class WizardPipeForm<inputT = any, outputT = inputT> extends LitElement {
-  @property() schema = {}
-  @property() config = {}
+export class WizardForm<inputT = any, outputT = inputT> extends LitElement {
+  @property() schema
+  @property() config: any = {}
   @property() value?: inputT
-  @query('json-form') protected jsonForm
-  private lastFormChangeEvent
+  public form
 
-  async firstUpdated(props) {
-    await super.firstUpdated(props)
-    this.addEventListener('keyup', ev => {
-      if (ev.key === 'Enter')
-        this.trySubmit()
-    })
+  createRenderRoot() {
+    return this
   }
 
-  async update(props) {
-    await super.update(props)
-    if (this.jsonForm) this.addFormChangeListener()
+  async _getUpdateComplete() {
+    await super._getUpdateComplete()
+    await this.makeForm()
   }
   
-  @CachedReturn addFormChangeListener() {
-    this.jsonForm.addEventListener('change', ev => this.lastFormChangeEvent = ev.detail)
+  @CachedReturn async makeForm() {
+    if (!this.schema) {
+      this.form = new FormBuilder(this, {}, this.config)
+      await this.form.ready
+    } else {
+      this.form = await Formio.createForm(this, this.schema || {}, this.config)
+      await this.form.build
+      await this.form.ready
+      //@ts-ignore
+      let value = this.value === `${this.value}` ? JSON.parse(this.value) : this.value
+      let submission = { data: value instanceof Object ? value : {value} }
+      this.form.submission = submission
+    }
+    return this.form
   }
 
   shouldUpdate(props) {
@@ -32,28 +40,5 @@ export class WizardPipeForm<inputT = any, outputT = inputT> extends LitElement {
       super.shouldUpdate(props)
         && this.schema && this.config
     )
-  }
-
-  render() {
-    let [schema, config] = [this.schema, this.config].map(p => this.parseJsonFormParam(p))
-    return html`
-      <json-form schema=${schema} config=${config} value=${this.value || '{}'}></json-form>
-      <button id="submit" @click=${this.trySubmit}>Submit</button>
-    `
-  }
-
-  private parseJsonFormParam(param) {
-    try {
-      return (param === `${param}`) ? param : JSON.stringify(param)
-    } catch (e) {
-      return '{}'
-    }
-  }
-
-  protected async trySubmit() {
-    if (this.lastFormChangeEvent.isValid === false)
-      return console.error('Submit failed because form is invalid', this.lastFormChangeEvent.errors)
-    let output = this.lastFormChangeEvent.value
-    await this.dispatchEvent(new CustomEvent('submit', {detail: output}))
   }
 }

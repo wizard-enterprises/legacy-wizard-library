@@ -4,22 +4,35 @@ import { PipeStatus } from 'wizard-patterns/lib/pipeline'
 import { PipelineElementIOType } from '../abstract/types'
 import querystring from 'querystring'
 
-interface PipeDescription {
-  tag: string,
+// Same as in wizard-form
+const ONLY_DATA_VALUE = '_ONLY_DATA_VALUE_'
+
+interface PipeDescription<tag extends string = string> {
+  tag: tag,
   attributes: Object,
 }
 function makePipeDescription<retDesc extends PipeDescription = PipeDescription> (desc: PipeDescription): retDesc {
   return desc as retDesc
 }
 
-interface FormPipeDescription extends PipeDescription {
-  tag: 'wizard-pipe-form',
-}
-let makeFormPipeDescription = (schema = {}, config = {}) => makePipeDescription<FormPipeDescription>({
+let makeFormPipeDescription = (schema = {}, config = {}) => makePipeDescription<PipeDescription<'wizard-pipe-form'>>({
   tag: 'wizard-pipe-form',
   attributes: {schema, config},
 })
-let makeNumberFormPipeDescription = (config = {}) => makeFormPipeDescription({type: 'number', title: 'Number'}, config)
+let makeNumberFormPipeDescription = (config = {}) => makeFormPipeDescription({
+  components: [
+    {
+      type: 'number',
+      key: ONLY_DATA_VALUE,
+      label: 'Number',
+    },
+    {
+      type: 'button',
+      action: 'submit',
+      label: 'Submit',
+    },
+  ]
+}, config)
 
 @Suite() class Pipelines extends TestSuite {}
 
@@ -53,7 +66,8 @@ abstract class PipelineSuite extends LitElementSuite {
     return this.runPipeline(t, input, false)
   }
 
-  protected getPipeResult(t) {
+  protected async getPipeResult(t) {
+    t.expect(await t.eval('element.pipeline.status')).to.equal(PipeStatus.piped)
     return this.waitForRunEnd(t)
   }
 
@@ -77,13 +91,12 @@ abstract class PipelineSuite extends LitElementSuite {
     await t.eval('pipeForm = slotElement.assignedElements()[0]')
     await this.page.waitForFunction(`Boolean(pipeForm['wizardForm'])`)
     await t.eval(`wizardForm = pipeForm['wizardForm']`)
-    await this.page.waitForFunction(`Boolean(wizardForm['jsonForm'])`)
-    await t.eval(`jsonForm = wizardForm['jsonForm'].shadowRoot`)
     await t.eval('pipeForm.pipe.manual.waitForStatus(0)')
+    await t.eval('wizardForm.updateComplete')
     await t.eval(`
-    numberLabel = jsonForm.querySelector('label')
-    numberInput = jsonForm.querySelector('input')
-    submitBtn = wizardForm.shadowRoot.querySelector('button#submit')
+    numberLabel = wizardForm.querySelector('label')
+    numberInput = wizardForm.querySelector('input')
+    submitBtn = wizardForm.querySelector('button[type=submit]')
     `)
   }
 
@@ -100,6 +113,8 @@ abstract class PipelineSuite extends LitElementSuite {
     }, PipeStatus, this.waitForSlotChange)
     if (this.waitForSlotChange === false)
       await this.page.waitForNavigation()
+    else
+      await new Promise(res => setTimeout(res, 15))
     await this.runAfterPipe(t, index)
   }
 
@@ -120,7 +135,7 @@ abstract class SharedPipelineTests extends PipelineSuite {
     await this.createComponent(t, makeNumberFormPipeDescription())
     await this.startRun(t, 10)
     await this.deconstructNumberFormPipeInSlot(t)
-    t.expect(await t.eval('numberLabel.textContent')).to.equal('Number')
+    t.expect((await t.eval('numberLabel.textContent')).trim()).to.equal('Number')
     t.expect(await t.eval('numberInput.value')).to.equal('10')
     await this.setNumberFormInputAndSubmit(t, 50)
     t.expect(await this.getPipeResult(t)).to.equal(50)
@@ -131,7 +146,6 @@ abstract class SharedPipelineTests extends PipelineSuite {
     await this.startRun(t, 10)
     for (let i = 1; i < 4; i++) {
       await this.deconstructNumberFormPipeInSlot(t)
-      t.expect(await t.eval('numberLabel.textContent')).to.equal('Number')
       t.expect(await t.eval('numberInput.value')).to.equal(`${i * 10}`)
       await this.setNumberFormInputAndSubmit(t, i * 10 + 10)
     }
@@ -147,7 +161,7 @@ abstract class SharedPipelineTests extends PipelineSuite {
       t.expect(await t.eval('numberInput.value')).to.equal(`${i * 10}`)
       await this.setNumberFormInputAndSubmit(t, i * 10 + 10)
     }
-    t.expect(await t.eval('element.pipeline.status')).to.equal(PipeStatus.piped)
+    
     t.expect(await this.getPipeResult(t)).to.equal(40)
   }
 }
@@ -187,10 +201,6 @@ abstract class StoragePipelineSuite extends SharedPipelineTests {
     t.expect((await this.getItem(t)).index).to.equal(pipeIndex + 1)
   }
 
-  protected async getPipeResult(t) {
-    return (await this.getItem(t)).value
-  }
-
   abstract getItem(t): Promise<any>
   abstract setItem(t, value): Promise<any>
 }
@@ -228,9 +238,9 @@ abstract class PageStorageSuite extends StoragePipelineSuite {
   type = PipelineElementIOType.queryParams
   query = ''
   waitForSlotChange = false
-  async refreshForPipe(t, url?: string, gotoUrl: boolean = true) {//, index) {
+  async refreshForPipe(t, url?: string, gotoUrl: boolean = true) {
     if (gotoUrl && !url)
-      url = this.componentUrl + '?' + (this.query || await t.eval('window.location.search'))
+      url = this.componentUrl + (this.query ? '?' + this.query : await t.eval('window.location.search'))
     this.createComponentInPageSetup = true
     this.shouldSetItemOnRunPipeline = false
     await this.refresh(t, url, gotoUrl)
