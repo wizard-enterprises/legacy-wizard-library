@@ -1,4 +1,5 @@
 import 'formiojs/dist/formio.full.min.js'
+import 'formiojs/dist/formio.full.min.css'
 import { customElement, property, LitElement } from 'lit-element'
 import { CachedReturn } from 'wizard-decorators'
 import { Formio, FormBuilder } from 'formiojs'
