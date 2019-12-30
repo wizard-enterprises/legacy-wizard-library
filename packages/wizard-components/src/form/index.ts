@@ -14,12 +14,6 @@ export class WizardForm<inputT = any, outputT = inputT> extends LitElement {
     return this
   }
 
-  render() {
-    return html`
-      <link rel='stylesheet' href='https://unpkg.com/formiojs@latest/dist/formio.full.min.css'>
-    `
-  }
-
   async _getUpdateComplete() {
     await super._getUpdateComplete()
     await this.makeForm()
