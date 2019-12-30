@@ -78,7 +78,6 @@ export abstract class WebComponentSuite extends TestSuite {
   }
 
   private async getTempBuildDir() {
-    // return path.resolve(path.dirname(await pkgUp({cwd: process.cwd()})), 'web-component-temp-build/')
     return path.resolve(process.cwd(), 'web-component-temp-build/')
   }
 
@@ -97,8 +96,6 @@ export abstract class WebComponentSuite extends TestSuite {
     this.componentUrl = await this.setupComponentUrl()
     await this.setupEmptyPuppeteerPage(t)
     await this.setupPuppeteerPage(t)
-    // if (this.createComponentInPageSetup)
-    //   this.component = await this.createComponent(t)
   }
 
   async after(t) {
@@ -138,6 +135,21 @@ export abstract class WebComponentSuite extends TestSuite {
   private async setupNewPage() {
     this.page = await this.browser.newPage()
     this.page.setBypassCSP(true)
+    await this.page.setViewport({ width: 1920, height: 1080 })
+    await this.page.setRequestInterception(true)
+    this.page.on('request', req =>
+      this.shouldAbortRequest(req)
+        ? req.abort()
+        : req.continue()
+    )
+  }
+
+  protected shouldAbortRequest(req) {
+    return [
+      'stylesheet',
+      'font',
+      'image',
+    ].includes(req.resourceType())
   }
 
   private async setupPuppeteerPage(t?, url = this.componentUrl, shouldGotoUrl = true) {
