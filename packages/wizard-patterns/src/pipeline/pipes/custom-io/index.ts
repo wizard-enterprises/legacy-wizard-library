@@ -12,7 +12,7 @@ export abstract class CustomIOPipe<T, inputT = any, outputT = inputT> extends Pi
   defaultType?: T
   protected wrappedPipe: WrappedPipe<inputT, inputT, outputT, outputT>
   public ioPipe?: Pipe<inputT, outputT>
-  private type: T
+  protected type: T
 
   constructor(type?: T) {
     super(type)
@@ -27,8 +27,8 @@ export abstract class CustomIOPipe<T, inputT = any, outputT = inputT> extends Pi
       pipe = new ManualWrappedPipe<inputT, inputT, outputT, outputT>(
         this.ioPipe || new TransformPipe<inputT, outputT>(input => this.pipe(input))
       )
-    pipe.beforeWrapping = new TransformPipe(input => customIO.input.call(customIO, input))
-    pipe.afterWrapping = new TransformPipe(output => customIO.output.call(customIO, output))
+    pipe.beforeWrapping = new TransformPipe(input => customIO.input(input))
+    pipe.afterWrapping = new TransformPipe(output => customIO.output(output))
     return pipe
   }
 
