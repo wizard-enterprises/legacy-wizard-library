@@ -16,11 +16,16 @@ export class MochaSpecReporter extends TapReporter {
   }
 
   private async makeMochaSpecReport(tapReport) {
-    let pipedStream = TapMochaReporter('spec')
-    pipedStream.on('error', e => {throw e})
-    pipedStream.write(tapReport)
-    pipedStream.end()
-    await new Promise(res => setTimeout(res, 1))
-    process.exit()
+    try {
+      let pipedStream = TapMochaReporter('spec')
+      pipedStream.on('error', e => {throw e})
+      pipedStream.write(tapReport)
+      pipedStream.end()
+      await new Promise(res => setTimeout(res, 1))
+    } catch (e) {
+      throw e
+    } finally {
+      process.exit()
+    }
   }
 }

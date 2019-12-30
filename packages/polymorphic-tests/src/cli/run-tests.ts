@@ -8,7 +8,11 @@ import { PolytestConfig } from './index-types'
 let _this = this
 process.on('message', (config: PolytestConfig) =>
   runGlobalSuite(parseConfig(config))
-    .then(() => process.exit()))
+    .then(() => process.exit())
+    .catch(e => {
+      console.error(e)
+      process.exit(1)
+    }))
 
 function parseConfig(config: PolytestConfig) {
   config.setup = parseSetup(config.setup)

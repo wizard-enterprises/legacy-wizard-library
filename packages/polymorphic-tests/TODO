@@ -66,6 +66,7 @@ Current release:
 ✔ Add component lifecycle protected hook in WebComponentSuite to wait for component initialization and capture any async errors @done(19-11-20 13:21)
 
 Next release:
+  ☐ Enter to rerun in watch mode
   ☐ Skipped tests (at least via only) get timeout errors when proceeding tests time out (probably)
   ☐ Figure out what to do with:
     ☐ Failed tests with an after hook that also fails. Which error to report?
@@ -78,5 +79,5 @@ Next release:
     ☐ Run multiple failing suites and bail after first failure
     ☐ Run multiple failing suites and stop suite after first contained failed test
     ☐ Run multiple failing suites and run all tests regardless of failure
-  ☐ Add decorators for only/skip (Possibly as TestDecorator.only.skip())
+  ☐ Add decorators for only/skip (Possibly as @Test.only.skip())
   ☐ Make fancy reporter
