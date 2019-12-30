@@ -1,6 +1,5 @@
 import 'formiojs/dist/formio.full.min.js'
-import 'formiojs/dist/formio.full.min.css'
-import { customElement, property, LitElement } from 'lit-element'
+import { customElement, property, LitElement, html } from 'lit-element'
 import { CachedReturn } from 'wizard-decorators'
 import { Formio, FormBuilder } from 'formiojs'
 
@@ -15,6 +14,12 @@ export class WizardForm<inputT = any, outputT = inputT> extends LitElement {
     return this
   }
 
+  render() {
+    return html`
+      <link rel='stylesheet' href='https://unpkg.com/formiojs@latest/dist/formio.full.min.css'>
+    `
+  }
+
   async _getUpdateComplete() {
     await super._getUpdateComplete()
     await this.makeForm()
@@ -25,13 +30,12 @@ export class WizardForm<inputT = any, outputT = inputT> extends LitElement {
       this.form = new FormBuilder(this, {}, this.config)
       await this.form.ready
     } else {
-      this.form = await Formio.createForm(this, this.schema || {}, this.config)
-      await this.form.build
-      await this.form.ready
       //@ts-ignore
       let value = this.value === `${this.value}` ? JSON.parse(this.value) : this.value
       let submission = { data: value instanceof Object ? value : {value} }
+      this.form = await Formio.createForm(this, this.schema || {}, this.config)
       this.form.submission = submission
+      await this.form.render()
     }
     return this.form
   }

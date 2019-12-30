@@ -81,7 +81,8 @@ abstract class PipelineSuite extends LitElementSuite {
       window['pipelineRunPromise'] = element.run(input)
       let wait = waitForRun
         ? window['pipelineRunPromise']
-        : new Promise(res => setTimeout(res, 1)).then(() => element.updateComplete)
+        // : element.updateComplete
+        : new Promise(res => setTimeout(res, 15)).then(() => element.updateComplete)
       return await wait
     }, input, waitForRun)
   }
@@ -113,8 +114,17 @@ abstract class PipelineSuite extends LitElementSuite {
     }, PipeStatus, this.waitForSlotChange)
     if (this.waitForSlotChange === false)
       await this.page.waitForNavigation()
-    else
-      await new Promise(res => setTimeout(res, 15))
+    else {
+      await t.eval('element.updateComplete')
+      await t.eval(async () => {
+        let currentSlot = window['slotElement'].assignedElements()[0]
+        if (currentSlot && currentSlot.pipe) {
+          await currentSlot.pipe.manual.waitForStatus(0)
+          await currentSlot.updateComplete
+        } else
+          await window['element'].pipeline.waitForStatus(1)
+      })
+    }
     await this.runAfterPipe(t, index)
   }
 
@@ -173,22 +183,10 @@ abstract class SharedPipelineTests extends PipelineSuite {
 abstract class StoragePipelineSuite extends SharedPipelineTests {
   shouldSetItemOnRunPipeline = true
 
-  @Test() async 'start from stored index'(t) {
-    await this.createComponent(t, ...Array.from(Array(3), () => makeNumberFormPipeDescription()))
-    await this.startRun(t, {value: 10, index: 1})
-    for (let i = 1; i < 3; i++) {
-      await this.deconstructNumberFormPipeInSlot(t)
-      t.expect(await t.eval('numberInput.value')).to.equal(`${i * 10}`)
-      await this.setNumberFormInputAndSubmit(t, i * 10 + 10)
-    }
-    t.expect(await t.eval('element.pipeline.status')).to.equal(PipeStatus.piped)
-    t.expect(await this.getPipeResult(t)).to.equal(30)
-  }
-
   async runPipeline(t, input, waitForRun = true) {
     if (this.shouldSetItemOnRunPipeline) {
       if (input.value === undefined && input.index === undefined) {
-        await this.setItem(t, {value: input, index: 0})
+        await this.setItem(t, {value: input, index: this.startFrom})
       } else {
         await this.setItem(t, input)
         input = input.value

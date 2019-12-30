@@ -12,9 +12,18 @@ export class PipelineElement<inputT = any, outputT = inputT> extends LitElement 
   @property({attribute: false}) currentSlot: number = -1
   @property({noAccessor: true}) ioFactoryArgs: any[] = []
   protected pipeline: Pipeline<inputT, outputT, Pipe>
-  protected pipeElements: PipeComponent[]
+  protected get pipeElements(): PipeComponent[] {
+    return Array.from(this.children) as PipeComponent[]
+  }
 
   @query('#pipe-slot') protected pipeSlot
+
+  async _getUpdateComplete() {
+    await super._getUpdateComplete()
+    let currentPipeElement = this.pipeElements[this.currentSlot]
+    if (currentPipeElement)
+      await currentPipeElement.updateComplete
+  }
 
   render() {
     return html`
@@ -23,18 +32,21 @@ export class PipelineElement<inputT = any, outputT = inputT> extends LitElement 
   }
 
   async run(input: inputT) {
-    this.makePipeline()
     input = this.getDataByType(null, input).value
-    let runProm = this.pipeline.run(input)
-    await new Promise(res => setTimeout(res, 1))
-    await this.runNextPipe(this.getStartingIndex())
+    let runProm
+    if (this.children.length) {
+      this.makePipeline()
+      runProm = this.pipeline.run(input)
+      await new Promise(res => setTimeout(res, 1))
+      await this.runNextPipe(this.getStartingIndex())
+    } else {
+      runProm = Promise.resolve(input)
+    }
     return runProm
   }
 
   protected makePipeline() {
-    let pipeElements = Array.from(this.children) as PipeComponent[]
-    pipeElements.forEach((element, i) => this.initPipeElement(i, element))
-    this.pipeElements = pipeElements
+    this.pipeElements.forEach((element, i) => this.initPipeElement(i, element))
     this.pipeline = this.makePipelineFromElements()
   }
 
@@ -66,7 +78,7 @@ export class PipelineElement<inputT = any, outputT = inputT> extends LitElement 
   }
 
   private getQueryData() {
-    let params = new URLSearchParams(window.location.search.slice(1)),
+    let params = new URLSearchParams(window.location.search),
       data: any = {}
     if (params.has('index')) {
       let rawIndex = Number(params.get('index'))

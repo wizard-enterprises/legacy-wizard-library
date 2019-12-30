@@ -27,16 +27,20 @@ export abstract class PipeComponent<inputT = any, outputT = inputT> extends LitE
   shouldUpdate() {
     return Boolean(
       (
-        [
-          PipelineElementIOType.localStorage,
-          PipelineElementIOType.sessionStorage,
-        ].includes(this.type) === false
+        this.shouldExpectIoFactoryArgs() === false
         || this.ioFactoryArgs.length > 0
       ) && (
         this.waitForInput === false
         || (this.input !== this.UNDEFINED_INPUT)
       )
     )
+  }
+
+  shouldExpectIoFactoryArgs() {
+    return [
+      PipelineElementIOType.localStorage,
+      PipelineElementIOType.sessionStorage,
+    ].includes(this.type)
   }
 
   protected async pipeOut(output: outputT) {

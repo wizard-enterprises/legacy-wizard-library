@@ -9,8 +9,9 @@ export class ComponentPipe<inputT = any, outputT = inputT> extends CustomIOPipe<
   ioPipe = this.manual
   slot?: number
   factoryArgs: any[] = []
-  factory(type) {
-    return PipeCustomIOFactory.from(type, this)
+
+  factory(type = this.type) {
+    return PipeCustomIOFactory.from<inputT, outputT>(type, this)
   }
 
   run(input: inputT) {
@@ -20,17 +21,17 @@ export class ComponentPipe<inputT = any, outputT = inputT> extends CustomIOPipe<
 }
 
 class PipeCustomIOFactory {
-  static from(type: Type, ...args: any[]) {
-    return new PipeCustomIOFactory().forType(type, ...args)
+  static from<inputT = any, outputT = inputT>(type: Type, ...args: any[]) {
+    return new PipeCustomIOFactory().forType<inputT, outputT>(type, ...args)
   }
 
-  forType(type: Type, ...args: any[]) {
-    if (type === undefined) throw new Error('type is undefined')
+  forType<inputT = any, outputT = inputT>(type: Type, ...args: any[]) {
     switch (type) {
-      case Type.inMemory: return new PassThroughIO
-      case Type.localStorage: return new StorageIO(PipelineElementIOType.localStorage, args[0])
-      case Type.sessionStorage: return new StorageIO(PipelineElementIOType.sessionStorage, args[0])
-      case Type.queryParams: return new QueryParamsIO(args[0])
+      case Type.inMemory: return new PassThroughIO<inputT, outputT>()
+      case Type.localStorage: return new StorageIO<inputT, outputT>(PipelineElementIOType.localStorage, args[0])
+      case Type.sessionStorage: return new StorageIO<inputT, outputT>(PipelineElementIOType.sessionStorage, args[0])
+      case Type.queryParams: return new QueryParamsIO<inputT, outputT>(args[0])
+      default: throw new Error(`type ${type} not supported by factory')`)
     }
   }
 }
@@ -68,9 +69,7 @@ class StorageIO<inputT = any, outputT = inputT> extends IOForPipe<inputT, output
     window[this.type].setItem(this.storageKey, JSON.stringify(out))
     //@ts-ignore
     return out.value
-  }
-
- 
+  } 
 }
 
 export class StorageIOReader<outputT = any> {
