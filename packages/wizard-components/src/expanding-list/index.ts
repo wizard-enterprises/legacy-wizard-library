@@ -1,11 +1,12 @@
-import { LitElement, customElement, html, property, query } from 'lit-element'
+import { customElement, html, property, query } from 'lit-element'
+import { WizardElement } from '../wizard-element'
 
 export enum AddTo {
   start = 'start',
   end = 'end',
 }
 
-@customElement('wizard-expanding-list') export class ExpandingList extends LitElement {
+@customElement('wizard-expanding-list') export class ExpandingList extends WizardElement {
   @property({type: Array}) items = []
   @property({type: AddTo, noAccessor: true}) addTo = AddTo.end
   @property({type: AddTo}) inputAt = AddTo.start

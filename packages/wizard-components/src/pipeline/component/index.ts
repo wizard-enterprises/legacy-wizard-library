@@ -4,9 +4,10 @@ import { Pipeline } from 'wizard-patterns/lib/pipeline/pipes'
 import { PipeComponent } from '../abstract/pipe-component'
 import { PipelineElementIOType } from '../abstract/types'
 import { ComponentPipe, StorageIOReader } from '../abstract/component-pipe'
+import { WizardElement } from '../../wizard-element'
 
 @customElement('wizard-pipeline')
-export class PipelineElement<inputT = any, outputT = inputT> extends LitElement {
+export class PipelineElement<inputT = any, outputT = inputT> extends WizardElement {
   @property({noAccessor: true}) startFrom: number = 0
   @property({noAccessor: true}) type: PipelineElementIOType = PipelineElementIOType.inMemory
   @property({attribute: false}) currentSlot: number = -1

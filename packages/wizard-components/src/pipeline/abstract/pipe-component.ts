@@ -1,10 +1,11 @@
-import { LitElement, property } from 'lit-element'
+import { property } from 'lit-element'
 import { CachedReturn } from 'wizard-decorators'
 import { PipeStatus } from 'wizard-patterns/lib/pipeline'
+import { WizardElement } from '../../wizard-element'
 import { PipelineElementIOType } from '../abstract/types'
 import { ComponentPipe } from './component-pipe'
 
-export abstract class PipeComponent<inputT = any, outputT = inputT> extends LitElement {
+export abstract class PipeComponent<inputT = any, outputT = inputT> extends WizardElement {
   @property({type: PipelineElementIOType, noAccessor: true})
   type = PipelineElementIOType.inMemory
   @property({noAccessor: true}) ioFactoryArgs: any[] = []

@@ -1,10 +1,11 @@
 import 'formiojs/dist/formio.full.min.js'
-import { customElement, property, LitElement, html } from 'lit-element'
+import { FormBuilder, Formio } from 'formiojs'
+import { customElement, property } from 'lit-element'
 import { CachedReturn } from 'wizard-decorators'
-import { Formio, FormBuilder } from 'formiojs'
+import { WizardElement } from '../wizard-element'
 
 @customElement('wizard-form')
-export class WizardForm<inputT = any, outputT = inputT> extends LitElement {
+export class WizardForm<inputT = any, outputT = inputT> extends WizardElement {
   @property() schema
   @property() config: any = {}
   @property() value?: inputT
