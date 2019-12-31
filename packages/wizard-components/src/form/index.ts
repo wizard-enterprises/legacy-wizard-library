@@ -1,5 +1,4 @@
 import 'formiojs/dist/formio.full.min.js'
-import 'choices.js/public/assets/scripts/choices.min'
 import { FormBuilder, Formio } from 'formiojs'
 import { customElement, property } from 'lit-element'
 import { CachedReturn } from 'wizard-decorators'
