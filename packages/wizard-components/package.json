@@ -25,6 +25,7 @@
     "url": "https://github.com/wizard-enterprises/wizard-library/issues"
   },
   "dependencies": {
+    "choices.js": "^9.0.1",
     "formiojs": "^4.8.0-rc.2",
     "lit-element": "^2.2.1",
     "ts-json-validator": "^0.3.0",
