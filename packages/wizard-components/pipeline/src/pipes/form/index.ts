@@ -2,7 +2,7 @@ import { customElement, property, query, html } from 'lit-element'
 import { CachedReturn } from 'wizard-decorators'
 import { PipeStatus } from 'wizard-patterns/lib/pipeline'
 import { PipeComponent } from '../../abstract/pipe-component'
-import '../../../form'
+import 'wizard-form'
 
 export const ONLY_DATA_VALUE = '_ONLY_DATA_VALUE_'
 

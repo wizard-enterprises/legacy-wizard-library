@@ -1,7 +1,7 @@
 import { property } from 'lit-element'
 import { CachedReturn } from 'wizard-decorators'
 import { PipeStatus } from 'wizard-patterns/lib/pipeline'
-import { WizardElement } from '../../wizard-element'
+import { WizardElement } from 'wizard-element'
 import { PipelineElementIOType } from '../abstract/types'
 import { ComponentPipe } from './component-pipe'
 

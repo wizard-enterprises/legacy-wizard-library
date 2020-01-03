@@ -4,7 +4,7 @@ import { Pipeline } from 'wizard-patterns/lib/pipeline/pipes'
 import { PipeComponent } from '../abstract/pipe-component'
 import { PipelineElementIOType } from '../abstract/types'
 import { ComponentPipe, StorageIOReader } from '../abstract/component-pipe'
-import { WizardElement } from '../../wizard-element'
+import { WizardElement } from 'wizard-element'
 
 @customElement('wizard-pipeline')
 export class PipelineElement<inputT = any, outputT = inputT> extends WizardElement {

@@ -1,6 +1,8 @@
 {
   "packages": [
-    "packages/*"
+    "packages/*",
+    "!packages/wizard-components",
+    "packages/wizard-components/*"
   ],
   "version": "independent",
   "npmClient": "yarn",

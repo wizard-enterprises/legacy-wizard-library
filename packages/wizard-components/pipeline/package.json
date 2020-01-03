@@ -1,0 +1,41 @@
+{
+  "name": "wizard-pipeline",
+  "version": "0.1.0",
+  "description": "> TODO: description",
+  "author": "Eden <eden@wizard.enterprises>",
+  "homepage": "https://github.com/wizard-enterprises/wizard-library#readme",
+  "license": "ISC",
+  "main": "lib/index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "files": [
+    "lib"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wizard-enterprises/wizard-library.git"
+  },
+  "scripts": {
+    "test": "polytest run",
+    "build": "rm -rf lib && tsc -b ./tsconfig.prod.json",
+    "prepare": "npm run build"
+  },
+  "bugs": {
+    "url": "https://github.com/wizard-enterprises/wizard-library/issues"
+  },
+  "dependencies": {
+    "lit-element": "^2.2.1",
+    "wizard-decorators": "^1.0.6",
+    "wizard-element": "^0.1.0",
+    "wizard-form": "^0.1.0",
+    "wizard-patterns": "^0.1.4"
+  },
+  "devDependencies": {
+    "polymorphic-tests": "^0.2.4",
+    "polymorphic-web-component-tests": "^0.1.8",
+    "ts-node": "^8.5.2",
+    "typescript": "^3.7.2"
+  },
+  "gitHead": "739119084d06a0be7dfbd9fc2a0d2eb0f831bad4"
+}

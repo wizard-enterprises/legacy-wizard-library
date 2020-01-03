@@ -1,5 +1,5 @@
 import { customElement, html, property, query } from 'lit-element'
-import { WizardElement } from '../wizard-element'
+import { WizardElement } from 'wizard-element'
 
 export enum AddTo {
   start = 'start',

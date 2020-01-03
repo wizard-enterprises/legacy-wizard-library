@@ -1,8 +1,8 @@
-import 'formiojs/dist/formio.full.min.js'
+// import 'formiojs/dist/formio.full.min.js'
 import { FormBuilder, Formio } from 'formiojs'
 import { customElement, property } from 'lit-element'
 import { CachedReturn } from 'wizard-decorators'
-import { WizardElement } from '../wizard-element'
+import { WizardElement } from 'wizard-element'
 
 @customElement('wizard-form')
 export class WizardForm<inputT = any, outputT = inputT> extends WizardElement {
