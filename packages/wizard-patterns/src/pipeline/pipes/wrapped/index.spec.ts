@@ -8,12 +8,8 @@ import { PassThroughPipe } from '../passthrough'
 
 class StringifiedNumberPipe extends WrappedPipe<number, string> {
   beforeWrapping = new TransformPipe<number, string>(x => `${x}`)
-  constructor(toWrap) {
-    super(toWrap || new PassThroughPipe)
-  }
   afterWrapping = new TransformPipe<string, number>(s => Number(s))
 }
-
 
 @SubSuite(Wrapped) class StringifiedNumber extends PipeSuite {
   protected underTest = StringifiedNumberPipe

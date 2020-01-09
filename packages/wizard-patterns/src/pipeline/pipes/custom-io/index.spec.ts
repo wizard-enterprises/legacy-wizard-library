@@ -35,11 +35,10 @@ class TestCustomIOPipe extends CustomIOPipe<CustomIOType, number> {
     }
   }
 
-  pipe(x) {
-    return this.doAsyncIO
+  ioPipe = (x) =>
+    this.doAsyncIO
       ? new Promise(res => setTimeout(() => res(x), 1))
       : x
-  }
 }
 
 @SubSuite(Pipes) class CustomIO extends PipeSuite<TestCustomIOPipe> {
@@ -78,7 +77,7 @@ class TestCustomIOPipe extends CustomIOPipe<CustomIOType, number> {
   @Test() async 'pipe correctly tracks created pipe status'(t) {
     let pipe = this.makePipe(CustomIOType.type1),
       manualPipe = pipe.ioPipe = new ManualPipe
-    t.expect(pipe.status).to.equal(PipeStatus.clean)
+    t.expect(pipe.status).to.equal(PipeStatus.unassembled)
     let runProm = pipe.run(1) as Promise<number>
     t.expect(pipe.status).to.equal(PipeStatus.piping)
     await manualPipe.next(manualPipe.input)
@@ -94,6 +93,7 @@ class TestCustomIOPipe extends CustomIOPipe<CustomIOType, number> {
       TestCustomIOPipe.prototype.defaultType = this.defaultType
     }
     TestCustomIOPipe.prototype.doAsyncIO = this.asyncIO
+    //@ts-ignore
     let pipe = super.makeUnderTestPipe(...pipeArgs)
     if (oldDefaultType !== unsetDefaultTypeSymbol)
       TestCustomIOPipe.prototype.defaultType = oldDefaultType

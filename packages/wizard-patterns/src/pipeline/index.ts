@@ -1,25 +1,48 @@
+import { CachedReturn } from 'wizard-decorators'
+
 export enum PipeStatus {
+  unassembled = -2,
   clean = -1,
   piping = 0,
   piped = 1,
 }
 
-export abstract class Pipe<inputT = any, outputT = inputT, initArgsT extends any = any> {
+export type PipeOpts = {
+  waitForAsync?: boolean
+}
+
+export abstract class Pipe<inputT = any, outputT = inputT, initArgsT extends any = any, initOptsT extends PipeOpts = PipeOpts> {
   public waitForAsync: boolean = true
-  public input: inputT = null
-  public output: outputT = null
-  public initArgs: initArgsT = null
+  public input: inputT
+  public output: outputT
+  public readonly initArgs: Partial<initArgsT> = {}
+  public readonly initOpts: Partial<initOptsT> = {}
   
-  constructor(args?: initArgsT, opts: {waitForAsync?: boolean} = {}) {
-    this.initArgs = args
+  constructor(args?: initArgsT, opts?: initOptsT) {
+    this.initArgs = args || []
+    this.initOpts = opts || {}
+    this.parseInitOpts(this.initOpts)
+  }
+  
+  protected parseInitOpts(opts: Partial<initOptsT>) {
     if (opts.waitForAsync !== undefined)
       this.waitForAsync = opts.waitForAsync
   }
 
-  protected readonly initialStatus: PipeStatus = PipeStatus.clean
-  private statusWaiters = new PipeStatusWaiters(this.initialStatus)
-  private _status: PipeStatus = this.initialStatus
+  protected readonly assemblable: boolean = false
+  protected readonly shouldAssembleOnRun: boolean = false
+  @CachedReturn protected get initialStatus(): PipeStatus {
+    return this.assemblable
+      ? PipeStatus.unassembled
+      : PipeStatus.clean
+  }
+  @CachedReturn private get statusWaiters() {
+    return new PipeStatusWaiters(this.initialStatus)
+  }
+  private _status: PipeStatus
   public get status() {
+    if (this._status === undefined)
+      this._status = this.initialStatus
     return this._status
   }
 
@@ -32,13 +55,57 @@ export abstract class Pipe<inputT = any, outputT = inputT, initArgsT extends any
     return this.statusWaiters.waitFor(status)
   }
 
+  public beAssembled(delegate: any) {}
+
+  public assemble() {
+    this.verifyAssemblability()
+    this._assemble()
+    this.status = PipeStatus.clean
+    return this
+  }
+
+  private assembledInputHooks: Array<(inputT) => any> = []
+  protected assembleInputHook(cb: (inputT) => any) { this.addAssembledHook(cb, this.assembledInputHooks) }
+  private runAssembledInputHooks(input: inputT) { this.runAssembledHooks(input, this.assembledInputHooks) }
+  private assembledOutputHooks: Array<(inputT) => any> = []
+  protected assembleOutputHook(cb: (outputT) => any) { this.addAssembledHook(cb, this.assembledOutputHooks) }
+  private runAssembledOutputHooks(output: outputT) { this.runAssembledHooks(output, this.assembledOutputHooks) }
+  private addAssembledHook(hook, hooks) {
+    this.verifyAssemblability()
+    hooks.push(hook)
+  }
+  private runAssembledHooks(value, hooks) {
+    for (let hook of hooks) hook(value)
+  }
+
+  private verifyAssemblability() {
+    if (this.assemblable === false || this.status !== PipeStatus.unassembled)
+      throw new Error(`Can't assemble assembled pipe`)
+  }
+
+  protected _assemble(): void {}
+
   public run(input?: inputT): outputT | Promise<outputT> {
-    this.input = input
-    this.status = PipeStatus.piping
+    this.startRun(input)
     let piped = this.pipeOverride ? this.pipeOverride.run(input) : this.pipe(input)
     return this.shouldWaitFor(piped)
       ? piped.then(output => this.endRun(output))
       : this.endRun(piped)
+  }
+  
+  protected startRun(input: inputT) {
+    this.assembleIfShould()
+    this.input = input
+    this.status = PipeStatus.piping
+    this.runAssembledInputHooks(this.input)
+  }
+
+  private assembleIfShould() {
+    let shouldAssemble = this.assemblable
+      && this.shouldAssembleOnRun
+      && this.status === PipeStatus.unassembled
+    if (shouldAssemble)
+      this.assemble()
   }
 
   protected shouldWaitFor(thing: outputT | Promise<outputT>): thing is Promise<outputT> {
@@ -48,6 +115,7 @@ export abstract class Pipe<inputT = any, outputT = inputT, initArgsT extends any
   private endRun(output: outputT) {
     this.output = output
     this.status = PipeStatus.piped
+    this.runAssembledOutputHooks(this.output)
     return output
   }
 

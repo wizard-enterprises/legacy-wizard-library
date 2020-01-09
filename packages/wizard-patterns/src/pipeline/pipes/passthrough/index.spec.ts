@@ -5,6 +5,10 @@ import { PassThroughPipe } from '.'
 @SubSuite(Pipes) class PassThrough extends PipeSuite<PassThroughPipe> {
   protected underTest = PassThroughPipe
 
+  // makeUnderTestPipe(args, opts) {
+  //   return super.makeUnderTestPipe(args[0], opts)
+  // }
+
   @Test() 'pass through only'(t) {
     t.expect(this.pipe(5)).to.equal(5)
   }

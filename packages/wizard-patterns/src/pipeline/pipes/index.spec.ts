@@ -8,22 +8,22 @@ export abstract class PipeSuite<UnderTest extends Pipe = Pipe> extends TestSuite
   protected abstract underTest: new (...args: any[]) => UnderTest
 
   protected lastPipe: UnderTest = null
-  protected pipe(input?, ...pipeArgs) {
-    return (this.lastPipe || this.makePipeAndSetLast(false, ...pipeArgs)).run(input)
+  protected pipe(input?, pipeArgs = undefined, pipeOpts = {}) {
+    return (this.lastPipe || this.makePipeAndSetLast(false, pipeArgs, pipeOpts)).run(input)
   }
 
-  protected makePipe(...pipeArgs) {
-    return this.makePipeAndSetLast(true, ...pipeArgs)
+  protected makePipe(pipeArgs = undefined, pipeOpts = {}) {
+    return this.makePipeAndSetLast(true, pipeArgs, pipeOpts)
   }
 
-  private makePipeAndSetLast(shouldSetLast: boolean, ...pipeArgs) {
-    let pipe = this.makeUnderTestPipe(...pipeArgs)
+  private makePipeAndSetLast(shouldSetLast: boolean, pipeArgs, pipeOpts) {
+    let pipe = this.makeUnderTestPipe(pipeArgs, pipeOpts)
     if (shouldSetLast) this.lastPipe = pipe
     return pipe
   }
-
-  protected makeUnderTestPipe(...pipeArgs) {
-    return new this.underTest(...pipeArgs)
+  
+  protected makeUnderTestPipe(pipeArgs, pipeOpts) {
+    return new this.underTest(pipeArgs, pipeOpts)
   }
 }
 
