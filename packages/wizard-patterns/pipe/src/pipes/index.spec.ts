@@ -1,8 +1,9 @@
-import { Suite, Test, TestSuite } from 'polymorphic-tests'
+import { Suite, Test, TestSuite, SubSuite } from 'polymorphic-tests'
 import { ManualPipe } from '.'
-import { Pipe, PipeStatus } from '..'
+import { Pipe, PipeStatus } from '../abstract'
+import { WizardPipeline } from '../index.spec'
 
-@Suite() export class Pipes extends TestSuite {}
+@SubSuite(WizardPipeline) export class Pipes extends TestSuite {}
 
 export abstract class PipeSuite<UnderTest extends Pipe = Pipe> extends TestSuite {
   protected abstract underTest: new (...args: any[]) => UnderTest
@@ -32,7 +33,7 @@ export abstract class PipeSuite<UnderTest extends Pipe = Pipe> extends TestSuite
 
   @Test() async 'track pipe status'(t) {
     let pipe = this.makePipe()
-    t.expect(pipe.status).to.equal(PipeStatus.clean)
+    t.expect(pipe.status).to.equal(PipeStatus.unassembled)
     for (let i of [1, 2]) {
       let runProm = pipe.run(5 + i)
       t.expect(pipe.status).to.equal(PipeStatus.piping)
@@ -45,7 +46,7 @@ export abstract class PipeSuite<UnderTest extends Pipe = Pipe> extends TestSuite
   @Test() async 'wait for status'(t) {
     t.timeout = 50
     let pipe = this.makePipe()
-    await pipe.waitForStatus(PipeStatus.clean)
+    await pipe.waitForStatus(PipeStatus.unassembled)
     pipe.run(5)
     await pipe.waitForStatus(PipeStatus.piping)
     await pipe.next(pipe.input + 10)

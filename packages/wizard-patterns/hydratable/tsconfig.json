@@ -4,6 +4,7 @@
   ],
   "exclude": [
     "test",
+    "./src/**/*.spec.ts",
     "node_modules"
   ],
   "compilerOptions": {
@@ -16,8 +17,8 @@
     "baseUrl": "./lib",
     "typeRoots": [
       "types",
-      "../../node_modules/@types",
-      "../../../node_modules/@types"
+      "../../../node_modules/@types",
+      "../../../../node_modules/@types"
     ],
     "declaration": true,
     "declarationDir": "lib",

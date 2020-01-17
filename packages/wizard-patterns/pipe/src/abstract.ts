@@ -29,8 +29,8 @@ export abstract class Pipe<inputT = any, outputT = inputT, initArgsT extends any
       this.waitForAsync = opts.waitForAsync
   }
 
-  protected readonly assemblable: boolean = false
-  protected readonly shouldAssembleOnRun: boolean = false
+  protected readonly assemblable: boolean = true
+  protected readonly shouldAssembleOnRun: boolean = true
   @CachedReturn protected get initialStatus(): PipeStatus {
     return this.assemblable
       ? PipeStatus.unassembled

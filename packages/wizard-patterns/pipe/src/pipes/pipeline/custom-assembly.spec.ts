@@ -1,12 +1,13 @@
 import { SubSuite, Test } from 'polymorphic-tests'
 import { Pipeline } from '.'
-import { PipeStatus } from '../..'
+import { PipeStatus } from '../../abstract'
 import { PipeSuite } from '../index.spec'
 import { TransformPipe } from '../transform'
 import { Pipeline as PipelineSuite } from './index.spec'
 
 class AssemblyPipeline extends Pipeline {
   protected readonly assemblable = true
+  protected readonly shouldAssembleOnRun = false
   public didAssemble = this['didAssemble'] || false
   protected _assemble(TransformPipeCtor = TransformPipe) {
     this.didAssemble = true

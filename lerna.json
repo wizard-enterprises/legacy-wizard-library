@@ -2,7 +2,9 @@
   "packages": [
     "packages/*",
     "!packages/wizard-components",
-    "packages/wizard-components/*"
+    "packages/wizard-components/*",
+    "!packages/wizard-patterns",
+    "packages/wizard-patterns/*"
   ],
   "version": "independent",
   "npmClient": "yarn",

@@ -1,4 +1,4 @@
-import { Pipe, PipeStatus, PipeOpts } from '../..'
+import { Pipe, PipeStatus, PipeOpts } from '../../abstract'
 import { PassThroughPipe } from '../passthrough'
 import { WrappedPipe, ManualWrappedPipe } from '../wrapped'
 import { TransformPipe } from '../transform'

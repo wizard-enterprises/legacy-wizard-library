@@ -1,4 +1,4 @@
-import { Pipe } from '../..'
+import { Pipe } from '../../abstract'
 
 export class ManualPipe<inputT = any, outputT = inputT> extends Pipe<inputT, outputT> {
   public input: inputT

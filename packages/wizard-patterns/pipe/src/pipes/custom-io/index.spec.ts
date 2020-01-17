@@ -3,7 +3,7 @@ import { Pipes, PipeSuite } from '../index.spec'
 import { CustomIOPipe, CustomIOPipeFactoryResult } from '.'
 import { TransformPipe } from '../transform'
 import { ManualPipe } from '../manual'
-import { PipeStatus } from '../..'
+import { PipeStatus } from '../../abstract'
 
 enum CustomIOType {
   type1, type2, type3,

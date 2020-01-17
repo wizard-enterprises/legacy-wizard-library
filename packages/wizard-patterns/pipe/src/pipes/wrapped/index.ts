@@ -1,4 +1,4 @@
-import { Pipe, PipeOpts } from '../..'
+import { Pipe, PipeOpts } from '../../abstract'
 import { Pipeline } from '../pipeline'
 import { PassThroughPipe } from '../passthrough'
 

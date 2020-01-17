@@ -1,4 +1,4 @@
-import { Pipe, PipeOpts } from '../..'
+import { Pipe, PipeOpts } from '../../abstract'
 type PipelineOpts = PipeOpts & {}
 
 export class Pipeline<inputT = any, outputT = inputT, P extends Pipe = Pipe, assemblyDelegateT = any> extends Pipe<inputT, outputT, P[], PipelineOpts> {
@@ -26,7 +26,7 @@ export class Pipeline<inputT = any, outputT = inputT, P extends Pipe = Pipe, ass
 
   pipe(initial?: inputT) {
     this.verifyValidStartFrom()
-    return <outputT>(this.shouldStartAtEnd()
+    return <outputT | Promise<outputT>>(this.shouldStartAtEnd()
       ? this.getPipelineEndOutput(initial)
       : this.runPipes(initial))
   }
@@ -48,8 +48,13 @@ export class Pipeline<inputT = any, outputT = inputT, P extends Pipe = Pipe, ass
   }
 
   private getPipelineEndOutput(defaultValue) {
-    let value = this.pipes[this.pipes.length - 1].output
-    return [undefined].includes(value) ? defaultValue : value
+    let value = defaultValue
+    if (this.pipes.length) {
+      let lastPipeOutput = this.pipes[this.pipes.length - 1].output
+      if (lastPipeOutput !== undefined)
+        value = lastPipeOutput
+    }
+    return value
   }
 
   private runPipes(input) {

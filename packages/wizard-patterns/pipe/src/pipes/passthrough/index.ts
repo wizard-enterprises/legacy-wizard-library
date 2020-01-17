@@ -1,4 +1,4 @@
-import { Pipe, PipeOpts } from '../..'
+import { Pipe, PipeOpts } from '../../abstract'
 
 export class PassThroughPipe<inputT = any, outputT = inputT> extends Pipe<inputT, outputT, Promise<any> | ((value: inputT) => any)> {
   constructor(protected callback?: Promise<any> | ((value: inputT) => any), opts: PipeOpts = {}) {
