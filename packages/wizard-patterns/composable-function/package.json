@@ -1,0 +1,37 @@
+{
+  "name": "wizard-composable-function",
+  "version": "0.1.0",
+  "description": "> TODO: description",
+  "author": "Eden <eden@wizard.enterprises>",
+  "homepage": "https://github.com/wizard-enterprises/wizard-library#readme",
+  "license": "ISC",
+  "main": "lib/index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "files": [
+    "lib"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wizard-enterprises/wizard-library.git"
+  },
+  "scripts": {
+    "test": "polytest run",
+    "build": "rm -rf lib && tsc",
+    "prepare": "npm run build"
+  },
+  "bugs": {
+    "url": "https://github.com/wizard-enterprises/wizard-library/issues"
+  },
+  "devDependencies": {
+    "polymorphic-tests": "^0.2.4",
+    "polymorphic-web-component-tests": "^0.1.8",
+    "ts-node": "^8.5.2",
+    "typescript": "^3.7.2"
+  },
+  "dependencies": {
+    "wizard-utils": "^0.0.15"
+  },
+  "gitHead": "739119084d06a0be7dfbd9fc2a0d2eb0f831bad4"
+}
