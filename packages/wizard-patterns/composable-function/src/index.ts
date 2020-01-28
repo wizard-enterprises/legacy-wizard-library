@@ -29,6 +29,7 @@ export enum Strategies {
 function makeStrategyOfType(type: keyof typeof Strategies, ...opts: any[]) {
   switch (type) {
     case Strategies.argsBuilder:
+      //@ts-ignore
       return new ArgsBuilderStrategy(...opts)
     case Strategies.flat:
       return new FlatStrategy(...opts)
