@@ -5,7 +5,9 @@
   "workspaces": [
     "packages/*",
     "!packages/wizard-components",
-    "packages/wizard-components/*"
+    "packages/wizard-components/*",
+    "!packages/wizard-patterns",
+    "packages/wizard-patterns/*"
   ],
   "scripts": {
     "test": "lerna run test"
