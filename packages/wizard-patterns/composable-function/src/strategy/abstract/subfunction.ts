@@ -15,7 +15,9 @@ export abstract class SubFunctionStrategy<SubFunction extends Function = Functio
     let self = this
     return {
       get(target, propName) {
-        return self.getSubFunction(propName, target)
+        return self.toCompose.hasOwnProperty(propName)
+          ? self.getSubFunction(propName, target)
+          : target[propName]
       }
     }
   }

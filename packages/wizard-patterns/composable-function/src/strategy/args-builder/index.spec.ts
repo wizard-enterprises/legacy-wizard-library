@@ -1,9 +1,9 @@
 import { SubSuite, Test } from 'polymorphic-tests'
-import { ComposableFunction, ComposableFunctionSuite } from '../abstract/index.spec'
+import { Strategies as _Strategies, ComposableFunctionSuite } from '../abstract/index.spec'
 import { Strategies } from '../..'
 import { makeFunctionFromStringified } from 'wizard-utils'
 
-@SubSuite(ComposableFunction) export class ArgsBuilderComposition extends ComposableFunctionSuite {
+@SubSuite(_Strategies) export class ArgsBuilderComposition extends ComposableFunctionSuite {
   strategy = Strategies.argsBuilder
 
   getCalc() {

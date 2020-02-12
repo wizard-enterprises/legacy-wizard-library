@@ -1,9 +1,9 @@
 import { Suite, TestSuite, SubSuite, Test } from 'polymorphic-tests'
-import { makeComposableFunction, Strategies } from '../..'
+import { makeComposableFunction, Strategies as _Strategies } from '../..'
 
-@Suite() export class ComposableFunction extends TestSuite {}
+@Suite() export class Strategies extends TestSuite {}
 export abstract class ComposableFunctionSuite extends TestSuite {
-  abstract strategy: Strategies
+  abstract strategy: _Strategies
   protected composeArgs: any[]//[Function, ...any[]]
   protected funcCallArgs: any[] = []
   

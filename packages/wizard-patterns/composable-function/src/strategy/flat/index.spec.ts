@@ -1,8 +1,8 @@
-import { Suite, Test } from 'polymorphic-tests'
-import { ComposableFunctionSuite } from '../abstract/index.spec'
+import { SubSuite, Test } from 'polymorphic-tests'
+import { Strategies as _Strategies, ComposableFunctionSuite } from '../abstract/index.spec'
 import { Strategies, compose } from '../..'
 
-@Suite() class FlatComposition extends ComposableFunctionSuite {
+@SubSuite(_Strategies) class FlatComposition extends ComposableFunctionSuite {
   strategy = Strategies.flat
   @Test() 'function works when composing nothing'(t) {
     this.composeArgs = [x => x * 2]
