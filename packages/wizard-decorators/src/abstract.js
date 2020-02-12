@@ -49,24 +49,26 @@ export function getTypeForDisplay(type, plural = false) {
 export class Decorator {
   static withArgs = false
   supportedTypes = []
+  args
 
-  constructor() {
-    // In constructor to also bind decorate overrides
-    this.decorate = this.decorate.bind(this)
+  constructor(bindDecorate = true) {
+    if (bindDecorate)
+      // In constructor to also bind decorate overrides
+      this.decorate = this.decorate.bind(this)
   }
 
   decorate(...args) {
-    let _decorate = ((...args) => {
-      let type = this.getActualType(...args)
-      if (this.doesSupport(type) === false)
-        throw this.getUnsupportedDecorateeError(type)
-      return this.decorateByType(type, ...args)
-    }).bind(this)
+    let self = this,
+      _decorate = (...args) => {
+        let type = self.getActualType(...args)
+        if (self.doesSupport(type) === false)
+          throw self.getUnsupportedDecorateeError(type)
+        return self.decorateByType(type, ...args)
+      }
     if (this.constructor.withArgs === false)
       return _decorate(...args)
     this.args = args
     return ((...args) => _decorate(...args)).bind(this)
-    // return ((...args) => this.decorateByType(type, ...args)).bind(this)
   }
 
   getActualType(...args) {

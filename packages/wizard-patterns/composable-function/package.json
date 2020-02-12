@@ -31,6 +31,7 @@
     "typescript": "^3.7.2"
   },
   "dependencies": {
+    "wizard-decorators": "^1.0.6",
     "wizard-utils": "^0.0.15"
   },
   "gitHead": "739119084d06a0be7dfbd9fc2a0d2eb0f831bad4"

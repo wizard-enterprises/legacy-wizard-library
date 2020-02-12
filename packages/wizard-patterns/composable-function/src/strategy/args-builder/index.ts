@@ -10,21 +10,25 @@ export class ArgsBuilderStrategy extends SubFunctionStrategy {
   protected getCloneArgs() {
     return [...super.getCloneArgs(), this.config]
   }
-
-  protected subFunctionGetter(func, name) {
-    let superGetter = super.subFunctionGetter(func, name)
-    return () => {
-      this.argBuilders.push(func)
-      return superGetter()
-    }
+  
+  protected getSubFunction(name, target) {
+    let toCompose = this.toCompose[name]
+    this.argBuilders.push((...args) => toCompose(...args))
+    return super.getSubFunction(name, target)
   } 
 
-  protected wrapSubFunction() {
-    let wrapped = (...passedArgs) =>
-      this.baseFunction(...this.buildArgs(...passedArgs))
-    if (this.config.recursive)
-      this.clone().composeOn(wrapped)
-    return wrapped
+  protected wrapSubFunction(func, name, target) {
+    let wrapped = this.getArgWrappedFunc(target)
+    return this.config.recursive
+      ? this.clone().composeOn(wrapped)
+      : wrapped
+  }
+
+  protected getArgWrappedFunc(target) {
+    let self = this
+    return function (...passedArgs) {
+      return self.getBaseFunction().call(target, ...self.buildArgs(...passedArgs))
+    }
   }
 
   protected buildArgs(...passedArgs) {

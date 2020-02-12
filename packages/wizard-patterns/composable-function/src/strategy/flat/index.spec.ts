@@ -1,8 +1,8 @@
-import { SubSuite, Test } from 'polymorphic-tests'
-import { ComposableFunction, ComposableFunctionSuite } from '../abstract/index.spec'
-import { Strategies } from '../..'
+import { Suite, Test } from 'polymorphic-tests'
+import { ComposableFunctionSuite } from '../abstract/index.spec'
+import { Strategies, compose } from '../..'
 
-@SubSuite(ComposableFunction) class FlatComposition extends ComposableFunctionSuite {
+@Suite() class FlatComposition extends ComposableFunctionSuite {
   strategy = Strategies.flat
   @Test() 'function works when composing nothing'(t) {
     this.composeArgs = [x => x * 2]
@@ -12,17 +12,27 @@ import { Strategies } from '../..'
 
   @Test() 'simple composition'(t) {
     this.composeArgs = [
-      [{
+      {
         by3: x => x * 3,
         by4: x => x * 4,
-      }],
-      x => x * 2,
+      },
     ]
-    let func = this.compose(...this.composeArgs)
-    t.expect(func(2)).to.equal(4)
-    t.expect(func.by3.name).to.equal('by3')
-    t.expect(func.by3(2)).to.equal(6)
-    t.expect(func.by4(2)).to.equal(8)
+    let func = x => x * 2
+    @compose.klass class K {
+      @compose.compose(this.strategy, ...this.composeArgs)
+      func(x) {return func(x)}
+    }
+
+    let funcs = [
+      this.compose(this.composeArgs, func),
+      (new K).func,
+    ]
+    for (let func of funcs) {
+      t.expect(func(2)).to.equal(4)
+      t.expect(func.by3.name).to.equal('by3')
+      t.expect(func.by3(2)).to.equal(6)
+      t.expect(func.by4(2)).to.equal(8)
+    }
   }
 
   @Test() 'accept null func to throw on direct calls'(t) {
@@ -39,6 +49,4 @@ import { Strategies } from '../..'
     t.expect(func).to.throw(
       `Can't be called directly, use one of .foo, .bar`)
   }
-
-  protected workingSubFunctionDef
 }

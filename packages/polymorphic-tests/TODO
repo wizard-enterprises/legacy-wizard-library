@@ -79,5 +79,5 @@ Next release:
     ☐ Run multiple failing suites and bail after first failure
     ☐ Run multiple failing suites and stop suite after first contained failed test
     ☐ Run multiple failing suites and run all tests regardless of failure
-  ☐ Add decorators for only/skip (Possibly as @Test.only.skip())
+  ✔ Add decorators for only/skip (Possibly as @Test.only.skip()) @done(20-02-12 14:02)
   ☐ Make fancy reporter

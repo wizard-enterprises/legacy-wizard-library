@@ -2,39 +2,34 @@ import { Strategy } from '../abstract'
 import { makeNamed } from 'wizard-utils'
 
 export abstract class SubFunctionStrategy<SubFunction extends Function = Function> extends Strategy {
+  protected composed = {}
   constructor(protected toCompose: {[key: string]: SubFunction} = {}) {
     super()
-  }
-
-  clone(): this {
-    //@ts-ignore
-    return new this.constructor(...this.getCloneArgs())
   }
 
   protected getCloneArgs() {
     return [this.toCompose]
   }
 
-  protected baseFunction: Function
-  composeOn(baseFunc: Function) {
-
-    this.baseFunction = baseFunc
-    for (let [name, func] of Object.entries(this.toCompose))
-      this.composeFuncOnto(baseFunc, name, func)
+  getProxyHandler() {
+    let self = this
+    return {
+      get(target, propName) {
+        return self.getSubFunction(propName, target)
+      }
+    }
   }
 
-  protected composeFuncOnto(target: Function, name: string, func: SubFunction) {
-    Object.defineProperty(target, name, {
-      get: this.subFunctionGetter(func, name),
-    })
+  protected getSubFunction(name: string, target) {
+    return this.composed[name] || (
+      this.composed[name] =
+        this.wrapSubFunction(this.toCompose[name], name, target)
+    )
   }
 
-  protected subFunctionGetter(func: SubFunction, name: string) {
-    let wrapped = null
-    return () => wrapped = wrapped || this.wrapSubFunction(func, name)
+  protected wrapSubFunction(func: SubFunction, name: string, target): Function {
+    return makeNamed(name, func)
   }
-
-  protected abstract wrapSubFunction(func: SubFunction, name: string): Function
 
   getIllegalBaseFunctionCallErrorMessage() {
     let superMessage = super.getIllegalBaseFunctionCallErrorMessage(),

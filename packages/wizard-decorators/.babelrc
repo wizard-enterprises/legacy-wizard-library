@@ -1,5 +1,5 @@
 {
-  "sourceMaps": "inline",
+  "sourceMaps": "both",
   "presets": [
     ["@babel/preset-env", { "targets": ["current node", { "esmodules": true }] }]
   ],

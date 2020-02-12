@@ -3,7 +3,7 @@ import { ComposableFunction, ComposableFunctionSuite } from '../abstract/index.s
 import { Strategies } from '../..'
 import { makeFunctionFromStringified } from 'wizard-utils'
 
-@SubSuite(ComposableFunction) class ArgsBuilderComposition extends ComposableFunctionSuite {
+@SubSuite(ComposableFunction) export class ArgsBuilderComposition extends ComposableFunctionSuite {
   strategy = Strategies.argsBuilder
 
   getCalc() {

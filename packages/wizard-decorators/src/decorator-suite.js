@@ -1,15 +1,18 @@
 import { Test, TestSuite } from 'polymorphic-tests'
 import { DecorateeType } from './abstract'
 
-export class DecoratorSuite extends TestSuite {
+export class BaseDecoratorSuite extends TestSuite {
   decoratorClass
 
   before(t) {
     this.decorator = new this.decoratorClass
-    this.decorate = this.decorator.decorate
   }
+  get decorate() {
+    return this.decorator.decorate
+  }
+}
 
-
+export class DecoratorSuite extends BaseDecoratorSuite {
   @Test() 'throw when decorating class if unsupported'(t) {
     this.unsupportedTypeTest(t, DecorateeType.class, 'classes', () => {
       @this.decorate

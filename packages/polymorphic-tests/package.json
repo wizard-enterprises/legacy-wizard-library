@@ -29,6 +29,7 @@
     "stream-to-string": "^1.2.0",
     "tap-mocha-reporter": "^5.0.0",
     "tslib": "^1.10.0",
+    "wizard-composable-function": "^0.1.0",
     "wizard-decorators": "^1.0.6",
     "wizard-utils": "^0.0.5",
     "yaml": "^1.7.1"
