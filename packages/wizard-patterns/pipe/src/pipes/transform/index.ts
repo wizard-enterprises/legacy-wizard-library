@@ -1,11 +1,15 @@
-import { Pipe, PipeOpts } from '../../abstract'
+import { Pipe } from '../../abstract'
 
-export class TransformPipe<inputT = any, outputT = inputT> extends Pipe<inputT, outputT, (value: inputT) => outputT | Promise<outputT>> {
-  constructor(protected transformFunc: (value: inputT) => outputT | Promise<outputT>, opts: PipeOpts = {}) {
-    super(transformFunc, opts)
+export class TransformPipe<TInput = any, TOutput = TInput> extends Pipe<TInput, TOutput> {
+  protected transformFunc: (value: TInput) => TOutput | Promise<TOutput>
+  init(transformFunc?: (value: TInput) => TOutput | Promise<TOutput>) {
+    super.init()
+    if (transformFunc) this.transformFunc = transformFunc
+    return this
   }
 
-  pipe(value?: inputT) {
-    return this.transformFunc(value)
+  makeOutput(value?: TInput) {
+    let transformFunc = this.transformFunc ?? (x => x as unknown as TOutput)
+    return transformFunc(value)
   }
 }

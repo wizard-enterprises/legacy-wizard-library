@@ -9,19 +9,15 @@ import { Pipes, PipeSuite } from '../index.spec'
     return super.makeUnderTestPipe(args[0], opts)
   }
 
-  @Test() 'pass through transform'(t) {
-    t.expect(this.pipe(5, [x => x])).to.equal(5)
+  @Test() async 'pass through transform'(t) {
+    t.expect(await this.pipe(5, [x => x])).to.equal(5)
   }
 
-  @Test() 'simple transform'(t) {
-    t.expect(this.pipe(5, [x => x * x])).to.equal(25)
+  @Test() async 'simple transform'(t) {
+    t.expect(await this.pipe(5, [x => x * x])).to.equal(25)
   }
 
   @Test() async 'wait for transform'(t) {
     t.expect(await this.pipe(5, [async x => x * x])).to.equal(25)
-  }
-
-  @Test() async 'transform to promise'(t) {
-    t.expect(this.pipe(5, [async x => x], {waitForAsync: false})).to.be.an.instanceof(Promise)
   }
 }

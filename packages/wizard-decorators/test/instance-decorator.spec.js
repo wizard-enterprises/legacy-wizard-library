@@ -10,12 +10,22 @@ class TestClassInstanceDecorator extends ClassInstanceDecorator {
       bar: {},
     })
   }
+
+  decorateNewInstance(instance) {
+    super.decorateNewInstance(instance)
+    instance.decoratees = []
+  }
 }
 
 class TestInstanceDecorator extends InstanceDecorator {
   decorateOnInstance(instance, name) {
-    instance.decoratees.push(this.name)
-    return super.decorateOnInstance(instance, name)
+    let old = super.decorateOnInstance(instance, name),
+      decoratorName = this.name
+    return () => {
+      let ret = old.call(instance)
+      instance.decoratees.push(decoratorName)
+      return ret
+    }
   }
 }
 
@@ -36,11 +46,14 @@ class InstanceDecoratorSuite extends TestSuite {
       t.expect(this.decorated.decoratees).to.deep.equal(expected)
       this.decorated.decoratees = []
     }
+    t.expectCallChainValue = callChain =>
+      t.expect(callChain.value).to.equal(t.expectedCallChainValue)
+    this.deconstructDecorators(t, this.classInstanceDecoratorCtor)
   }
 
   deconstructDecorators(t, ctor) {
-    let decorator = new ctor,
-      decorators = decorator.getDecorators()
+    t.decoratorInstance = new ctor
+    let decorators = t.decoratorInstance.getDecorators()
     t.decorateClass = decorators.klass
     t.decorateFoo = decorators.foo
     t.decorateBar = decorators.bar
@@ -51,19 +64,46 @@ class InstanceDecoratorSuite extends TestSuite {
   }
   
   @Test() 'simple case'(t) {
-    this.deconstructDecorators(t, this.classInstanceDecoratorCtor)
-    let decorated = this.decorated = this.makeDecorated(t)
+    this.decorated = new (this.makeDecoratedClass(t))().decorateInstance()
+    t.expectedCallChainValue = 5
+    this.testChains(t)
+  }
 
-    decorated.foo()
+  @Test() 'parent implementation works in child'(t) {
+    class ChildDecorated extends this.makeDecoratedClass(t) {
+      value = 10
+    }
+    this.decorated = new ChildDecorated().decorateInstance()
+    t.expectedCallChainValue = 10
+    this.testChains(t)
+  }
+
+  @Test() 'child implementation works in parent'(t) {
+    let decorateFoo = t.decoratorInstance.instanceDecoratorClass.withArgs
+      ? () => t.decorateFoo()
+      : () => t.decorateFoo
+    class ChildDecorated extends this.makeDecoratedClass(t) {
+      @decorateFoo() anotherFoo() { return this }
+    }
+    t.expectedCallChainValue = 5
+    this.decorated = new ChildDecorated().decorateInstance()
+    this.testChains(t)
+    
+    t.expectCallChainValue(this.decorated.anotherFoo())
+    t.expectDecoratees(['foo'])
+  }
+  
+  testChains(t) {
+    t.expectCallChainValue(this.decorated.foo())
     t.expectDecoratees(['foo'])
 
-    decorated.foo().bar()
+    t.expectCallChainValue(this.decorated.foo().bar())
     t.expectDecoratees(['foo', 'bar'])
 
-    decorated.foobar()
+    t.expectCallChainValue(this.decorated.foobar())
     t.expectDecoratees(['foo', 'bar'])
 
-    decorated.foo().bar().foobar().barfoo()
+    t.expectCallChainValue(this.decorated.foo().bar().foobar().barfoo())
     t.expectDecoratees(['foo', 'bar', 'foo', 'bar', 'bar', 'foo'])
   }
 }
@@ -73,29 +113,29 @@ class InstanceDecoratorSuite extends TestSuite {
 @SubSuite(InstanceDecorators) class WithoutArgs extends InstanceDecoratorSuite {
   classInstanceDecoratorCtor = TestClassInstanceDecorator
 
-  makeDecorated(t) {
+  makeDecoratedClass(t) {
     @t.decorateClass class Decorated {
-      decoratees = []
+      value = 5
       @t.decorateFoo foo() { return this }
       @t.decorateBar bar() { return this }
       @t.decorateBar @t.decorateFoo foobar() { return this }
       @t.decorateFoo @t.decorateBar barfoo() { return this }
     }
-    return new Decorated
+    return Decorated
   }
 }
 
 @SubSuite(InstanceDecorators) class WithArgs extends InstanceDecoratorSuite {
   classInstanceDecoratorCtor = TestClassInstanceDecoratorWithArgs
 
-  makeDecorated(t) {
+  makeDecoratedClass(t) {
     @t.decorateClass class Decorated {
-      decoratees = []
+      value = 5
       @t.decorateFoo() foo() { return this }
       @t.decorateBar() bar() { return this }
       @t.decorateBar() @t.decorateFoo() foobar() { return this }
       @t.decorateFoo() @t.decorateBar() barfoo() { return this }
     }
-    return new Decorated
+    return Decorated
   }
 }

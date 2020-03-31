@@ -1,10 +1,11 @@
 import { decorate as CachedReturn } from './cached-return'
 import { DecorateeType as Type, Decorator } from './abstract'
+import { getPrototypical } from 'wizard-utils'
 
+const DECORATION_METADATA_KEY = Symbol('WIZARD_DECORATION_METADATA_KEY')
 export class ClassInstanceDecorator extends Decorator {
   supportedTypes = [Type.class]
   instanceDecorators = {}
-  decoratedParameters = {}
   instanceDecoratorClass = InstanceDecorator
 
   constructor(instanceDecorators) {
@@ -14,27 +15,35 @@ export class ClassInstanceDecorator extends Decorator {
 
   decorateClass(ctor) {
     let self = this
-    return new Proxy(ctor, {
-      construct(target, args) { 
-        return new Proxy(Reflect.construct(target, args), {
-          get(target, prop) {
-            if (self.decoratedParameters.hasOwnProperty(prop) === false)
-              return target[prop]
-            for (let decorator of self.decoratedParameters[prop])
-              target[prop] = decorator.decorateOnInstance(target, prop)
-            return target[prop]
-          }
-        })
+    return class extends ctor {
+      decorateInstance(instance = this) {
+        let decoratedMembers = getPrototypical(instance, DECORATION_METADATA_KEY).reduce((acc, decoration) => {
+          for (let [prop, decorations] of Object.entries(decoration))
+            acc[prop] = [...(acc[prop] ?? []), ...decorations]
+          return acc
+        }, {})
+        self.decorateNewInstance(instance)
+        for (let [prop, decorators] of Object.entries(decoratedMembers))
+          this.decorateMember(instance, prop, decorators)
+        return instance
       }
-    })
+
+      decorateMember(instance, prop, decorators) {
+        let member = instance[prop]
+        for (let decorator of decorators)
+          instance[prop] = member = (decorator(instance, prop) ?? member)
+      }
+    }
   }
+
+  decorateNewInstance(instance) {}
 
   getDecorators() {
     return {
       klass: this.decorate,
       ...Object.entries(this.makeInstanceDecorators())
         .reduce((acc, [name, decorator]) =>
-        ({...acc, [name]: decorator.decorate}), {}),
+          ({...acc, [name]: decorator.decorate}), {}),
     }
   }
 
@@ -49,21 +58,13 @@ export class ClassInstanceDecorator extends Decorator {
     return new this.instanceDecoratorClass(name, this.getInstanceDelegate())
   }
 
-  @CachedReturn
   getInstanceDelegate() {
-    let self = this
-    return {
-      decorated(decoratorName, name, decoratorInstance) {
-        if (self.decoratedParameters[name] === undefined)
-          self.decoratedParameters[name] = []
-        self.decoratedParameters[name].push(decoratorInstance)
-      }
-    }
+    return {}
   }
 }
 
 export class InstanceDecorator extends Decorator {
-  supportedTypes = [Type.instanceMethod, Type.instanceAccessor]
+  supportedTypes = [Type.instanceMethod, Type.instanceAccessor, Type.instanceProperty]
   delegate
   name
 
@@ -73,22 +74,25 @@ export class InstanceDecorator extends Decorator {
     this.delegate = classDecoratorDelegate
   }
 
-  decorate(...args) {
-    let decorated = super.decorate(...args)
-    if (this.constructor.withArgs === false) {
-      this.reportDecorated(args[1])
-      return decorated
-    }
-    return (proto, name, desc) => {
-      let actuallyDecorated = decorated(proto, name, desc)
-      this.reportDecorated(name)
-      return actuallyDecorated
-    }
+  decorateByType(type, ...args) {
+    let [proto, name] = args
+    let decorated = super.decorateByType(type, ...args)
+    this.registerMetadataOnPrototype(proto, name, args[2])
+    return decorated
   }
 
-  reportDecorated(name) {
-    this.delegate.decorated(this.name, name, this)
+  registerMetadataOnPrototype(proto, name, desc) {
+    if (proto.hasOwnProperty(DECORATION_METADATA_KEY) === false)
+      proto[DECORATION_METADATA_KEY] = {}
+    let metadata = proto[DECORATION_METADATA_KEY]
+    this.registerDecoratorMetadata(metadata, name, desc)
   }
+
+  registerDecoratorMetadata(metadata, name, desc) {
+    let decorateeMetadata = metadata[name] = metadata[name] || []
+    decorateeMetadata.push((instance, name) => this.decorateOnInstance(instance, name))
+  }
+
 
   decorateOnInstance(instance, name) {
     return instance[name]

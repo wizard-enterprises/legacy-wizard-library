@@ -8,6 +8,22 @@ export function makeStringEnum<T extends string = string>(
   return members.reduce((acc, member) => ({...acc, [member]: member}), {}) as {T: T}
 }
 
+export function makeNamed(name, thing) {
+  let o = {[name]: thing}
+  return o[name]
+}
+
+export function getPrototypical<Tinstance = any, Tdata = any>(instance: Tinstance, key: string | symbol, upToCtor: new () => any = Object): Tdata[] {
+  let datas: Tdata[] = [],
+    currentProto = Object.getPrototypeOf(instance)
+  while (currentProto && currentProto.constructor !== upToCtor) {
+    if (currentProto.hasOwnProperty(key))
+      datas.push(currentProto[key] as Tdata)
+    currentProto = Object.getPrototypeOf(currentProto)
+  }
+  return datas
+}
+
 export function jsonStringifyWithEscapedCircularRefs(obj: Object) {
   return JSON.stringify(obj, (() => {
     let seen = new WeakSet()

@@ -181,6 +181,11 @@ export abstract class WebComponentSuite extends TestSuite {
     }, utilStrings)
   }
 
+  protected initComponentArgs: any[] = []
+  protected initComponent(element, ...initComponentArgs) {
+    element.id = 'component'
+  }
+
   protected async createComponent(t): Promise<puppeteer.ElementHandle> {
     await this.page.waitForFunction(`Boolean(customElements.get('${this.tag}'))`)
     let waitFuncString = this.waitForReady.toString(),
@@ -189,6 +194,10 @@ export abstract class WebComponentSuite extends TestSuite {
         'error', 'unhandledrejection', 'unhandledRejection', ['loaded', false], ...this.errorEvents,
       ],
       errorEventsAfterRegistrationGenerators = this.waitForEventHandlersRegistrationThenEvents(errorEvents, 'window')
+    await this.page.evaluate(initComponentString =>
+      window['initComponent'] =
+        window['utils'].makeFunctionFromStringified(initComponentString)
+    , this.initComponent.toString())
     await errorEventsAfterRegistrationGenerators.next()
     let element = await Promise.race([
       errorEventsAfterRegistrationGenerators.next().catch(e => {
@@ -196,10 +205,10 @@ export abstract class WebComponentSuite extends TestSuite {
           return
         throw e
       }),
-      this.page.evaluate(async (tag, waitFuncString, ...waitFuncArgs) => {
+      this.page.evaluate(async (tag, waitFuncString, initComponentArgs, waitFuncArgs) => {
         let waitForReady = window['utils'].makeFunctionFromStringified(waitFuncString)
         let el = document.createElement(tag)
-        el.id = 'component'
+        window['initComponent'](el, ...initComponentArgs)
         document.body.appendChild(el)
         customElements.upgrade(el)
         window['element'] = el
@@ -209,7 +218,7 @@ export abstract class WebComponentSuite extends TestSuite {
               return
             throw x
           }))
-      }, this.tag, waitFuncString, ...waitFuncArgs).then(async () => {
+      }, this.tag, waitFuncString, this.initComponentArgs, waitFuncArgs).then(async () => {
         await this.page.waitForSelector(`#${this.componentElementId}`)
         return await this.page.$(`#${this.componentElementId}`)
       }),
@@ -221,7 +230,6 @@ export abstract class WebComponentSuite extends TestSuite {
     return this.component = element
   }
 
-  // protected waitForEvent(event: WindowErrorRegistration, selector: 'window', isGlobalVar?: false)
   protected async waitForEvent(event: WindowErrorRegistration, selector: string = `#${this.componentElementId}`, isGlobalVar: boolean = false) {
     let generator = this.waitForEventHandlersRegistrationThenEvents([event], selector, isGlobalVar)
     await generator.next()

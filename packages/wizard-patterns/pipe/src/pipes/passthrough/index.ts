@@ -1,18 +1,21 @@
-import { Pipe, PipeOpts } from '../../abstract'
+import { Pipe } from '../../abstract'
 
-export class PassThroughPipe<inputT = any, outputT = inputT> extends Pipe<inputT, outputT, Promise<any> | ((value: inputT) => any)> {
-  constructor(protected callback?: Promise<any> | ((value: inputT) => any), opts: PipeOpts = {}) {
-    super(callback, opts)
+export class PassThroughPipe<TInput = any, TOutput = TInput> extends Pipe<TInput, TOutput> {
+  protected callback: Promise<any> | ((value: TInput) => any)
+  init(callback?: Promise<any> | ((value: TInput) => any)) {
+    super.init()
+    this.callback = callback
+    return this
   }
 
-  pipe(input?: inputT) {
+  makeOutput(input?: TInput) {
     let callback = this.callOrWaitForCallback(input)
     return callback instanceof Promise
-      ? callback.then(() => input) as Promise<outputT>
-      : input as unknown as outputT
+      ? callback.then(() => input) as Promise<TOutput>
+      : input as unknown as TOutput
   }
 
-  private callOrWaitForCallback(input?: inputT) {
+  private callOrWaitForCallback(input?: TInput) {
     let cb = this.callback
     if (cb instanceof Promise)
       return cb

@@ -9,17 +9,22 @@ import { PassThroughPipe } from '.'
   //   return super.makeUnderTestPipe(args[0], opts)
   // }
 
-  @Test() 'pass through only'(t) {
-    t.expect(this.pipe(5)).to.equal(5)
+  @Test() async 'throw leaked error'(t) {
+    await t.expect(this.pipe(5, () => Promise.reject(Error('some error'))))
+      .to.eventually.be.rejectedWith('some error')
   }
 
-  @Test() 'pass through with action'(t) {
+  @Test() async 'pass through only'(t) {
+    t.expect(await this.pipe(5)).to.equal(5)
+  }
+
+  @Test() async 'pass through with action'(t) {
     let calledWith = null
     this.makePipe(x => calledWith = x)
     t.expect(calledWith).to.equal(null)
-    this.pipe(5)
+    await this.pipe(5)
     t.expect(calledWith).to.equal(5)
-    this.pipe(10)
+    await this.pipe(10)
     t.expect(calledWith).to.equal(10)
   }
 

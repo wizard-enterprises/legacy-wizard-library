@@ -72,12 +72,10 @@ export class Decorator {
   }
 
   getActualType(...args) {
-    if (args.length === 1 && isConstructor(args[0]))
+    let isStatic = isConstructor(args[0])
+    if (isStatic && args.length === 1)
       return Type.class
     if (args.length === 3 && (isPrototype(args[0]) || isConstructor(args[0])) && `${args[1]}` === args[1]) {
-      let isStatic = isConstructor(args[0])
-      if (isParameterDescriptor(args[2]))
-        return isStatic ? Type.staticProperty : Type.instanceProperty
       if (isMethodDescriptor(args[2]))
         return isStatic ? Type.staticMethod : Type.instanceMethod
       if (isAccessorDescriptor(args[2])) {
@@ -91,6 +89,8 @@ export class Decorator {
         if (isStatic === false && isGetter === false)
           return Type.instanceSetter
       }
+      if (args[2] === args[0] || args[2] === undefined || isParameterDescriptor(args[2]))
+        return isStatic ? Type.staticProperty : Type.instanceProperty
     }
     throw new Error(`Could not understand what ${this.constructor.name} is decorating. Got arguments: [` + args.map(a => `${a}`).join(', ') + ']')
   }
@@ -105,7 +105,7 @@ export class Decorator {
   @bind
   getActualTypesOfType(type) {
     let mergeTypes = (...types) =>
-        Array.from(new Set(types.map(this.getActualTypesOfType).flat()))
+      Array.from(new Set(types.map(this.getActualTypesOfType).flat()))
     switch (type) {
       case Type.all:
         return [type, ...mergeTypes(Type.class, Type.property, Type.method, Type.accessor)]
@@ -158,12 +158,12 @@ export class Decorator {
   }
 
   decorateClass(ctor) { return ctor }
-  decorateProperty(protoOrCtor, name, descriptor) { return protoOrCtor }
+  decorateProperty(protoOrCtor, name, descriptor) {}// return protoOrCtor }
   decorateInstanceProperty(proto, name, descriptor) {
-    return this.decorateProperty(proto, name, descriptor)
+    this.decorateProperty(proto, name, descriptor)
   }
   decorateStaticProperty(ctor, name, descriptor) {
-    return this.decorateProperty(ctor, name, descriptor)
+    this.decorateProperty(ctor, name, descriptor)
   }
   decorateMethod(protoOrCtor, name, descriptor) { return protoOrCtor }
   decorateInstanceMethod(proto, name, descriptor) {
@@ -212,28 +212,31 @@ function isConstructor(func) {
 }
 
 function isAccessorDescriptor(obj) {
-  return isPropertyDescriptor(obj)
+  return isDescriptor(obj)
     && (!obj.get || obj.get instanceof Function)
     && (!obj.set || obj.set instanceof Function)
+    && !(!obj.set && !obj.get)
 }
 
 function isParameterDescriptor(obj) {
-  return isPropertyDescriptor(obj)
-    && obj.initializer === null
-    || (
-      typeof obj.initializer === 'function'
-      && obj.initializer.name === 'initializer'
+  return isDescriptor(obj)
+    && 'value' in obj || (
+      obj.initializer === null
+      || (
+        typeof obj.initializer === 'function'
+        && obj.initializer.name === 'initializer'
+      )
     )
 }
 
 function isMethodDescriptor(obj) {
-  return isPropertyDescriptor(obj)
+  return isDescriptor(obj)
     && typeof obj.value === 'function'
 }
 
-function isPropertyDescriptor(obj) {
+function isDescriptor(obj) {
   return obj
-    && typeof obj.configurable === 'boolean'
-    && typeof obj.enumerable === 'boolean'
-    && typeof obj.writable === 'boolean' || !obj.writable
+    && (typeof obj.configurable) === 'boolean'
+    && (typeof obj.enumerable) === 'boolean'
+    && ((typeof obj.writable) === 'boolean' || !obj.writable)
 }

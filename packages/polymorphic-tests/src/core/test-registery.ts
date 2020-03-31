@@ -4,6 +4,7 @@ import { GlobalSuite } from '../suite/global'
 import { PolymorphicSuite } from '../suite/polymorphic'
 import { PolymorphicTestMethod } from '../test-method/polymorphic'
 import { TestEntityIdStore } from './abstract-test-entity'
+import { getPrototypical } from 'wizard-utils'
 
 export class TestEntityRegistery {
   private suites: TestSuite[] = []
@@ -64,12 +65,6 @@ export class TestEntityRegistery {
   }
 
   private getConstructorsFromBaseTestClassToSuite(suite: TestSuite) {
-    let ctors = [],
-      currentProto = Object.getPrototypeOf(suite)
-    while (currentProto && currentProto.constructor !== TestSuite) {
-      ctors.push(currentProto.constructor)
-      currentProto = Object.getPrototypeOf(currentProto)
-    }
-    return ctors as (new () => TestSuite)[]
+    return getPrototypical<TestSuite, new () => TestSuite>(suite, 'constructor', TestSuite)
   }
 }

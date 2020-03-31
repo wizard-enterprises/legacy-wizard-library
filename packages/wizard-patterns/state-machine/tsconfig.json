@@ -1,0 +1,35 @@
+{
+  "include": [
+    "./src/**/*.ts"
+  ],
+  "exclude": [
+    "test",
+    "./src/**/*.spec.ts",
+    "node_modules"
+  ],
+  "compilerOptions": {
+    "target": "es2018",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "lib": [
+       "dom", "es2017"
+    ],
+    "baseUrl": "./lib",
+    "typeRoots": [
+      "types",
+      "../../../node_modules/@types",
+      "../../../../node_modules/@types"
+    ],
+    "declaration": true,
+    "declarationDir": "lib",
+    "outDir": "./lib",
+    "strict": true,
+    "esModuleInterop": true,
+    "noImplicitAny": false,
+    "strictNullChecks": false,
+    "downlevelIteration": true,
+    "inlineSourceMap": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
+  }
+}

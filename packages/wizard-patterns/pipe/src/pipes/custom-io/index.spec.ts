@@ -1,9 +1,7 @@
 import { SubSuite, Test } from 'polymorphic-tests'
-import { Pipes, PipeSuite } from '../index.spec'
 import { CustomIOPipe, CustomIOPipeFactoryResult } from '.'
+import { Pipes, PipeSuite } from '../index.spec'
 import { TransformPipe } from '../transform'
-import { ManualPipe } from '../manual'
-import { PipeStatus } from '../../abstract'
 
 enum CustomIOType {
   type1, type2, type3,
@@ -11,6 +9,7 @@ enum CustomIOType {
 
 class SimpleNumberIO implements CustomIOPipeFactoryResult {
   constructor(private doAsyncIO: boolean, private addToInput: number, private addToOutput: number) {}
+
   input(input) {
     return this.add(input, this.addToInput)
   }
@@ -26,6 +25,7 @@ class SimpleNumberIO implements CustomIOPipeFactoryResult {
 
 class TestCustomIOPipe extends CustomIOPipe<CustomIOType, number> {
   doAsyncIO: boolean
+
 
   factory(type) {
     switch (type) {
@@ -47,45 +47,37 @@ class TestCustomIOPipe extends CustomIOPipe<CustomIOType, number> {
   protected asyncIO: boolean = false
 
   @Test() 'throw when no type or default type'(t) {
-    t.expect(() => this.makePipe()).to.throw('custom IO pipe instantiated with no type or default type')
+    t.expect(() => this.makePipeOfType()).to.throw('custom IO pipe instantiated with no type or default type')
   }
 
   @Test() 'allow instantiation without type when default type specified'(t) {
     this.defaultType = CustomIOType.type1
-    t.expect(() => this.makePipe()).not.to.throw()
+    t.expect(() => this.makePipeOfType()).not.to.throw()
   }
 
-  @Test() 'do io by type'(t) {
-    t.expect(this.makePipe(CustomIOType.type1).run(1)).to.equal(91)
-    t.expect(this.makePipe(CustomIOType.type2).run(2)).to.equal(182)
-    t.expect(this.makePipe(CustomIOType.type3).run(3)).to.equal(273)
+  @Test() async 'do io by type'(t) {
+    t.expect(await this.makePipeOfType(CustomIOType.type1).run(1)).to.equal(91)
+    t.expect(await this.makePipeOfType(CustomIOType.type2).run(2)).to.equal(182)
+    t.expect(await this.makePipeOfType(CustomIOType.type3).run(3)).to.equal(273)
   }
 
   @Test() async 'do async io'(t) {
     this.asyncIO = true
-    let runProm = this.makePipe(CustomIOType.type1).run(1)
+    let runProm = this.makePipeOfType(CustomIOType.type1).run(1)
     t.expect(runProm).to.be.an.instanceof(Promise)
     t.expect(await runProm).to.equal(91)
   }
 
-  @Test() 'set wrapped pipe externally'(t) {
-    let pipe = this.makePipe(CustomIOType.type1)
-    pipe.ioPipe = new TransformPipe(x => x + 8)
-    t.expect(pipe.run(1)).to.equal(99)
+  @Test() async 'set wrapped pipe externally'(t) {
+    let pipe = this.makePipeOfType(CustomIOType.type1, new TransformPipe().init(x => x + 8))
+    t.expect(await pipe.run(1)).to.equal(99)
   }
 
-  @Test() async 'pipe correctly tracks created pipe status'(t) {
-    let pipe = this.makePipe(CustomIOType.type1),
-      manualPipe = pipe.ioPipe = new ManualPipe
-    t.expect(pipe.status).to.equal(PipeStatus.unassembled)
-    let runProm = pipe.run(1) as Promise<number>
-    t.expect(pipe.status).to.equal(PipeStatus.piping)
-    await manualPipe.next(manualPipe.input)
-    t.expect(pipe.status).to.equal(PipeStatus.piped)
-    t.expect(await runProm).to.equal(91)
+  makePipeOfType(type?: CustomIOType, ...initArgs) {
+    return this.makeUnderTestPipe(initArgs, [type])
   }
 
-  makeUnderTestPipe(...pipeArgs) {
+  makeUnderTestPipe(initArgs, ctorArgs) {
     let unsetDefaultTypeSymbol = Symbol('unset default type'),
       oldDefaultType: any = unsetDefaultTypeSymbol
     if (this.defaultType !== undefined) {
@@ -93,8 +85,7 @@ class TestCustomIOPipe extends CustomIOPipe<CustomIOType, number> {
       TestCustomIOPipe.prototype.defaultType = this.defaultType
     }
     TestCustomIOPipe.prototype.doAsyncIO = this.asyncIO
-    //@ts-ignore
-    let pipe = super.makeUnderTestPipe(...pipeArgs)
+    let pipe = super.makeUnderTestPipe(initArgs, ctorArgs)
     if (oldDefaultType !== unsetDefaultTypeSymbol)
       TestCustomIOPipe.prototype.defaultType = oldDefaultType
     return pipe

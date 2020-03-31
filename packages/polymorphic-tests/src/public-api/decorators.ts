@@ -18,14 +18,25 @@ export class DecoratorConfig {
   }
 }
 
-let composeDecorator = func => makeComposableFunction(
-  Strategies.argsBuilder,
-  [{
-    skip: (args = {}) => [{skip: true, ...args}],
-    only: (args = {}) => [{only: true, ...args}],
-  }],
-  func,
-)
+let addToDecoratorOpts = toAdd => (...passedArgs) => {
+    let optsIndex = 0,
+      args = [...passedArgs]
+    if (args.length === 0) args = [{}]
+    if (Object.getPrototypeOf(args[0]).constructor !== Object) {
+      args[1] = args[1] ?? {}
+      optsIndex = 1
+    }
+    args[optsIndex] = {...toAdd, ...args[optsIndex]}
+    return args
+  },
+  composeDecorator = func => makeComposableFunction(
+    Strategies.argsBuilder,
+    [{
+      skip: addToDecoratorOpts({skip: true}),
+      only: addToDecoratorOpts({only: true}),
+    }],
+    func,
+  )
 
 export interface DecoratorOpts {
   name?: string,
@@ -70,20 +81,3 @@ export function decorateTest(config, opts: TestDecoratorOpts = {}) {
     config.registery.registerTest(suite, suite[testName], testName, {...opts, name: opts.name || testName})
   }
 }
-
-// @compose.klass class TestFrameworkDecorator extends ClassInstanceDecorator {
-//   static withArgs = true
-
-//   @compose.compose(...decoratorOptsComposition) decorate(...args) {
-//     let composed = super.decorate(...args),
-//       self = this
-//     return (...decoratorArgs) => {
-//       self.decorateTestEntity(...self.args)
-//       return composed(...decoratorArgs)
-//     }
-//   }
-
-//   decorateTestEntity(...args) {}
-// }
-
-
