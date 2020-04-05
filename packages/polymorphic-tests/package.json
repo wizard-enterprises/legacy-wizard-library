@@ -1,7 +1,7 @@
 {
   "name": "polymorphic-tests",
   "description": "Polymorphic test framework for JS by Wizard Enterprises.",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "author": "homunculus@wizard.enterprises",
   "bin": {
     "polytest": "./bin/run"
@@ -29,9 +29,9 @@
     "stream-to-string": "^1.2.0",
     "tap-mocha-reporter": "^5.0.0",
     "tslib": "^1.10.0",
-    "wizard-composable-function": "^0.1.0",
-    "wizard-decorators": "^1.0.6",
-    "wizard-utils": "^0.0.15",
+    "wizard-composable-function": "^0.1.1",
+    "wizard-decorators": "^1.0.7",
+    "wizard-utils": "^0.0.16",
     "yaml": "^1.7.1"
   },
   "devDependencies": {

@@ -1,6 +1,6 @@
 {
   "name": "wizard-state-machine",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "> TODO: description",
   "author": "Eden <eden@wizard.enterprises>",
   "homepage": "https://github.com/wizard-enterprises/wizard-library#readme",
@@ -25,8 +25,8 @@
     "url": "https://github.com/wizard-enterprises/wizard-library/issues"
   },
   "devDependencies": {
-    "polymorphic-tests": "^0.2.4",
-    "polymorphic-web-component-tests": "^0.1.8",
+    "polymorphic-tests": "^0.2.5",
+    "polymorphic-web-component-tests": "^0.1.9",
     "rxjs": "^6.5.4",
     "ts-node": "^8.5.2",
     "typescript": "^3.7.2"
@@ -34,8 +34,8 @@
   "gitHead": "739119084d06a0be7dfbd9fc2a0d2eb0f831bad4",
   "dependencies": {
     "lodash": "^4.17.15",
-    "wizard-composable-function": "^0.1.0",
-    "wizard-decorators": "^1.0.6",
+    "wizard-composable-function": "^0.1.1",
+    "wizard-decorators": "^1.0.7",
     "xstate": "^4.7.8"
   }
 }
