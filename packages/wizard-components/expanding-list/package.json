@@ -1,7 +1,7 @@
 {
   "name": "wizard-expanding-list",
   "version": "0.1.1",
-  "description": "> TODO: description",
+  "description": "Simple list with configurable item input.",
   "author": "Eden <eden@wizard.enterprises>",
   "homepage": "https://github.com/wizard-enterprises/wizard-library#readme",
   "license": "ISC",

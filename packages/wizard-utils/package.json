@@ -1,5 +1,6 @@
 {
   "name": "wizard-utils",
+  "description": "Various utilities used by other packages.",
   "version": "0.0.16",
   "author": "Eden <eden@wizard.enterprises>",
   "license": "ISC",

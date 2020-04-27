@@ -1,7 +1,7 @@
 {
   "name": "wizard-composable-function",
   "version": "0.1.1",
-  "description": "> TODO: description",
+  "description": "Easy and convenient tooling for composing functions with function properties.",
   "author": "Eden <eden@wizard.enterprises>",
   "homepage": "https://github.com/wizard-enterprises/wizard-library#readme",
   "license": "ISC",

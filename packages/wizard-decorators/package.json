@@ -1,5 +1,6 @@
-{
+{ 
   "name": "wizard-decorators",
+  "description": "Easy and convenient typing and tooling for JS/TS decorator creation.",
   "version": "1.0.7",
   "author": "Eden <eden@wizard.enterprises>",
   "license": "ISC",

@@ -1,5 +1,6 @@
 {
-  "name": "root",
+  "name": "wizard-library",
+  "description": "Monorepo of all non-secretive wizard tooling and other various enterprising.",
   "version": "0.0.1",
   "private": true,
   "workspaces": [
@@ -10,7 +11,8 @@
     "packages/wizard-patterns/*"
   ],
   "scripts": {
-    "test": "lerna run test"
+    "test": "lerna run test",
+    "generate:readme": "node scripts/generate-readme.js"
   },
   "devDependencies": {
     "lerna": "^3.18.3",

@@ -1,6 +1,6 @@
 export * from '..'
 
-// Must be duplicate to maintain serializability of functions
+// Has to be used as literal to maintain serializability of functions
 // const errorSerializationKeys = ['message', 'arguments', 'type', 'name', 'stack']
 
 export function makeWindowErrorSerializable(e) {

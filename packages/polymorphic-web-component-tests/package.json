@@ -1,5 +1,6 @@
 {
   "name": "polymorphic-web-component-tests",
+  "description": "Abstract test suite with tooling for testing custom web components.",
   "version": "0.1.9",
   "author": "Eden <eden@wizard.enterprises>",
   "license": "ISC",
