@@ -1,7 +1,7 @@
-{ 
+{
   "name": "wizard-decorators",
   "description": "Easy and convenient typing and tooling for JS/TS decorator creation.",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "author": "Eden <eden@wizard.enterprises>",
   "license": "ISC",
   "main": "lib/index.js",
@@ -26,12 +26,12 @@
     "@babel/preset-env": "^7.6.3",
     "@babel/register": "^7.6.2",
     "core-js": "^3.3.6",
-    "polymorphic-tests": "^0.2.5"
+    "polymorphic-tests": "^0.2.6"
   },
   "dependencies": {
     "bind-decorator": "^1.0.11",
-    "wizard-composable-function": "^0.1.1",
-    "wizard-utils": "^0.0.16"
+    "wizard-composable-function": "^0.1.2",
+    "wizard-utils": "^0.0.17"
   },
   "gitHead": "739119084d06a0be7dfbd9fc2a0d2eb0f831bad4"
 }

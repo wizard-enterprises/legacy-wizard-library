@@ -1,6 +1,6 @@
 {
   "name": "wizard-pipes",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Modular logical data IO pipes and pipelines.",
   "author": "Eden <eden@wizard.enterprises>",
   "homepage": "https://github.com/wizard-enterprises/wizard-library#readme",
@@ -27,14 +27,14 @@
   },
   "devDependencies": {
     "chai-as-promised": "^7.1.1",
-    "polymorphic-tests": "^0.2.5",
-    "polymorphic-web-component-tests": "^0.1.9",
+    "polymorphic-tests": "^0.2.6",
+    "polymorphic-web-component-tests": "^0.1.10",
     "ts-node": "^8.5.2",
     "typescript": "^3.7.2"
   },
   "dependencies": {
     "rxjs": "^6.5.4",
-    "wizard-state-machine": "^0.1.1"
+    "wizard-state-machine": "^0.1.2"
   },
   "gitHead": "739119084d06a0be7dfbd9fc2a0d2eb0f831bad4"
 }

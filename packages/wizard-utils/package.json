@@ -1,7 +1,7 @@
 {
   "name": "wizard-utils",
   "description": "Various utilities used by other packages.",
-  "version": "0.0.16",
+  "version": "0.0.17",
   "author": "Eden <eden@wizard.enterprises>",
   "license": "ISC",
   "main": "lib/index.js",

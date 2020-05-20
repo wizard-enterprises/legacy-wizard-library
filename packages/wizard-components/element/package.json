@@ -1,6 +1,6 @@
 {
   "name": "wizard-element",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Abstract element class (mostly just to wrap LitElement).",
   "author": "Eden <eden@wizard.enterprises>",
   "homepage": "https://github.com/wizard-enterprises/wizard-library#readme",
@@ -26,13 +26,13 @@
   },
   "dependencies": {
     "lit-element": "^2.2.1",
-    "wizard-decorators": "^1.0.7",
-    "wizard-element": "^0.1.1",
+    "wizard-decorators": "^1.0.8",
+    "wizard-element": "^0.1.2",
     "wizard-patterns": "^0.1.4"
   },
   "devDependencies": {
-    "polymorphic-tests": "^0.2.5",
-    "polymorphic-web-component-tests": "^0.1.9",
+    "polymorphic-tests": "^0.2.6",
+    "polymorphic-web-component-tests": "^0.1.10",
     "ts-node": "^8.5.2",
     "typescript": "^3.7.2"
   },

@@ -1,6 +1,6 @@
 {
   "name": "wizard-composable-function",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Easy and convenient tooling for composing functions with function properties.",
   "author": "Eden <eden@wizard.enterprises>",
   "homepage": "https://github.com/wizard-enterprises/wizard-library#readme",
@@ -25,14 +25,14 @@
     "url": "https://github.com/wizard-enterprises/wizard-library/issues"
   },
   "devDependencies": {
-    "polymorphic-tests": "^0.2.5",
-    "polymorphic-web-component-tests": "^0.1.9",
+    "polymorphic-tests": "^0.2.6",
+    "polymorphic-web-component-tests": "^0.1.10",
     "ts-node": "^8.5.2",
     "typescript": "^3.7.2"
   },
   "dependencies": {
-    "wizard-decorators": "^1.0.7",
-    "wizard-utils": "^0.0.16"
+    "wizard-decorators": "^1.0.8",
+    "wizard-utils": "^0.0.17"
   },
   "gitHead": "739119084d06a0be7dfbd9fc2a0d2eb0f831bad4"
 }
