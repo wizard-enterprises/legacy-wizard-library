@@ -55,3 +55,11 @@ export function makeFunctionFromStringified(funcString) {
   }
   return new Function(`return (${funcString}).apply(this.window || this.global || this || null, arguments)`)
 }
+
+export function makeCopyrightBlurb(name, creationYear) {
+  let currentYear = new Date().getFullYear(),
+    copyrightYears = creationYear === currentYear
+      ? currentYear
+      : `${creationYear} - ${currentYear}`
+  return `${name} ${copyrightYears}`
+}
