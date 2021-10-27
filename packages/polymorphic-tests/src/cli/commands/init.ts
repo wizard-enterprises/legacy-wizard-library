@@ -51,7 +51,7 @@ export default class Init extends Command {
       await fs.writeFile(packageJsonPath, JSON.stringify(packageJson, null, 2))
     }
     else if (doesTestScriptUseCli === false)
-      successMessage += ', change package.json#scripts.test to "polytest run"'
+      successMessage += ', set the value of package.json#scripts.test to "polytest run"'
     console.log(successMessage)
   }
 
