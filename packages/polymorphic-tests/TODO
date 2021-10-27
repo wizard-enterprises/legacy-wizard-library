@@ -66,15 +66,14 @@ Current release:
 ✔ Add component lifecycle protected hook in WebComponentSuite to wait for component initialization and capture any async errors @done(19-11-20 13:21)
 
 Next release:
+  ☐ Fix project init in the CLI, and improve.
+    ☐ Add everything necessary to install into a new or existing project 
   ☐ Enter to rerun in watch mode
   ☐ Skipped tests (at least via only) get timeout errors when proceeding tests time out (probably)
   ☐ Figure out what to do with:
     ☐ Failed tests with an after hook that also fails. Which error to report?
   ✔ Run meta tests directly without stupid hack @done(19-11-20 13:21)
-  ☐ Add assertion reporting
-    ☐ Run test with passing assertions
-    ☐ Run test with failing assertion
-    ☐ Add lifecycle hooks to suite
+  ☐ Add informative reporting based on assertions
   ☐ Add failure modes
     ☐ Run multiple failing suites and bail after first failure
     ☐ Run multiple failing suites and stop suite after first contained failed test
