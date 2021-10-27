@@ -97,8 +97,8 @@ class InstanceDecoratorSuite extends TestSuite {
     t.expectCallChainValue(this.decorated.foo())
     t.expectDecoratees(['foo'])
 
-    t.expectCallChainValue(this.decorated.foo().bar())
-    t.expectDecoratees(['foo', 'bar'])
+    t.expectCallChainValue(this.decorated.bar().foo())
+    t.expectDecoratees(['bar', 'foo'])
 
     t.expectCallChainValue(this.decorated.foobar())
     t.expectDecoratees(['foo', 'bar'])

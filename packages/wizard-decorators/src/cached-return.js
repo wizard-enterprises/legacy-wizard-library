@@ -7,23 +7,22 @@ export class CachedReturn extends Decorator {
   supportedTypes = [Type.class, Type.method, Type.getter]
 
   decorateClass(ctor) {
-    let singletonProxyHandler = {
-      construct: (target, args) => {
-        return this.getSingletonCtor(target)
-      }
-    }
-    let proxy = new Proxy(ctor, singletonProxyHandler)
+    let proxy = this.getSingletonProxy(ctor)
     Object.defineProperty(proxy, 'getInstance', {
       value: () => new proxy,
     })
     return proxy
   }
 
-  getSingletonCtor(ctor) {
-    return ctor[INSTANCE] =
-      ctor[INSTANCE] instanceof ctor
-        ? ctor[INSTANCE]
-        : new ctor
+  getSingletonProxy(ctor) {
+    return new Proxy(ctor, {
+      construct: (target, args) => {
+        return ctor[INSTANCE] =
+          ctor[INSTANCE] instanceof ctor
+            ? ctor[INSTANCE]
+            : new ctor
+      }
+    })
   }
 
   decorateMethod(proto, name, descriptor) {
@@ -32,17 +31,7 @@ export class CachedReturn extends Decorator {
   
   getCachedMethod(proto, name, descriptor) {
     let method = descriptor.value
-    return function(...args) {
-      if (!this[CACHED]) this[CACHED] = {}
-      if (this[CACHED][name] === undefined) this[CACHED][name] = {
-        ran: false,
-      }
-      if (this[CACHED][name].ran === false) this[CACHED][name] = {
-        ran: true,
-        value: method.call(this, ...args),
-      }
-      return this[CACHED][name].value
-    }
+    return this.cachedFunction(name, method)
   }
         
   decorateGetter(protoOrCtor, name, descriptor) {
@@ -51,14 +40,18 @@ export class CachedReturn extends Decorator {
 
   getCachedGetter(protoOrCtor, name, descriptor) {
     let getter = descriptor.get
-    return function() {
+    return this.cachedFunction(name, getter)
+  }
+
+  cachedFunction(name, func) {
+    return function(...args) {
       if (!this[CACHED]) this[CACHED] = {}
       if (this[CACHED][name] === undefined) this[CACHED][name] = {
         ran: false,
       }
       if (this[CACHED][name].ran === false) this[CACHED][name] = {
         ran: true,
-        value: getter.call(this),
+        value: func.call(this, ...args),
       }
       return this[CACHED][name].value
     }
