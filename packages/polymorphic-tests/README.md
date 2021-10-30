@@ -43,7 +43,7 @@ Tests are written in classes extending `TestSuite`, and must both `extend TestSu
 *Note: test methods may always return a promise to be awaited.*
 
 ```ts
-import {Test, Suite, TestSuite} from 'polymorphic-tests'
+import { Test, Suite, TestSuite } from 'polymorphic-tests'
 
 @Suite() class MySuite extends TestSuite {
   @Test() '1 + 1 = 2'(t) {
@@ -62,7 +62,7 @@ function add(x, y) {
 Test suites can contain other test suites.
 
 ```ts
-import {Test, Suite, SubSuite, TestSuite} from 'polymorphic-tests'
+import { Test, Suite, SubSuite, TestSuite } from 'polymorphic-tests'
 
 @Suite() class Calculator extends TestSuite {
   @Test() 'calculator exists'(t) {
@@ -101,7 +101,7 @@ The `skip` flag skips the decorated test entity and any children it might have, 
 
 So for example:
 ```ts
-import {Test, Suite, SubSuite, TestSuite} from 'polymorphic-tests'
+import { Test, Suite, SubSuite, TestSuite } from 'polymorphic-tests'
 
 @Suite() class RootWithEntitiesWithFlags extends TestSuite {
   @Test() 'skipped because of sibling suite with only'(t) {}
@@ -127,7 +127,7 @@ Every test suite exposes these hook methods for extending. It's good practice to
 *Note: hook methods may always return a promise to be awaited.*
 
 ```ts
-import {Test, Suite, TestSuite} from 'polymorphic-tests'
+import { Test, Suite, TestSuite } from 'polymorphic-tests'
 
 @Suite() class MySuite extends TestSuite {
   static onDecorate() {
@@ -162,7 +162,7 @@ Test suites being implemented as classes allows sharing all sorts of common boil
 Another use for extending `TestSuite` is inheriting tests, in addition to boilerplate.
 
 ```ts
-import {Test, Suite, TestSuite} from 'polymorphic-tests'
+import { Test, Suite, TestSuite } from 'polymorphic-tests'
 
 abstract class CustomTestSuite extends TestSuite {
   abstract testString: string
@@ -177,8 +177,8 @@ abstract class CustomTestSuite extends TestSuite {
 At this point, by design, no tests will run. This is because `CustomTestSuite` wasn't decorated with the `Suite` or `SubSuite` decorators for registration, so our test has no parent. This allows us to do this:
 
 ```ts
-import {Test, Suite} from 'polymorphic-tests'
-import {CustomTestSuite} from '...'
+import { Test, Suite } from 'polymorphic-tests'
+import { CustomTestSuite } from '...'
 
 @Suite() class FirstSuite extends CustomTestSuite {
   testString = 'foo'
