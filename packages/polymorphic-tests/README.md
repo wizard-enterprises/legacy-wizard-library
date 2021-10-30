@@ -47,7 +47,7 @@ import { Test, Suite, TestSuite } from 'polymorphic-tests'
 
 @Suite() class MySuite extends TestSuite {
   @Test() '1 + 1 = 2'(t) {
-    t.expect(add(1, 1).to.equal(2)
+    t.expect(add(1, 1)).to.equal(2)
   }
 }
 
