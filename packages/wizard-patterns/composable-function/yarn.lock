@@ -638,10 +638,10 @@ bluebird@^3.5.5:
   resolved "https://registry.yarnpkg.com/bluebird/-/bluebird-3.7.2.tgz#9f229c15be272454ffa973ace0dbee79a1b0c36f"
   integrity sha512-XpNj6GDQzdfW+r2Wnn7xiSAd7TM3jzkxGXBGTtWKuSXv1xUV+azxAm8jdWZN06QTQk+2N2XB9jRDkvbmQmcRtg==
 
-bn.js@^4.0.0, bn.js@^4.1.0, bn.js@^4.1.1, bn.js@^4.4.0:
-  version "4.11.8"
-  resolved "https://registry.yarnpkg.com/bn.js/-/bn.js-4.11.8.tgz#2cde09eb5ee341f484746bb0309b3253b1b1442f"
-  integrity sha512-ItfYfPLkWHUjckQCk8xC+LwxgK8NYcXywGigJgSwOP8Y2iyWT4f2vsZnoOXTTbo+o5yXmIUJ4gn5538SO5S3gA==
+bn.js@^4.0.0, bn.js@^4.1.0, bn.js@^4.1.1, bn.js@^4.11.9:
+  version "4.12.0"
+  resolved "https://registry.yarnpkg.com/bn.js/-/bn.js-4.12.0.tgz#775b3f278efbb9718eec7361f483fb36fbbfea88"
+  integrity sha512-c98Bf3tPniI+scsdk237ku1Dc3ujXQTSgyiPUDEOe7tRkhrqridvh8klBv0HCEso1OLOYcHuCv/cS6DNxKH+ZA==
 
 body-parser@1.19.0:
   version "1.19.0"
@@ -690,7 +690,7 @@ braces@^3.0.1:
   dependencies:
     fill-range "^7.0.1"
 
-brorand@^1.0.1:
+brorand@^1.0.1, brorand@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/brorand/-/brorand-1.1.0.tgz#12c25efe40a45e3c323eb8675a0a0ce57b22371f"
   integrity sha1-EsJe/kCkXjwyPrhnWgoM5XsiNx8=
@@ -1210,17 +1210,17 @@ ee-first@1.1.1:
   integrity sha1-WQxhFWsK4vTwJVcyoViyZrxWsh0=
 
 elliptic@^6.0.0:
-  version "6.5.2"
-  resolved "https://registry.yarnpkg.com/elliptic/-/elliptic-6.5.2.tgz#05c5678d7173c049d8ca433552224a495d0e3762"
-  integrity sha512-f4x70okzZbIQl/NSRLkI/+tteV/9WqL98zx+SQ69KbXxmVrmjwsNUPn/gYJJ0sHvEak24cZgHIPegRePAtA/xw==
+  version "6.5.4"
+  resolved "https://registry.yarnpkg.com/elliptic/-/elliptic-6.5.4.tgz#da37cebd31e79a1367e941b592ed1fbebd58abbb"
+  integrity sha512-iLhC6ULemrljPZb+QutR5TQGB+pdW6KGD5RSegS+8sorOZT+rdQFbsQFJgvN3eRqNALqJer4oQ16YvJHlU8hzQ==
   dependencies:
-    bn.js "^4.4.0"
-    brorand "^1.0.1"
+    bn.js "^4.11.9"
+    brorand "^1.1.0"
     hash.js "^1.0.0"
-    hmac-drbg "^1.0.0"
-    inherits "^2.0.1"
-    minimalistic-assert "^1.0.0"
-    minimalistic-crypto-utils "^1.0.0"
+    hmac-drbg "^1.0.1"
+    inherits "^2.0.4"
+    minimalistic-assert "^1.0.1"
+    minimalistic-crypto-utils "^1.0.1"
 
 emoji-regex@^7.0.1:
   version "7.0.3"
@@ -1761,7 +1761,7 @@ hash.js@^1.0.0, hash.js@^1.0.3:
     inherits "^2.0.3"
     minimalistic-assert "^1.0.1"
 
-hmac-drbg@^1.0.0:
+hmac-drbg@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/hmac-drbg/-/hmac-drbg-1.0.1.tgz#d2745701025a6c775a6c545793ed502fc0c649a1"
   integrity sha1-0nRXAQJabHdabFRXk+1QL8DGSaE=
@@ -1855,7 +1855,7 @@ inflight@^1.0.4:
     once "^1.3.0"
     wrappy "1"
 
-inherits@2, inherits@2.0.4, inherits@^2.0.1, inherits@^2.0.3, inherits@~2.0.1, inherits@~2.0.3:
+inherits@2, inherits@2.0.4, inherits@^2.0.1, inherits@^2.0.3, inherits@^2.0.4, inherits@~2.0.1, inherits@~2.0.3:
   version "2.0.4"
   resolved "https://registry.yarnpkg.com/inherits/-/inherits-2.0.4.tgz#0fa2c64f932917c3433a0ded55363aae37416b7c"
   integrity sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==
@@ -2315,7 +2315,7 @@ minimalistic-assert@^1.0.0, minimalistic-assert@^1.0.1:
   resolved "https://registry.yarnpkg.com/minimalistic-assert/-/minimalistic-assert-1.0.1.tgz#2e194de044626d4a10e7f7fbc00ce73e83e4d5c7"
   integrity sha512-UtJcAD4yEaGtjPezWuO9wC4nwUnVH/8/Im3yEHQP4b67cXlD/Qr9hdITCU1xDbSEXg2XKNaP8jsReV7vQd00/A==
 
-minimalistic-crypto-utils@^1.0.0, minimalistic-crypto-utils@^1.0.1:
+minimalistic-crypto-utils@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/minimalistic-crypto-utils/-/minimalistic-crypto-utils-1.0.1.tgz#f6c00c1c0b082246e5c4d99dfb8c7c083b2b582a"
   integrity sha1-9sAMHAsIIkblxNmd+4x8CDsrWCo=
@@ -2697,10 +2697,10 @@ pkg-up@^3.1.0:
   dependencies:
     find-up "^3.0.0"
 
-polymorphic-tests@^0.2.4:
-  version "0.2.4"
-  resolved "https://registry.yarnpkg.com/polymorphic-tests/-/polymorphic-tests-0.2.4.tgz#7f34d55c024893f2506d283a8632b1734f5eef11"
-  integrity sha512-/Lm3SLpd+arXuZgWlOZKyDi+o7yJKR9knmNxl1hXDY7hyZAs2xwR0/kX+OIkTMlHw+BDwoDsTfmWc+MOfDDAow==
+polymorphic-tests@^0.2.6:
+  version "0.2.6"
+  resolved "https://registry.yarnpkg.com/polymorphic-tests/-/polymorphic-tests-0.2.6.tgz#527d55cdb79deb7381b3a25f827152eff3b17313"
+  integrity sha512-hq/GegvQfyOWkZp4hRiZltjlYB93x7znb02v1dLiZHPj4PKL7c30wPGPjMcB6pPhrIzZBrOpU5C4ak3ryUgbXA==
   dependencies:
     "@oclif/command" "^1.5.19"
     "@oclif/config" "^1.13.3"
@@ -2723,14 +2723,15 @@ polymorphic-tests@^0.2.4:
     stream-to-string "^1.2.0"
     tap-mocha-reporter "^5.0.0"
     tslib "^1.10.0"
-    wizard-decorators "^1.0.6"
-    wizard-utils "^0.0.5"
+    wizard-composable-function "^0.1.2"
+    wizard-decorators "^1.0.8"
+    wizard-utils "^0.0.17"
     yaml "^1.7.1"
 
-polymorphic-web-component-tests@^0.1.8:
-  version "0.1.8"
-  resolved "https://registry.yarnpkg.com/polymorphic-web-component-tests/-/polymorphic-web-component-tests-0.1.8.tgz#80e154bfbe3374bd5d0565d55da3a51877162018"
-  integrity sha512-QUOTHtT3nyTp6OXLUY3P3J+tUNRQz4KPrL//0DHiCJG18qZcV9rxKh399hVMjwjJXc9Gy3/08X0Nv5PdQ0WDew==
+polymorphic-web-component-tests@^0.1.10:
+  version "0.1.10"
+  resolved "https://registry.yarnpkg.com/polymorphic-web-component-tests/-/polymorphic-web-component-tests-0.1.10.tgz#20c8dd0c0e168534069cca71cd7c816b15f80917"
+  integrity sha512-sUdmxt7Glm9F8qad3f9wwKVERa4e8+DucelBfY/nkW8S4IZG75KdW+ow2IsORcR16oSR0GR19u9jzevtzK5HhQ==
   dependencies:
     "@babel/core" "^7.7.2"
     "@babel/generator" "^7.6.4"
@@ -2745,7 +2746,7 @@ polymorphic-web-component-tests@^0.1.8:
     typescript "^3.7.2"
     webpack "^4.41.2"
     wise-inspection "^1.0.1"
-    wizard-decorators "^1.0.6"
+    wizard-decorators "^1.0.8"
     wizard-utils "^0.0.5"
 
 posix-character-classes@^0.1.0:
@@ -3737,18 +3738,27 @@ wise-inspection@^1.0.1:
   dependencies:
     bindings "^1.2.1"
 
-wizard-decorators@^1.0.6:
-  version "1.0.6"
-  resolved "https://registry.yarnpkg.com/wizard-decorators/-/wizard-decorators-1.0.6.tgz#06b2c50543c9f27e6251d1b3b5b19faff0df6c6e"
-  integrity sha512-2BE9zvJJKMbP1rtzHBTA4/1dejW6iUE8XbbXefiy6D7etcq0S+sK/gmsDkBax02VojglJ4gIg0g3Mj7aAJmBVA==
+wizard-composable-function@^0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/wizard-composable-function/-/wizard-composable-function-0.1.2.tgz#e060eae1f67d789c04cdae6ad2202e2927762494"
+  integrity sha512-uf0VEnoWPKM8nxfBYPjyQ7okEQMXS7svWg8gZ8GgQ+IGg/3626zx28GEAKw+tdWcGldQoXPzCvLhPOWfTc+CBQ==
+  dependencies:
+    wizard-decorators "^1.0.8"
+    wizard-utils "^0.0.17"
+
+wizard-decorators@^1.0.8:
+  version "1.0.8"
+  resolved "https://registry.yarnpkg.com/wizard-decorators/-/wizard-decorators-1.0.8.tgz#30048efa45c1f593c25adadb59f898379ce9ee4c"
+  integrity sha512-yTo1UuiRzYkyIJAXkdmycRZ1Qdg7JTxdT7MmOtW84TDFs72AzPGLdqUQMAG6Lo32D1uHpG+39bsJAs3WT/eKYw==
   dependencies:
     bind-decorator "^1.0.11"
-    wizard-utils "^0.0.5"
+    wizard-composable-function "^0.1.2"
+    wizard-utils "^0.0.17"
 
-wizard-utils@^0.0.15:
-  version "0.0.15"
-  resolved "https://registry.yarnpkg.com/wizard-utils/-/wizard-utils-0.0.15.tgz#61d80f7394a4d2b8d1221098b4cbce6d82e75b53"
-  integrity sha512-Npw7w0J0dCGxoM0ranubLkXfqOGi30GxM0XmS2julAr7XzCJnMDRxe03syoHvrYAy8k2ePxVokMQZMH3MvsjGg==
+wizard-utils@^0.0.17:
+  version "0.0.17"
+  resolved "https://registry.yarnpkg.com/wizard-utils/-/wizard-utils-0.0.17.tgz#e90c25bb6af80ab18a0a826cd6cb390f31fe3db7"
+  integrity sha512-yTxkDN3XYSSc5jt/RXTqmiT0qdglLPDu0nQlYn+kYgExrEI+/a9Mb+QImmpqsUZkZXyQOiVEnxlxtu92fwcqpg==
   dependencies:
     get-caller-file "^2.0.5"
 
